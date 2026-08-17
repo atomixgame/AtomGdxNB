@@ -6,7 +6,11 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Shared DRY UI utilities and styling tokens for AtomGDX editors and viewers.
@@ -31,15 +35,62 @@ public final class DarkThemeUtils {
     public static final Color AXIS_Y = new Color(75, 190, 85);           // Green
     public static final Color AXIS_Z = new Color(65, 140, 230);          // Blue
 
+    private static final Map<String, ImageIcon> ICON_CACHE = new HashMap<>();
+
     public static ImageIcon getFatcowIcon(String name) {
+        if (name == null || name.isEmpty()) return createFallbackIcon("?");
+        if (ICON_CACHE.containsKey(name)) return ICON_CACHE.get(name);
+
         try {
-            URL url = DarkThemeUtils.class.getResource("/com/atomgdx/theme/icons/" + name);
-            if (url == null) {
-                url = DarkThemeUtils.class.getResource("icons/" + name);
+            // 1. Classpath core icons
+            URL url = DarkThemeUtils.class.getResource("/com/atomgdx/core/icons/" + name);
+            if (url == null) url = DarkThemeUtils.class.getResource("/com/atomgdx/theme/icons/" + name);
+            if (url == null) url = DarkThemeUtils.class.getResource("icons/" + name);
+            if (url != null) {
+                ImageIcon icon = new ImageIcon(url);
+                ICON_CACHE.put(name, icon);
+                return icon;
             }
-            if (url != null) return new ImageIcon(url);
+
+            // 2. Direct Dev path fallback
+            File devFatcow = new File("G:/Dev/Resources/fatcow-master/16x16/" + name);
+            if (devFatcow.exists()) {
+                ImageIcon icon = new ImageIcon(devFatcow.getAbsolutePath());
+                ICON_CACHE.put(name, icon);
+                return icon;
+            }
         } catch (Throwable ignored) {}
-        return null;
+
+        // 3. Dynamic crisp 16x16 icon generator fallback
+        ImageIcon fallback = createFallbackIcon(name);
+        ICON_CACHE.put(name, fallback);
+        return fallback;
+    }
+
+    private static ImageIcon createFallbackIcon(String name) {
+        BufferedImage img = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = img.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        Color c = new Color(44, 93, 212);
+        if (name.contains("red") || name.contains("x") || name.contains("delete")) c = AXIS_X;
+        else if (name.contains("green") || name.contains("y") || name.contains("play")) c = AXIS_Y;
+        else if (name.contains("blue") || name.contains("z") || name.contains("cube")) c = AXIS_Z;
+        else if (name.contains("sun") || name.contains("gold")) c = new Color(234, 179, 8);
+
+        g2.setColor(c);
+        g2.fillRoundRect(1, 1, 14, 14, 3, 3);
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 9));
+
+        String letter = name.substring(0, 1).toUpperCase();
+        FontMetrics fm = g2.getFontMetrics();
+        int x = (16 - fm.stringWidth(letter)) / 2;
+        int y = (16 - fm.getHeight()) / 2 + fm.getAscent();
+        g2.drawString(letter, x, y);
+
+        g2.dispose();
+        return new ImageIcon(img);
     }
 
     public static JTextField createCompactTextField() {
@@ -58,103 +109,141 @@ public final class DarkThemeUtils {
     public static JSpinner createCompactSpinner(float val, float min, float max, float step) {
         JSpinner sp = new JSpinner(new SpinnerNumberModel(val, min, max, step));
         sp.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        JComponent editor = sp.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
+            tf.setBackground(BG_INPUT);
+            tf.setForeground(TEXT_PRIMARY);
+            tf.setCaretColor(TEXT_PRIMARY);
+            tf.setBorder(new EmptyBorder(1, 2, 1, 2));
+        }
+        sp.setBorder(new LineBorder(BORDER, 1));
+        sp.setPreferredSize(new Dimension(55, 20));
         return sp;
     }
 
-    public static JPanel createPropContainer(String labelText) {
+    public static JPanel createPropContainer(String label) {
         JPanel r = new JPanel(new BorderLayout(4, 0));
         r.setOpaque(false);
         r.setMaximumSize(new Dimension(500, 22));
-        JLabel lbl = new JLabel(labelText);
+
+        JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lbl.setForeground(TEXT_SECONDARY);
         lbl.setPreferredSize(new Dimension(75, 20));
+
         r.add(lbl, BorderLayout.WEST);
         return r;
     }
 
-    public static JPanel createSinglePropRow(String label, JComponent comp) {
-        JPanel r = createPropContainer(label);
-        r.add(comp, BorderLayout.CENTER);
+    public static JPanel createVector2Row(String rowLabel, String l1, JSpinner sp1, String l2, JSpinner sp2) {
+        JPanel r = new JPanel(new BorderLayout(4, 0));
+        r.setOpaque(false);
+        r.setMaximumSize(new Dimension(500, 22));
+
+        JLabel lbl = new JLabel(rowLabel);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lbl.setForeground(TEXT_SECONDARY);
+        lbl.setPreferredSize(new Dimension(75, 20));
+
+        JPanel inputs = new JPanel(new GridLayout(1, 2, 6, 0));
+        inputs.setOpaque(false);
+        inputs.add(createLabeledInputRow(l1, sp1, AXIS_X));
+        inputs.add(createLabeledInputRow(l2, sp2, AXIS_Y));
+
+        r.add(lbl, BorderLayout.WEST);
+        r.add(inputs, BorderLayout.CENTER);
         return r;
     }
 
-    public static JPanel createVector2Row(String labelText, String axis1, JSpinner s1, String axis2, JSpinner s2) {
-        JPanel r = createPropContainer(labelText);
-        JPanel inner = new JPanel(new GridLayout(1, 2, 4, 0));
-        inner.setOpaque(false);
+    public static JPanel createLabeledInputRow(String label, JComponent input, Color labelColor) {
+        JPanel r = new JPanel(new BorderLayout(4, 0));
+        r.setOpaque(false);
+        r.setMaximumSize(new Dimension(500, 22));
 
-        inner.add(createAxisField(axis1, AXIS_X, s1));
-        inner.add(createAxisField(axis2, AXIS_Y, s2));
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        lbl.setForeground(labelColor != null ? labelColor : TEXT_SECONDARY);
+        lbl.setPreferredSize(new Dimension(14, 20));
 
-        r.add(inner, BorderLayout.CENTER);
+        r.add(lbl, BorderLayout.WEST);
+        r.add(input, BorderLayout.CENTER);
         return r;
     }
 
-    public static JPanel createAxisField(String axis, Color axisColor, JSpinner spinner) {
-        JPanel p = new JPanel(new BorderLayout(2, 0));
-        p.setOpaque(false);
+    public static JPanel createAxisField(String axis, Color color, JSpinner spinner) {
+        return createLabeledInputRow(axis, spinner, color);
+    }
 
-        JLabel tag = new JLabel(axis);
-        tag.setFont(new Font("Segoe UI", Font.BOLD, 10));
-        tag.setForeground(axisColor);
-        tag.setPreferredSize(new Dimension(12, 20));
+    public static JPanel createSinglePropRow(String label, JComponent input) {
+        JPanel r = new JPanel(new BorderLayout(4, 0));
+        r.setOpaque(false);
+        r.setMaximumSize(new Dimension(500, 22));
 
-        p.add(tag, BorderLayout.WEST);
-        p.add(spinner, BorderLayout.CENTER);
-        return p;
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lbl.setForeground(TEXT_SECONDARY);
+        lbl.setPreferredSize(new Dimension(75, 20));
+
+        r.add(lbl, BorderLayout.WEST);
+        r.add(input, BorderLayout.CENTER);
+        return r;
     }
 
     /**
-     * Reusable Collapsible Section for Inspectors and Property Panels.
+     * Unity-Style collapsible section component with animated foldout arrow (▼/▶).
      */
     public static class CollapsibleSection extends JPanel {
         private final JPanel contentPanel;
-        private final JLabel toggleArrow = new JLabel("▼");
+        private final JLabel toggleIcon;
         private boolean isExpanded = true;
 
-        public CollapsibleSection(String title, ImageIcon icon, JPanel content, JCheckBox enableCheckbox) {
-            setLayout(new BorderLayout());
-            setBackground(BG_PANEL);
-            setBorder(new LineBorder(BORDER, 1));
+        public CollapsibleSection(String title, Icon headerIcon, JPanel content, JComponent rightComponent) {
             this.contentPanel = content;
+            setLayout(new BorderLayout(0, 0));
+            setOpaque(false);
 
             JPanel header = new JPanel(new BorderLayout(4, 0));
             header.setBackground(BG_HEADER);
-            header.setBorder(new EmptyBorder(3, 6, 3, 6));
+            header.setBorder(BorderFactory.createCompoundBorder(
+                    new LineBorder(BORDER, 1),
+                    new EmptyBorder(3, 6, 3, 6)
+            ));
             header.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
-            left.setOpaque(false);
+            JPanel leftHeader = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+            leftHeader.setOpaque(false);
 
-            toggleArrow.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            toggleArrow.setForeground(TEXT_SECONDARY);
-            left.add(toggleArrow);
+            toggleIcon = new JLabel("▼");
+            toggleIcon.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+            toggleIcon.setForeground(TEXT_SECONDARY);
+            leftHeader.add(toggleIcon);
 
-            if (enableCheckbox != null) {
-                left.add(enableCheckbox);
-            }
-
-            if (icon != null) {
-                left.add(new JLabel(icon));
+            if (headerIcon != null) {
+                leftHeader.add(new JLabel(headerIcon));
             }
 
             JLabel titleLbl = new JLabel(title);
             titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
             titleLbl.setForeground(TEXT_PRIMARY);
-            left.add(titleLbl);
+            leftHeader.add(titleLbl);
 
-            header.add(left, BorderLayout.WEST);
+            header.add(leftHeader, BorderLayout.WEST);
+            if (rightComponent != null) {
+                header.add(rightComponent, BorderLayout.EAST);
+            }
 
             header.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    setExpanded(!isExpanded);
+                    toggle();
                 }
+
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     header.setBackground(BG_HEADER_HOVER);
                 }
+
                 @Override
                 public void mouseExited(MouseEvent e) {
                     header.setBackground(BG_HEADER);
@@ -165,10 +254,18 @@ public final class DarkThemeUtils {
             add(contentPanel, BorderLayout.CENTER);
         }
 
+        public void toggle() {
+            isExpanded = !isExpanded;
+            toggleIcon.setText(isExpanded ? "▼" : "▶");
+            contentPanel.setVisible(isExpanded);
+            revalidate();
+            repaint();
+        }
+
         public void setExpanded(boolean expanded) {
             this.isExpanded = expanded;
-            toggleArrow.setText(expanded ? "▼" : "▶");
-            contentPanel.setVisible(expanded);
+            toggleIcon.setText(isExpanded ? "▼" : "▶");
+            contentPanel.setVisible(isExpanded);
             revalidate();
             repaint();
         }

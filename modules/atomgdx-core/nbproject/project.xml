@@ -6,8 +6,25 @@
             <code-name-base>com.atomgdx.core</code-name-base>
             <suite-component/>
             <module-dependencies>
+                <dependency>
+                    <code-name-base>org.openide.io</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.49.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.openide.util</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>9.7.0</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
             <public-packages>
+                <package>com.atomgdx.core.log</package>
                 <package>com.atomgdx.core</package>
                 <package>com.atomgdx.core.project</package>
                 <package>com.atomgdx.core.asset</package>

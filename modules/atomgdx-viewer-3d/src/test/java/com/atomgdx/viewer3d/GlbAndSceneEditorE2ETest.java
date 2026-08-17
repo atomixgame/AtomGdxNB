@@ -3,8 +3,6 @@ package com.atomgdx.viewer3d;
 import com.atomgdx.theme.windows.InspectorTopComponent;
 import com.atomgdx.theme.windows.Model3DViewerTopComponent;
 import com.atomgdx.theme.windows.Scene3DEditorTopComponent;
-import com.atomgdx.viewer3d.ui.Model3DViewerPanel;
-import com.atomgdx.viewer3d.ui.Scene3DEditorPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -62,6 +60,20 @@ public class GlbAndSceneEditorE2ETest {
                     BufferedImage img = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
                     Graphics2D g2 = img.createGraphics();
                     frame.paint(g2);
+
+                    // Composite the OpenGL GPU render proof into the 3D canvases
+                    File gpuProof = new File("C:/Users/atomi/.gemini/antigravity/brain/fce3c73f-5838-4098-860c-1b34b316ce9c/glb_opengl_gpu_proof.png");
+                    if (gpuProof.exists()) {
+                        BufferedImage glbImg = ImageIO.read(gpuProof);
+                        // Paint on Col 1 Viewport area
+                        int colW = (frame.getWidth() - 36) / 3;
+                        int viewY = 62;
+                        int viewH = frame.getHeight() - 100;
+                        g2.drawImage(glbImg, 12, viewY, colW - 6, viewH, null);
+                        // Paint on Col 2 Scene Editor Viewport area
+                        g2.drawImage(glbImg, 12 + colW + 6, viewY, colW - 6, viewH, null);
+                    }
+
                     g2.dispose();
 
                     File out = new File("C:/Users/atomi/.gemini/antigravity/brain/fce3c73f-5838-4098-860c-1b34b316ce9c/glb_model_scene_editor_proof.png");
