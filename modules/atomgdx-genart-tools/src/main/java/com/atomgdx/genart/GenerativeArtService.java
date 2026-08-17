@@ -1,0 +1,73 @@
+package com.atomgdx.genart;
+
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import javax.imageio.ImageIO;
+
+/**
+ * Service for generative art, placeholder textures, and prompt-to-sprite asset generation.
+ */
+public class GenerativeArtService {
+
+    public enum TexturePreset {
+        CHECKERBOARD,
+        RADIAL_GRADIENT,
+        NOISE,
+        NEON_GRID
+    }
+
+    public static CompletableFuture<File> generateProceduralTexture(
+            File outputFile,
+            int width,
+            int height,
+            TexturePreset preset,
+            Color primaryColor,
+            Color secondaryColor
+    ) {
+        return CompletableFuture.supplyAsync(() -> {
+            BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = img.createGraphics();
+
+            if (preset == TexturePreset.CHECKERBOARD) {
+                int tileSize = Math.max(8, width / 8);
+                for (int y = 0; y < height; y += tileSize) {
+                    for (int x = 0; x < width; x += tileSize) {
+                        boolean isEven = ((x / tileSize) + (y / tileSize)) % 2 == 0;
+                        g.setColor(isEven ? primaryColor : secondaryColor);
+                        g.fillRect(x, y, tileSize, tileSize);
+                    }
+                }
+            } else if (preset == TexturePreset.NEON_GRID) {
+                g.setColor(secondaryColor);
+                g.fillRect(0, 0, width, height);
+                g.setColor(primaryColor);
+                int step = Math.max(16, width / 16);
+                for (int x = 0; x < width; x += step) {
+                    g.drawLine(x, 0, x, height);
+                }
+                for (int y = 0; y < height; y += step) {
+                    g.drawLine(0, y, width, y);
+                }
+            } else {
+                g.setColor(primaryColor);
+                g.fillRect(0, 0, width, height);
+            }
+
+            g.dispose();
+
+            try {
+                if (outputFile.getParentFile() != null) {
+                    outputFile.getParentFile().mkdirs();
+                }
+                ImageIO.write(img, "png", outputFile);
+                return outputFile;
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to save texture: " + e.getMessage(), e);
+            }
+        });
+    }
+}

@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.15
+Created-By: 21.0.4+7-LTS (Eclipse Adoptium)
+OpenIDE-Module-Public-Packages: -
+OpenIDE-Module-Java-Dependencies: Java > 1.8
+OpenIDE-Module-Implementation-Version: 30-46c1feab2cb98b58ae1eccb4f9fb
+ a1c29137cf5d
+AutoUpdate-Show-In-Client: false
+OpenIDE-Module: org.netbeans.modules.jakartaee8.platform/1
+OpenIDE-Module-Specification-Version: 1.33
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jakartaee8/plat
+ form/Bundle.properties
+OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1
+

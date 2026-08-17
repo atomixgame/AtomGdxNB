@@ -1,0 +1,16 @@
+# NetBeans Build Artifacts
+build/
+dist/
+nbproject/private/
+build.number
+
+# Test User Dir & Logs
+build/testuserdir/
+var/log/
+*.log
+*.hprof
+*.class
+
+# OS Files
+Thumbs.db
+.DS_Store

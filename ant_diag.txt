@@ -1,0 +1,165 @@
+------- Ant diagnostics report -------
+Apache Ant(TM) version 1.10.14 compiled on August 16 2023
+
+-------------------------------------------
+ Implementation Version
+-------------------------------------------
+core tasks     : 1.10.14 in file:/C:/Program%20Files/NetBeans-23/netbeans/extide/ant/lib/ant.jar
+
+-------------------------------------------
+ ANT PROPERTIES
+-------------------------------------------
+ant.version: Apache Ant(TM) version 1.10.14 compiled on August 16 2023
+ant.java.version: 21
+Is this the Apache Harmony VM? no
+Is this the Kaffe VM? no
+Is this gij/gcj? no
+ant.core.lib: C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant.jar
+ant.home: C:\Program Files\NetBeans-23\netbeans\extide\ant\bin\..
+
+-------------------------------------------
+ ANT_HOME/lib jar listing
+-------------------------------------------
+ant.home: C:\Program Files\NetBeans-23\netbeans\extide\ant\bin\..
+ant-antlr.jar (12271 bytes)
+ant-apache-bcel.jar (15617 bytes)
+ant-apache-bsf.jar (10149 bytes)
+ant-apache-log4j.jar (8768 bytes)
+ant-apache-oro.jar (10052 bytes)
+ant-apache-regexp.jar (10026 bytes)
+ant-apache-resolver.jar (9916 bytes)
+ant-apache-xalan2.jar (8419 bytes)
+ant-commons-logging.jar (10180 bytes)
+ant-commons-net.jar (91005 bytes)
+ant-imageio.jar (31587 bytes)
+ant-jai.jar (29588 bytes)
+ant-jakartamail.jar (14691 bytes)
+ant-javamail.jar (14670 bytes)
+ant-jdepend.jar (14995 bytes)
+ant-jmf.jar (12991 bytes)
+ant-jsch.jar (55149 bytes)
+ant-junit.jar (141302 bytes)
+ant-junit4.jar (13656 bytes)
+ant-junitlauncher.jar (96443 bytes)
+ant-launcher.jar (18871 bytes)
+ant-netrexx.jar (17324 bytes)
+ant-swing.jar (13931 bytes)
+ant-testutil.jar (28794 bytes)
+ant-xz.jar (11351 bytes)
+ant.jar (2303167 bytes)
+
+-------------------------------------------
+ USER_HOME/.ant/lib jar listing
+-------------------------------------------
+user.home: C:\Users\atomi
+No such directory.
+
+-------------------------------------------
+ Tasks availability
+-------------------------------------------
+sshsession : Missing dependency com.jcraft.jsch.Logger
+scp : Missing dependency com.jcraft.jsch.Logger
+image : Missing dependency javax.media.jai.PlanarImage
+jdepend : Missing dependency jdepend.textui.JDepend
+xz : Missing dependency org.tukaani.xz.FilterOptions
+sshexec : Missing dependency com.jcraft.jsch.Logger
+ftp : Missing dependency org.apache.commons.net.ftp.FTPClient
+A task being missing/unavailable should only matter if you are trying to use it
+
+-------------------------------------------
+ org.apache.env.Which diagnostics
+-------------------------------------------
+Not available.
+Download it at https://xml.apache.org/commons/
+
+-------------------------------------------
+ XML Parser information
+-------------------------------------------
+XML Parser : com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl
+XML Parser Location: unknown
+Namespace-aware parser : com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl$JAXPSAXParser
+Namespace-aware parser Location: unknown
+
+-------------------------------------------
+ XSLT Processor information
+-------------------------------------------
+XSLT Processor : com.sun.org.apache.xalan.internal.xsltc.trax.TransformerImpl
+XSLT Processor Location: unknown
+
+-------------------------------------------
+ System properties
+-------------------------------------------
+ant.library.dir : C:\Program Files\NetBeans-23\netbeans\extide\ant\lib
+java.specification.version : 21
+sun.cpu.isalist : amd64
+sun.jnu.encoding : Cp1252
+java.class.path : C:\Program Files\NetBeans-23\netbeans\extide\ant\bin\..\lib\ant-launcher.jar;G:\GameDev\LibGDX\AtomGdx\AtomGdxNB\AtomGdxNB\.\;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-antlr.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-bcel.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-bsf.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-log4j.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-oro.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-regexp.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-resolver.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-apache-xalan2.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-commons-logging.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-commons-net.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-imageio.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-jai.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-jakartamail.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-javamail.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-jdepend.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-jmf.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-jsch.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-junit.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-junit4.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-junitlauncher.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-launcher.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-netrexx.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-swing.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-testutil.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant-xz.jar;C:\Program Files\NetBeans-23\netbeans\extide\ant\lib\ant.jar
+java.vm.vendor : Oracle Corporation
+sun.arch.data.model : 64
+user.variant : 
+java.vendor.url : https://java.oracle.com/
+java.vm.specification.version : 21
+os.name : Windows 11
+sun.java.launcher : SUN_STANDARD
+user.country : US
+sun.boot.library.path : C:\Dev\Java\openjdk-21+35_windows-x64_bin\jdk-21\bin
+sun.java.command : org.apache.tools.ant.launch.Launcher -cp .; -diagnostics
+jdk.debug : release
+sun.cpu.endian : little
+user.home : C:\Users\atomi
+user.language : en
+java.specification.vendor : Oracle Corporation
+java.version.date : 2023-09-19
+java.home : C:\Dev\Java\openjdk-21+35_windows-x64_bin\jdk-21
+file.separator : \
+java.vm.compressedOopsMode : Zero based
+line.separator : 
+
+java.vm.specification.vendor : Oracle Corporation
+java.specification.name : Java Platform API Specification
+user.script : 
+sun.management.compiler : HotSpot 64-Bit Tiered Compilers
+java.runtime.version : 21+35-2513
+user.name : atomi
+stdout.encoding : Cp1252
+path.separator : ;
+os.version : 10.0
+java.runtime.name : OpenJDK Runtime Environment
+file.encoding : UTF-8
+java.vm.name : OpenJDK 64-Bit Server VM
+java.vendor.url.bug : https://bugreport.java.com/bugreport/
+java.io.tmpdir : C:\Users\atomi\AppData\Local\Temp\
+java.version : 21
+user.dir : G:\GameDev\LibGDX\AtomGdx\AtomGdxNB\AtomGdxNB
+os.arch : amd64
+java.vm.specification.name : Java Virtual Machine Specification
+ant.home : C:\Program Files\NetBeans-23\netbeans\extide\ant\bin\..
+sun.os.patch.level : 
+native.encoding : Cp1252
+java.library.path : C:\Dev\Java\openjdk-21+35_windows-x64_bin\jdk-21\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\ProgramData\miniconda3\condabin;C:\Program Files\PowerShell\7;C:/Users/atomi/.gemini/antigravity/bin;C:\Users\atomi\AppData\Roaming\Antigravity\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\bin;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.0\libnvvp;C:\Python312\Scripts\;C:\Python312\;C:\Program Files\Oculus\Support\oculus-runtime;C:\Program Files (x86)\Common Files\Intel\Shared Libraries\redist\intel64\compiler;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Common Files\Autodesk Shared\;C:\Program Files (x86)\Autodesk\Backburner\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Users\atomi\AppData\Roaming\nvm;C:\Program Files\Microsoft VS Code\bin;C:\Program Files\Git LFS;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\ProgramData\chocolatey\bin;C:\Program Files\Git\cmd;C:\Dev\Java\openjdk-21+35_windows-x64_bin\jdk-21\bin;C:\Program Files\CMake\bin;C:\Program Files\GitHub CLI\;C:\Dev\vcpkg;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Amazon\AWSCLIV2\;C:\Users\atomi\AppData\Roaming\nvm;C:\nvm4w\nodejs;C:\minikube;C:\Program Files\Docker\Docker\resources\bin;C:\Program Files\NVIDIA Corporation\Nsight Compute 2022.4.0\;C:\ProgramData\miniconda3\Scripts;C:\Program Files\NVIDIA Corporation\NVIDIA App\NvDLISR;C:\Program Files\Sunshine;C:\Program Files\Sunshine\tools;C:\Users\atomi\.local\bin;C:\Program Files\PowerShell\7\;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\Users\atomi\AppData\Local\agy\bin;C:\Users\atomi\AppData\Local\pnpm;C:\Users\atomi\AppData\Local\Programs\Python\Python39\Scripts\;C:\Users\atomi\AppData\Local\Programs\Python\Python39\;C:\Users\atomi\.cargo\bin;C:\Users\atomi\scoop\shims;C:\Users\atomi\AppData\Local\Microsoft\WindowsApps;C:\Users\atomi\AppData\Local\GitHubDesktop\bin;C:\Users\atomi\.dotnet\tools;C:\Users\atomi\AppData\Roaming\nvm;C:\Users\atomi\.deno\bin;C:\Users\atomi\.dotnet\tools;C:\Users\atomi\AppData\Local\Programs\Ollama;C:\Users\atomi\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin;C:\ComfyUI\ComfyUI_windows_portable\python_embeded\Scripts;c:\users\atomi\appdata\roaming\python\python312\scripts;c:\users\atomi\.local\bin;C:\Users\atomi\.bun\bin;C:\Program Files\LLVM\bin;C:\msys64\ucrt64\bin;C:\Users\atomi\AppData\Local\Microsoft\WindowsApps;C:\Users\atomi\AppData\Roaming\nvm;C:\nvm4w\nodejs;C:\Users\atomi\.lmstudio\bin;C:\Users\atomi\AppData\Local\Programs\Antigravity\bin;C:\Users\atomi\AppData\Local\Microsoft\WinGet\Links;C:\Users\atomi\AppData\Local\Programs\Zed\bin;C:\Users\atomi\AppData\Local\Programs\Antigravity IDE v2\bin;C:\Users\atomi\AppData\Local\Programs\Zed Preview\bin;C:\Users\atomi\.claude\bin;C:\Users\atomi\AppData\Local\Programs\Antigravity IDE\bin;C:\Users\atomi\AppData\Local\Programs\Podman\;C:\Users\atomi\.dotnet\tools;.
+java.vm.info : mixed mode, sharing
+stderr.encoding : Cp1252
+java.vendor : Oracle Corporation
+java.vm.version : 21+35-2513
+sun.io.unicode.encoding : UnicodeLittle
+java.class.version : 65.0
+
+-------------------------------------------
+ Temp dir
+-------------------------------------------
+Temp dir is C:\Users\atomi\AppData\Local\Temp\
+Temp dir is writeable
+Temp dir alignment with system clock is 55 ms
+
+-------------------------------------------
+ Locale information
+-------------------------------------------
+Timezone Eastern Standard Time offset=-14400000
+
+-------------------------------------------
+ Proxy information
+-------------------------------------------
+Java1.5+ proxy settings:
+Direct connection
+
+

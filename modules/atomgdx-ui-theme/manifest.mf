@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.atomgdx.theme
+OpenIDE-Module-Localizing-Bundle: com/atomgdx/Bundle.properties
+OpenIDE-Module-Layer: com/atomgdx/theme/layer.xml
+OpenIDE-Module-Specification-Version: 0.1.0

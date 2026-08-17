@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project name="atomgdx-ui-theme" default="default" basedir=".">
+    <description>Builds, tests, and runs the project atomgdx-ui-theme.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <target name="-post-compile">
+        <mkdir dir="${build.classes.dir}/com/atomgdx/theme"/>
+        <copy file="src/main/java/com/atomgdx/theme/layer.xml" tofile="${build.classes.dir}/com/atomgdx/theme/layer.xml" failonerror="false"/>
+        <copy file="src/main/java/com/atomgdx/Bundle.properties" tofile="${build.classes.dir}/com/atomgdx/Bundle.properties" failonerror="false"/>
+    </target>
+</project>

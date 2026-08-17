@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="atomgdx-mcp-server" default="default" basedir=".">
+    <description>Builds, tests, and runs the project atomgdx-mcp-server.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <target name="-pre-jar">
+        <copy todir="${build.classes.dir}" failonerror="false">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+</project>
