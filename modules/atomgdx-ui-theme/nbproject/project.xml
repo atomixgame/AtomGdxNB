@@ -182,10 +182,19 @@
                         <specification-version>6.82</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.options.api</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.63</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
             <public-packages>
                 <package>com.atomgdx.theme</package>
                 <package>com.atomgdx.theme.actions</package>
+                <package>com.atomgdx.theme.options</package>
                 <package>com.atomgdx.theme.windows</package>
                 <package>com.atomgdx.theme.wizard</package>
                 <package>com.atomgdx.theme.project</package>
