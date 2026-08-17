@@ -47,5 +47,6 @@ public class Gdx3DViewerE2ETest {
 
         Thread.sleep(3000);
         System.out.println(">>> 3D VIEWPORT TEST COMPLETED! <<<");
+        System.exit(0);
     }
 }

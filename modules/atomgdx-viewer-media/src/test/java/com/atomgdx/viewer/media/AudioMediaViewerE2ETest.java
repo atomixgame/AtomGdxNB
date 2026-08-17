@@ -50,5 +50,6 @@ public class AudioMediaViewerE2ETest {
 
         Thread.sleep(2500);
         System.out.println(">>> AUDIO & MEDIA STUDIO TEST COMPLETED! <<<");
+        System.exit(0);
     }
 }

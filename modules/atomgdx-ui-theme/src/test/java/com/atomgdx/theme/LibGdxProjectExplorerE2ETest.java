@@ -88,5 +88,6 @@ public class LibGdxProjectExplorerE2ETest {
 
         Thread.sleep(2500);
         System.out.println(">>> VISUAL TEST COMPLETED! <<<");
+        System.exit(0);
     }
 }
