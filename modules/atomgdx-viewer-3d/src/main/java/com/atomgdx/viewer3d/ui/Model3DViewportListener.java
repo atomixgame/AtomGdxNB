@@ -57,6 +57,8 @@ public class Model3DViewportListener implements ApplicationListener {
     private float cameraDistance = 8f;
     private final Vector3 target = new Vector3(0, 2.0f, 0);
 
+    private final java.util.concurrent.atomic.AtomicReference<File> pendingModelFile = new java.util.concurrent.atomic.AtomicReference<>();
+
     public Model3DViewportListener() {
         this(null);
     }
@@ -67,8 +69,15 @@ public class Model3DViewportListener implements ApplicationListener {
 
     public void setModelFile(File file) {
         this.modelFile = file;
-        if (modelBatch != null) {
-            rebuildModel();
+        this.pendingModelFile.set(file);
+        if (com.badlogic.gdx.Gdx.app != null) {
+            com.badlogic.gdx.Gdx.app.postRunnable(() -> {
+                File p = pendingModelFile.getAndSet(null);
+                if (p != null) {
+                    this.modelFile = p;
+                    rebuildModel();
+                }
+            });
         }
     }
 
@@ -427,6 +436,12 @@ public class Model3DViewportListener implements ApplicationListener {
     @Override
     public void render() {
         frameCount++;
+
+        File p = pendingModelFile.getAndSet(null);
+        if (p != null) {
+            this.modelFile = p;
+            rebuildModel();
+        }
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClearColor(0.08f, 0.09f, 0.11f, 1.0f);
