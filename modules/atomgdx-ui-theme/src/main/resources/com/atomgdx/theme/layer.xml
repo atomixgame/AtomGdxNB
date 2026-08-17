@@ -1,102 +1,304 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+
+    <!-- Actions Registry -->
     <folder name="Actions">
         <folder name="LibGDX">
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$NewLibGdxProjectAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$NewLibGdxProjectAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_NewLibGdxProjectAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/new_project.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenProjectAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenProjectAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenProjectAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/open_project.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$CloseProjectAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$CloseProjectAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_CloseProjectAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/close_project.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenProjectExplorerAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenProjectExplorerAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenProjectExplorerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/project_explorer.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenSceneStructureAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenSceneStructureAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenSceneStructureAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene_structure.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenInspectorAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenInspectorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/inspector.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenParticleEditorAction"/>
-                <attr name="displayName" stringvalue="2D Particle Effect Studio"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenParticleEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/particle.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenShaderEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenShaderEditorAction"/>
-                <attr name="displayName" stringvalue="GLSL Live Shader Studio"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenShaderEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/shader.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenSkinComposerAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenSkinComposerAction"/>
-                <attr name="displayName" stringvalue="Scene2D Skin Composer"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenSkinComposerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/skin.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenNinePatchEditorAction"/>
-                <attr name="displayName" stringvalue="9-Patch Slice Editor"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenNinePatchEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/ninepatch.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenSceneEditorAction"/>
-                <attr name="displayName" stringvalue="HyperLap2D Scene Designer"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenSceneEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenModel3DViewerAction"/>
-                <attr name="displayName" stringvalue="3D GLTF Model Viewer"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenModel3DViewerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/model3d.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenMediaViewerAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenMediaViewerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/media.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenAiCopilotAction"/>
-                <attr name="displayName" stringvalue="AI Assistant Copilot"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenAiCopilotAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/ai.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenAboutAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenAboutAction"/>
-                <attr name="displayName" stringvalue="About AtomGdx Studio"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenAboutAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/about.png"/>
             </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenPreferencesAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenPreferencesAction"/>
-                <attr name="displayName" stringvalue="AtomGdx Preferences"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenPreferencesAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/settings.png"/>
             </file>
         </folder>
     </folder>
 
+    <!-- Main Menu Structure -->
     <folder name="Menu">
+        <folder name="File">
+            <file name="NewLibGdxProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$NewLibGdxProjectAction.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="OpenProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenProjectAction.instance"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+            <file name="CloseProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$CloseProjectAction.instance"/>
+                <attr name="position" intvalue="300"/>
+            </file>
+        </folder>
+
+        <!-- Top-Level LibGDX Menu -->
+        <folder name="LibGDX">
+            <attr name="position" intvalue="500"/>
+            <file name="ProjectExplorerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenProjectExplorerAction.instance"/>
+                <attr name="position" intvalue="50"/>
+            </file>
+            <file name="SceneStructureAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneStructureAction.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="InspectorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Sep1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="180"/>
+            </file>
+            <file name="ParticleEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+            <file name="ShaderEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderEditorAction.instance"/>
+                <attr name="position" intvalue="300"/>
+            </file>
+            <file name="SkinComposerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSkinComposerAction.instance"/>
+                <attr name="position" intvalue="400"/>
+            </file>
+            <file name="NinePatchEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+            <file name="SceneEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
+            <file name="Model3DViewerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+            <file name="MediaViewerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
+                <attr name="position" intvalue="800"/>
+            </file>
+            <file name="AiCopilotAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
+                <attr name="position" intvalue="900"/>
+            </file>
+        </folder>
+
+        <!-- Window Submenu -->
         <folder name="Window">
-            <folder name="LibGDX">
-                <attr name="displayName" stringvalue="LibGDX Tools"/>
-                <attr name="position" intvalue="450"/>
-                <file name="OpenParticleEditorAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
+            <folder name="LibGDX Tools">
+                <attr name="position" intvalue="600"/>
+                <file name="ProjectExplorerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenProjectExplorerAction.instance"/>
                     <attr name="position" intvalue="100"/>
                 </file>
-                <file name="OpenShaderEditorAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderEditorAction.instance"/>
+                <file name="SceneStructureAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneStructureAction.instance"/>
+                    <attr name="position" intvalue="120"/>
+                </file>
+                <file name="InspectorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
+                    <attr name="position" intvalue="140"/>
+                </file>
+                <file name="ParticleEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
                     <attr name="position" intvalue="200"/>
                 </file>
-                <file name="OpenSkinComposerAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSkinComposerAction.instance"/>
+                <file name="ShaderEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderEditorAction.instance"/>
                     <attr name="position" intvalue="300"/>
                 </file>
-                <file name="OpenNinePatchEditorAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
+                <file name="SkinComposerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSkinComposerAction.instance"/>
                     <attr name="position" intvalue="400"/>
                 </file>
-                <file name="OpenSceneEditorAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
+                <file name="NinePatchEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
                     <attr name="position" intvalue="500"/>
                 </file>
-                <file name="OpenModel3DViewerAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
+                <file name="SceneEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
                     <attr name="position" intvalue="600"/>
                 </file>
-                <file name="OpenAiCopilotAction.shadow">
-                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
+                <file name="Model3DViewerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
                     <attr name="position" intvalue="700"/>
+                </file>
+                <file name="MediaViewerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
+                    <attr name="position" intvalue="800"/>
+                </file>
+                <file name="AiCopilotAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
+                    <attr name="position" intvalue="900"/>
                 </file>
             </folder>
         </folder>
-        <folder name="Help">
-            <file name="OpenAboutAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAboutAction.instance"/>
-                <attr name="position" intvalue="100"/>
+
+        <!-- Tools Menu -->
+        <folder name="Tools">
+            <file name="AtomGdxPreferencesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenPreferencesAction.instance"/>
+                <attr name="position" intvalue="950"/>
             </file>
         </folder>
-        <folder name="Tools">
-            <file name="OpenPreferencesAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenPreferencesAction.instance"/>
-                <attr name="position" intvalue="100"/>
+
+        <!-- Help Menu -->
+        <folder name="Help">
+            <file name="AtomGdxAboutAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAboutAction.instance"/>
+                <attr name="position" intvalue="1600"/>
             </file>
         </folder>
     </folder>
+
+    <!-- Toolbar Registry -->
+    <folder name="Toolbars">
+        <folder name="LibGDX">
+            <attr name="position" intvalue="250"/>
+            <file name="NewLibGdxProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$NewLibGdxProjectAction.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="OpenProjectAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenProjectAction.instance"/>
+                <attr name="position" intvalue="120"/>
+            </file>
+            <file name="ProjectExplorerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenProjectExplorerAction.instance"/>
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="SceneStructureAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneStructureAction.instance"/>
+                <attr name="position" intvalue="170"/>
+            </file>
+            <file name="InspectorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
+                <attr name="position" intvalue="190"/>
+            </file>
+            <file name="ParticleEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
+                <attr name="position" intvalue="200"/>
+            </file>
+            <file name="ShaderEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderEditorAction.instance"/>
+                <attr name="position" intvalue="300"/>
+            </file>
+            <file name="SkinComposerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSkinComposerAction.instance"/>
+                <attr name="position" intvalue="400"/>
+            </file>
+            <file name="NinePatchEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+            <file name="SceneEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
+            <file name="Model3DViewerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+            <file name="MediaViewerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
+                <attr name="position" intvalue="800"/>
+            </file>
+            <file name="AiCopilotAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
+                <attr name="position" intvalue="900"/>
+            </file>
+        </folder>
+    </folder>
+
 </filesystem>

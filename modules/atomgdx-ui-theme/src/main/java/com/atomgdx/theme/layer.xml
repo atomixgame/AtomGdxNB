@@ -137,7 +137,7 @@
                 <attr name="position" intvalue="150"/>
             </file>
             <file name="Sep1.instance">
-                <attr name="instanceCreate" methodvalue="javax.swing.JSeparator.new"/>
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="180"/>
             </file>
             <file name="ParticleEditorAction.shadow">
@@ -237,7 +237,7 @@
         <folder name="Help">
             <file name="AtomGdxAboutAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAboutAction.instance"/>
-                <attr name="position" intvalue="1500"/>
+                <attr name="position" intvalue="1600"/>
             </file>
         </folder>
     </folder>
