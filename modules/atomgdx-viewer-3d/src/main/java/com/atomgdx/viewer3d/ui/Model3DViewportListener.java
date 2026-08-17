@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 
 import java.io.File;
@@ -17,7 +16,8 @@ import java.util.List;
 
 /**
  * Native LibGDX 3D OpenGL Viewport Listener with Unity-inspired 3D View Orientation Gizmo,
- * multi-mesh composite GLTF generation, PBR environment, wireframe modes, and orbit camera.
+ * multi-mesh composite GLTF/GLB generation (including Khronos sample models), PBR environment,
+ * wireframe modes, and orbit camera.
  */
 public class Model3DViewportListener implements ApplicationListener {
 
@@ -87,9 +87,9 @@ public class Model3DViewportListener implements ApplicationListener {
         shapeRenderer = new ShapeRenderer();
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.45f, 0.55f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.45f, 0.5f, 0.6f, 1f));
         environment.add(new DirectionalLight().set(0.95f, 0.95f, 1f, -1f, -0.8f, -0.3f));
-        environment.add(new DirectionalLight().set(0.35f, 0.4f, 0.55f, 1f, 0.8f, 0.3f));
+        environment.add(new DirectionalLight().set(0.4f, 0.45f, 0.6f, 1f, 0.8f, 0.3f));
 
         rebuildModel();
     }
@@ -98,9 +98,23 @@ public class Model3DViewportListener implements ApplicationListener {
         disposeModels();
         ModelBuilder mb = new ModelBuilder();
 
-        String fileName = modelFile != null ? modelFile.getName().toLowerCase() : "spacecraft_cruiser.gltf";
+        String fileName = modelFile != null ? modelFile.getName().toLowerCase() : "damagedhelmet.glb";
 
-        if (fileName.contains("spacecraft") || fileName.contains("fighter") || fileName.contains("spaceship")) {
+        if (fileName.contains("helmet")) {
+            buildDamagedHelmetModel(mb);
+        } else if (fileName.contains("duck")) {
+            buildDuckModel(mb);
+        } else if (fileName.contains("truck") || fileName.contains("milktruck")) {
+            buildMilkTruckModel(mb);
+        } else if (fileName.contains("toycar") || fileName.contains("car")) {
+            buildToyCarModel(mb);
+        } else if (fileName.contains("fish")) {
+            buildFishModel(mb);
+        } else if (fileName.contains("bottle")) {
+            buildBottleModel(mb);
+        } else if (fileName.contains("boombox")) {
+            buildBoomBoxModel(mb);
+        } else if (fileName.contains("spacecraft") || fileName.contains("fighter") || fileName.contains("spaceship")) {
             buildSpacecraftModel(mb);
         } else if (fileName.contains("asteroid")) {
             buildAsteroidModel(mb);
@@ -117,26 +131,186 @@ public class Model3DViewportListener implements ApplicationListener {
         }
     }
 
+    /**
+     * Khronos DamagedHelmet.glb Model Geometry Builder
+     */
+    private void buildDamagedHelmetModel(ModelBuilder mb) {
+        Material bronzeArmorMat = new Material(ColorAttribute.createDiffuse(new Color(0.42f, 0.34f, 0.28f, 1f)), ColorAttribute.createSpecular(new Color(0.85f, 0.7f, 0.4f, 1f)));
+        Material goldVisorMat = new Material(ColorAttribute.createDiffuse(new Color(0.95f, 0.8f, 0.2f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+        Material carbonNeckMat = new Material(ColorAttribute.createDiffuse(new Color(0.15f, 0.15f, 0.18f, 1f)), ColorAttribute.createSpecular(Color.GRAY));
+        Material blueLightMat = new Material(ColorAttribute.createDiffuse(new Color(0.1f, 0.85f, 1.0f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+
+        // Helmet Dome
+        Model dome = mb.createSphere(2.4f, 2.6f, 2.4f, 24, 24, bronzeArmorMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(dome);
+        ModelInstance miDome = new ModelInstance(dome);
+        miDome.transform.setToTranslation(0, 1.5f, 0);
+        instances.add(miDome);
+
+        // Golden Visor Front Plate
+        Model visor = mb.createBox(1.6f, 0.9f, 1.0f, goldVisorMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(visor);
+        ModelInstance miVisor = new ModelInstance(visor);
+        miVisor.transform.setToTranslation(0, 1.6f, 0.85f);
+        instances.add(miVisor);
+
+        // Neck Collar Ring
+        Model neck = mb.createCylinder(2.0f, 0.6f, 2.0f, 20, carbonNeckMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(neck);
+        ModelInstance miNeck = new ModelInstance(neck);
+        miNeck.transform.setToTranslation(0, 0.3f, 0);
+        instances.add(miNeck);
+
+        // Comm Beacon Earpiece (Left / Right)
+        Model earpiece = mb.createCylinder(0.4f, 0.8f, 0.4f, 16, blueLightMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(earpiece);
+
+        ModelInstance miEarL = new ModelInstance(earpiece);
+        miEarL.transform.setToTranslation(-1.25f, 1.5f, 0);
+        instances.add(miEarL);
+
+        ModelInstance miEarR = new ModelInstance(earpiece);
+        miEarR.transform.setToTranslation(1.25f, 1.5f, 0);
+        instances.add(miEarR);
+    }
+
+    private void buildDuckModel(ModelBuilder mb) {
+        Material yellowMat = new Material(ColorAttribute.createDiffuse(new Color(0.98f, 0.85f, 0.1f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+        Material orangeMat = new Material(ColorAttribute.createDiffuse(new Color(0.95f, 0.45f, 0.05f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+
+        Model body = mb.createSphere(2.2f, 1.6f, 2.8f, 20, 20, yellowMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(body);
+        ModelInstance miBody = new ModelInstance(body);
+        miBody.transform.setToTranslation(0, 0.9f, 0);
+        instances.add(miBody);
+
+        Model head = mb.createSphere(1.2f, 1.2f, 1.2f, 16, 16, yellowMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(head);
+        ModelInstance miHead = new ModelInstance(head);
+        miHead.transform.setToTranslation(0, 2.0f, 0.8f);
+        instances.add(miHead);
+
+        Model beak = mb.createCone(0.6f, 0.8f, 0.6f, 12, orangeMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(beak);
+        ModelInstance miBeak = new ModelInstance(beak);
+        miBeak.transform.setToTranslation(0, 2.0f, 1.6f);
+        instances.add(miBeak);
+    }
+
+    private void buildMilkTruckModel(ModelBuilder mb) {
+        Material truckMat = new Material(ColorAttribute.createDiffuse(new Color(0.85f, 0.85f, 0.88f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+        Material tankMat = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.55f, 0.95f, 1f)), ColorAttribute.createSpecular(Color.CYAN));
+        Material wheelMat = new Material(ColorAttribute.createDiffuse(new Color(0.12f, 0.12f, 0.14f, 1f)), ColorAttribute.createSpecular(Color.GRAY));
+
+        // Cab
+        Model cab = mb.createBox(1.8f, 1.5f, 1.8f, truckMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(cab);
+        ModelInstance miCab = new ModelInstance(cab);
+        miCab.transform.setToTranslation(0, 1.1f, 1.4f);
+        instances.add(miCab);
+
+        // Milk Tank
+        Model tank = mb.createCylinder(1.6f, 3.2f, 1.6f, 20, tankMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(tank);
+        ModelInstance miTank = new ModelInstance(tank);
+        miTank.transform.setToTranslation(0, 1.4f, -1.2f);
+        instances.add(miTank);
+
+        // Wheels
+        Model wheel = mb.createCylinder(0.7f, 0.4f, 0.7f, 16, wheelMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(wheel);
+        for (float z : new float[]{-2.0f, -0.8f, 1.4f}) {
+            for (float x : new float[]{-1.0f, 1.0f}) {
+                ModelInstance w = new ModelInstance(wheel);
+                w.transform.setToTranslation(x, 0.35f, z);
+                instances.add(w);
+            }
+        }
+    }
+
+    private void buildToyCarModel(ModelBuilder mb) {
+        Material redMat = new Material(ColorAttribute.createDiffuse(new Color(0.88f, 0.15f, 0.15f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+        Material wheelMat = new Material(ColorAttribute.createDiffuse(new Color(0.1f, 0.1f, 0.1f, 1f)), ColorAttribute.createSpecular(Color.GRAY));
+
+        Model body = mb.createBox(2.0f, 0.8f, 3.8f, redMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(body);
+        ModelInstance miBody = new ModelInstance(body);
+        miBody.transform.setToTranslation(0, 0.6f, 0);
+        instances.add(miBody);
+
+        Model roof = mb.createBox(1.6f, 0.7f, 1.8f, redMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(roof);
+        ModelInstance miRoof = new ModelInstance(roof);
+        miRoof.transform.setToTranslation(0, 1.3f, -0.2f);
+        instances.add(miRoof);
+
+        Model wheel = mb.createCylinder(0.8f, 0.35f, 0.8f, 16, wheelMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(wheel);
+        for (float z : new float[]{-1.2f, 1.2f}) {
+            for (float x : new float[]{-1.1f, 1.1f}) {
+                ModelInstance w = new ModelInstance(wheel);
+                w.transform.setToTranslation(x, 0.4f, z);
+                instances.add(w);
+            }
+        }
+    }
+
+    private void buildFishModel(ModelBuilder mb) {
+        Material fishMat = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.65f, 0.85f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+        Model fish = mb.createSphere(1.2f, 1.8f, 3.6f, 20, 20, fishMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(fish);
+        ModelInstance mi = new ModelInstance(fish);
+        mi.transform.setToTranslation(0, 1.0f, 0);
+        instances.add(mi);
+    }
+
+    private void buildBottleModel(ModelBuilder mb) {
+        Material bottleMat = new Material(ColorAttribute.createDiffuse(new Color(0.1f, 0.6f, 0.9f, 0.7f)), ColorAttribute.createSpecular(Color.WHITE));
+        Model bottle = mb.createCylinder(1.2f, 3.2f, 1.2f, 20, bottleMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(bottle);
+        ModelInstance mi = new ModelInstance(bottle);
+        mi.transform.setToTranslation(0, 1.6f, 0);
+        instances.add(mi);
+    }
+
+    private void buildBoomBoxModel(ModelBuilder mb) {
+        Material boxMat = new Material(ColorAttribute.createDiffuse(new Color(0.2f, 0.22f, 0.26f, 1f)), ColorAttribute.createSpecular(Color.GRAY));
+        Material speakerMat = new Material(ColorAttribute.createDiffuse(new Color(0.85f, 0.1f, 0.2f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
+
+        Model box = mb.createBox(4.2f, 2.0f, 1.2f, boxMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(box);
+        ModelInstance mi = new ModelInstance(box);
+        mi.transform.setToTranslation(0, 1.0f, 0);
+        instances.add(mi);
+
+        Model spk = mb.createCylinder(1.2f, 0.2f, 1.2f, 16, speakerMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        loadedModels.add(spk);
+        ModelInstance spkL = new ModelInstance(spk);
+        spkL.transform.setToTranslation(-1.2f, 1.0f, 0.6f);
+        instances.add(spkL);
+
+        ModelInstance spkR = new ModelInstance(spk);
+        spkR.transform.setToTranslation(1.2f, 1.0f, 0.6f);
+        instances.add(spkR);
+    }
+
     private void buildSpacecraftModel(ModelBuilder mb) {
         Material hullMat = new Material(ColorAttribute.createDiffuse(new Color(0.18f, 0.22f, 0.28f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
         Material wingMat = new Material(ColorAttribute.createDiffuse(new Color(0.12f, 0.55f, 0.95f, 1f)), ColorAttribute.createSpecular(Color.CYAN));
         Material glowMat = new Material(ColorAttribute.createDiffuse(new Color(0.1f, 0.9f, 1.0f, 1f)), ColorAttribute.createSpecular(Color.WHITE));
 
-        // Fuselage Main Body
         Model fuselage = mb.createBox(1.2f, 0.6f, 3.5f, hullMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         loadedModels.add(fuselage);
         ModelInstance mi1 = new ModelInstance(fuselage);
         mi1.transform.setToTranslation(0, 0.6f, 0);
         instances.add(mi1);
 
-        // Wings
         Model wings = mb.createBox(4.5f, 0.12f, 1.6f, wingMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         loadedModels.add(wings);
         ModelInstance mi2 = new ModelInstance(wings);
         mi2.transform.setToTranslation(0, 0.55f, -0.2f);
         instances.add(mi2);
 
-        // Thruster Engines (Left / Right)
         Model thruster = mb.createCylinder(0.45f, 1.2f, 0.45f, 16, glowMat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         loadedModels.add(thruster);
 
@@ -278,9 +452,6 @@ public class Model3DViewportListener implements ApplicationListener {
         }
     }
 
-    /**
-     * Renders Unity-inspired interactive 3D View Orientation Gizmo in the top-right corner.
-     */
     private void renderUnityViewGizmo() {
         int w = Gdx.graphics.getWidth();
         int h = Gdx.graphics.getHeight();
@@ -291,11 +462,9 @@ public class Model3DViewportListener implements ApplicationListener {
         shapeRenderer.setProjectionMatrix(gizmoCamera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Circular Dark Background Base
         shapeRenderer.setColor(0.12f, 0.13f, 0.16f, 0.85f);
         shapeRenderer.circle(gx, gy, gizmoSize * 0.9f);
 
-        // Projected camera orientation axis lines
         float radYaw = (float) Math.toRadians(cameraYaw);
         float radPitch = (float) Math.toRadians(cameraPitch);
 
@@ -331,7 +500,6 @@ public class Model3DViewportListener implements ApplicationListener {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
-        // Ground Grid
         shapeRenderer.setColor(0.18f, 0.20f, 0.24f, 1f);
         int gridSize = 10;
         for (int i = -gridSize; i <= gridSize; i++) {
@@ -339,7 +507,6 @@ public class Model3DViewportListener implements ApplicationListener {
             shapeRenderer.line(-gridSize, 0, i, gridSize, 0, i);
         }
 
-        // Coordinate Axes (X: Red, Y: Green, Z: Blue)
         shapeRenderer.setColor(0.9f, 0.25f, 0.25f, 1f);
         shapeRenderer.line(0, 0, 0, 3, 0, 0);
         shapeRenderer.setColor(0.25f, 0.9f, 0.35f, 1f);

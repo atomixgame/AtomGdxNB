@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 
 /**
  * Full-featured interactive 3D Scene & Level Editor panel.
- * Features edge-to-edge hardware OpenGL canvas (100% space without gaps),
+ * Features icon-only compact toolbar with hover tooltips, edge-to-edge hardware OpenGL canvas (100% space),
  * Unity-inspired 3D View Orientation Gizmo, Drag & Drop model loading (.glb, .gltf, .obj),
  * and Unsaved/Untitled scene state tracking.
  */
@@ -52,7 +52,7 @@ public class Scene3DEditorPanel extends JPanel {
         setupMouseInteractions();
         setupDragAndDrop();
 
-        // Top Scene Editor Toolbar with rich icons
+        // Top Scene Editor Toolbar with Icon-Only buttons and tooltips
         JToolBar toolbar = createSceneEditorToolBar();
 
         add(toolbar, BorderLayout.NORTH);
@@ -152,11 +152,18 @@ public class Scene3DEditorPanel extends JPanel {
         tb.setBackground(DarkThemeUtils.BG_HEADER);
         tb.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
 
-        // 1. Transform Gizmo Modes with Icons
-        JToggleButton selectBtn = new JToggleButton("Select (Q)", DarkThemeUtils.getFatcowIcon("cursor.png"), true);
-        JToggleButton translateBtn = new JToggleButton("Move (W)", DarkThemeUtils.getFatcowIcon("arrow_out.png"), false);
-        JToggleButton rotateBtn = new JToggleButton("Rotate (E)", DarkThemeUtils.getFatcowIcon("arrow_rotate_clockwise.png"), false);
-        JToggleButton scaleBtn = new JToggleButton("Scale (R)", DarkThemeUtils.getFatcowIcon("arrow_inout.png"), false);
+        // 1. Transform Gizmo Modes (Icon-Only with tooltips)
+        JToggleButton selectBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("cursor.png"), true);
+        selectBtn.setToolTipText("Select (Q)");
+
+        JToggleButton translateBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("arrow_out.png"), false);
+        translateBtn.setToolTipText("Move / Translate (W)");
+
+        JToggleButton rotateBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("arrow_rotate_clockwise.png"), false);
+        rotateBtn.setToolTipText("Rotate (E)");
+
+        JToggleButton scaleBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("arrow_inout.png"), false);
+        scaleBtn.setToolTipText("Scale (R)");
 
         ButtonGroup gizmoGroup = new ButtonGroup();
         for (JToggleButton b : new JToggleButton[]{selectBtn, translateBtn, rotateBtn, scaleBtn}) {
@@ -172,14 +179,16 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 2. Shading Modes with Icon
+        // 2. Shading Modes (Icon + Combo)
         JLabel shadeLbl = new JLabel(DarkThemeUtils.getFatcowIcon("color_wheel.png"));
+        shadeLbl.setToolTipText("Viewport Shading Mode");
         tb.add(shadeLbl);
 
-        JComboBox<String> shadingCombo = new JComboBox<>(new String[]{"PBR Shaded", "Wireframe", "Unlit"});
+        JComboBox<String> shadingCombo = new JComboBox<>(new String[]{"PBR", "Wire", "Unlit"});
         shadingCombo.setBackground(DarkThemeUtils.BG_INPUT);
         shadingCombo.setForeground(DarkThemeUtils.TEXT_PRIMARY);
         shadingCombo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        shadingCombo.setToolTipText("Select Viewport Shading Mode");
         shadingCombo.addActionListener(e -> {
             int idx = shadingCombo.getSelectedIndex();
             if (idx == 1) viewportListener.setShadingMode(Model3DViewportListener.ShadingMode.WIREFRAME);
@@ -190,12 +199,21 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 3. View Snapping Controls with Icons
-        JButton topViewBtn = new JButton("Top (Y)", DarkThemeUtils.getFatcowIcon("bullet_green.png"));
-        JButton frontViewBtn = new JButton("Front (Z)", DarkThemeUtils.getFatcowIcon("bullet_blue.png"));
-        JButton rightViewBtn = new JButton("Right (X)", DarkThemeUtils.getFatcowIcon("bullet_red.png"));
-        JButton isoViewBtn = new JButton("Iso", DarkThemeUtils.getFatcowIcon("box.png"));
-        JButton resetCamBtn = new JButton("Reset", DarkThemeUtils.getFatcowIcon("camera.png"));
+        // 3. View Snapping Controls (Icon-Only with tooltips)
+        JButton topViewBtn = new JButton(DarkThemeUtils.getFatcowIcon("bullet_green.png"));
+        topViewBtn.setToolTipText("Top View (Y)");
+
+        JButton frontViewBtn = new JButton(DarkThemeUtils.getFatcowIcon("bullet_blue.png"));
+        frontViewBtn.setToolTipText("Front View (Z)");
+
+        JButton rightViewBtn = new JButton(DarkThemeUtils.getFatcowIcon("bullet_red.png"));
+        rightViewBtn.setToolTipText("Right View (X)");
+
+        JButton isoViewBtn = new JButton(DarkThemeUtils.getFatcowIcon("box.png"));
+        isoViewBtn.setToolTipText("Isometric View (Iso)");
+
+        JButton resetCamBtn = new JButton(DarkThemeUtils.getFatcowIcon("camera.png"));
+        resetCamBtn.setToolTipText("Reset Camera View (Home)");
 
         for (JButton b : new JButton[]{topViewBtn, frontViewBtn, rightViewBtn, isoViewBtn, resetCamBtn}) {
             styleToolbarButton(b);
@@ -210,13 +228,15 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 4. Environment & Grid Toggles with Icons
-        JToggleButton gridBtn = new JToggleButton("Grid", DarkThemeUtils.getFatcowIcon("layout.png"), true);
+        // 4. Environment & Grid Toggles (Icon-Only with tooltips)
+        JToggleButton gridBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("layout.png"), true);
+        gridBtn.setToolTipText("Toggle 3D Ground Grid & Axes");
         styleToolbarButton(gridBtn);
         gridBtn.addActionListener(e -> viewportListener.setShowGrid(gridBtn.isSelected()));
         tb.add(gridBtn);
 
-        JToggleButton physicsBtn = new JToggleButton("Play Physics", DarkThemeUtils.getFatcowIcon("control_play_blue.png"), false);
+        JToggleButton physicsBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("control_play_blue.png"), false);
+        physicsBtn.setToolTipText("Toggle Physics Simulation (Space)");
         styleToolbarButton(physicsBtn);
         tb.add(physicsBtn);
 
@@ -228,6 +248,7 @@ public class Scene3DEditorPanel extends JPanel {
         b.setForeground(DarkThemeUtils.TEXT_PRIMARY);
         b.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         b.setFocusPainted(false);
+        b.setPreferredSize(new Dimension(28, 26));
     }
 
     private void setupMouseInteractions() {

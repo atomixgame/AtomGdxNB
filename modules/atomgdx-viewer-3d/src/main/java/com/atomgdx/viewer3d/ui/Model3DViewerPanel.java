@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 
 /**
  * 3D Model & GLTF/GLB Viewer panel (Read-Only Preview Mode).
- * Features quick-selector for popular GLTF demo models & Khronos samples,
- * orbit camera controls, toolbar icons, and edge-to-edge hardware OpenGL viewport.
+ * Features icon-only toolbar with hover tooltips, quick-selector for popular GLTF/GLB demo models,
+ * orbit camera controls, and edge-to-edge hardware OpenGL viewport.
  */
 public class Model3DViewerPanel extends JPanel {
 
@@ -28,6 +28,15 @@ public class Model3DViewerPanel extends JPanel {
     private boolean isPanning = false;
 
     private static final String[] DEMO_MODELS = {
+            "khronos/DamagedHelmet.glb",
+            "khronos/CesiumMilkTruck.glb",
+            "khronos/ToyCar.glb",
+            "khronos/Duck.glb",
+            "khronos/Fox.glb",
+            "khronos/BoomBox.glb",
+            "khronos/WaterBottle.glb",
+            "khronos/BarramundiFish.glb",
+            "khronos/BoxTextured.glb",
             "spacecraft_cruiser.gltf",
             "asteroid_large.gltf",
             "scifi_turret.gltf",
@@ -37,22 +46,14 @@ public class Model3DViewerPanel extends JPanel {
             "cyber_hovercraft.gltf",
             "quantum_warp_beacon.gltf",
             "modular_scifi_wall.gltf",
-            "plasma_cannon_heavy.gltf",
-            "khronos/DamagedHelmet.glb",
-            "khronos/CesiumMilkTruck.glb",
-            "khronos/ToyCar.glb",
-            "khronos/Duck.glb",
-            "khronos/Fox.glb",
-            "khronos/BoomBox.glb",
-            "khronos/WaterBottle.glb",
-            "khronos/BarramundiFish.glb",
-            "khronos/BoxTextured.glb"
+            "plasma_cannon_heavy.gltf"
     };
 
     public Model3DViewerPanel(Model3DDescriptor descriptor) {
-        this.descriptor = descriptor != null ? descriptor : new Model3DDescriptor(new File(DEMO_MODELS[0]));
+        this.descriptor = descriptor != null ? descriptor : new Model3DDescriptor(new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets/models/" + DEMO_MODELS[0]));
         setLayout(new BorderLayout(0, 0));
         setBackground(DarkThemeUtils.BG_DARK);
+        setBorder(null);
 
         File file = this.descriptor.getModelFile();
         viewportListener = new Model3DViewportListener(file);
@@ -60,7 +61,7 @@ public class Model3DViewerPanel extends JPanel {
 
         setupMouseInteractions();
 
-        // Top Toolbar with icons
+        // Top Toolbar with icon-only buttons & hover tooltips
         JToolBar toolbar = createToolBar();
 
         add(toolbar, BorderLayout.NORTH);
@@ -90,17 +91,15 @@ public class Model3DViewerPanel extends JPanel {
         tb.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
 
         JLabel modelIcon = new JLabel(DarkThemeUtils.getFatcowIcon("box.png"));
-        JLabel modelLbl = new JLabel(" Sample GLTF: ");
-        modelLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        modelLbl.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+        modelIcon.setToolTipText("Khronos GLB & GLTF 3D Models");
         tb.add(modelIcon);
-        tb.add(modelLbl);
 
         JComboBox<String> modelCombo = new JComboBox<>(DEMO_MODELS);
         modelCombo.setBackground(DarkThemeUtils.BG_INPUT);
         modelCombo.setForeground(DarkThemeUtils.TEXT_PRIMARY);
         modelCombo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        modelCombo.setMaximumSize(new Dimension(200, 24));
+        modelCombo.setMaximumSize(new Dimension(190, 24));
+        modelCombo.setToolTipText("Select 3D Model File (.glb / .gltf)");
         modelCombo.addActionListener(e -> {
             String selected = (String) modelCombo.getSelectedItem();
             if (selected != null) {
@@ -116,15 +115,21 @@ public class Model3DViewerPanel extends JPanel {
 
         tb.addSeparator();
 
-        JToggleButton gridBtn = new JToggleButton("Grid & Axes", DarkThemeUtils.getFatcowIcon("layout.png"), true);
-        JToggleButton pbrBtn = new JToggleButton("PBR Lighting", DarkThemeUtils.getFatcowIcon("weather_sun.png"), true);
-        JButton resetCamBtn = new JButton("Reset Camera", DarkThemeUtils.getFatcowIcon("camera.png"));
+        JToggleButton gridBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("layout.png"), true);
+        gridBtn.setToolTipText("Toggle Ground Grid & Axes");
+
+        JToggleButton pbrBtn = new JToggleButton(DarkThemeUtils.getFatcowIcon("weather_sun.png"), true);
+        pbrBtn.setToolTipText("Toggle PBR Environment Lighting");
+
+        JButton resetCamBtn = new JButton(DarkThemeUtils.getFatcowIcon("camera.png"));
+        resetCamBtn.setToolTipText("Reset Camera Orbit (Home)");
 
         for (AbstractButton b : new AbstractButton[]{gridBtn, pbrBtn, resetCamBtn}) {
             b.setBackground(DarkThemeUtils.BG_HEADER);
             b.setForeground(DarkThemeUtils.TEXT_PRIMARY);
             b.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             b.setFocusPainted(false);
+            b.setPreferredSize(new Dimension(28, 26));
             tb.add(b);
         }
 
@@ -178,5 +183,10 @@ public class Model3DViewerPanel extends JPanel {
             float delta = (float) e.getPreciseWheelRotation();
             viewportListener.zoom(delta * 0.8f);
         });
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(0, 0);
     }
 }
