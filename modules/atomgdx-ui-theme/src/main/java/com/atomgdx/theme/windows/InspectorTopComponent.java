@@ -19,14 +19,14 @@ import java.io.File;
 
 /**
  * NetBeans TopComponent for the Property & Component Inspector.
- * Docks on the Right side ("properties") inspecting any active LibGdxProject, File, or HyperLap2D Scene Item.
+ * Docks on the Right side ("properties") hosting the full interactive SceneItemInspectorPanel.
  */
 public class InspectorTopComponent extends TopComponent implements LookupListener {
 
     private Lookup.Result<Object> lookupResult;
-    private final JPanel contentPanel = new JPanel();
-    private final JLabel headerTitle = new JLabel("Nothing Selected");
-    private final JLabel headerIcon = new JLabel();
+    private final JPanel wrapperPanel = new JPanel(new BorderLayout());
+    private SceneItemInspectorPanel itemInspectorPanel;
+    private SceneVO activeScene;
 
     public InspectorTopComponent() {
         setName("Inspector");
@@ -34,27 +34,33 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         setLayout(new BorderLayout());
         setBackground(new Color(30, 31, 34));
 
-        // Header
-        JPanel header = new JPanel(new BorderLayout(6, 0));
-        header.setBackground(new Color(43, 45, 48));
-        header.setBorder(new EmptyBorder(6, 8, 6, 8));
-        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        headerTitle.setForeground(new Color(223, 225, 229));
-        header.add(headerIcon, BorderLayout.WEST);
-        header.add(headerTitle, BorderLayout.CENTER);
-        add(header, BorderLayout.NORTH);
+        this.activeScene = new SceneVO("MainScene");
+        itemInspectorPanel = new SceneItemInspectorPanel(this.activeScene);
 
-        // Content
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBackground(new Color(30, 31, 34));
-        contentPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
-
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setBorder(null);
-        scrollPane.getViewport().setBackground(new Color(30, 31, 34));
-        add(scrollPane, BorderLayout.CENTER);
-
+        add(wrapperPanel, BorderLayout.CENTER);
         showEmptySelection();
+    }
+
+    public void setScene(SceneVO scene) {
+        this.activeScene = scene != null ? scene : new SceneVO("MainScene");
+        if (itemInspectorPanel != null) {
+            itemInspectorPanel = new SceneItemInspectorPanel(this.activeScene);
+        }
+    }
+
+    public void inspectItem(MainItemVO item) {
+        if (item == null) {
+            showEmptySelection();
+            return;
+        }
+        wrapperPanel.removeAll();
+        if (itemInspectorPanel == null) {
+            itemInspectorPanel = new SceneItemInspectorPanel(activeScene);
+        }
+        itemInspectorPanel.setItem(item);
+        wrapperPanel.add(itemInspectorPanel, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     @Override
@@ -80,7 +86,7 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         java.util.Collection<?> selected = lookupResult.allInstances();
         for (Object obj : selected) {
             if (obj instanceof MainItemVO) {
-                inspectSceneItem((MainItemVO) obj);
+                inspectItem((MainItemVO) obj);
                 return;
             } else if (obj instanceof File) {
                 inspectFileAsset((File) obj);
@@ -93,85 +99,46 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         showEmptySelection();
     }
 
-    private void inspectSceneItem(MainItemVO item) {
-        headerTitle.setText("Item: " + (item.itemName != null && !item.itemName.isEmpty() ? item.itemName : "Item #" + item.uniqueId));
-        headerIcon.setIcon(new ImageIcon(LibGdxProjectNode.getCustomIcon("star.png")));
-        contentPanel.removeAll();
-
-        // Transform Section
-        JPanel transformP = createSection("Transform & Identity");
-        transformP.add(createPropRow("Name:", item.itemName));
-        transformP.add(createPropRow("Layer:", item.layerName));
-        transformP.add(createPropRow("Position:", "(" + item.x + ", " + item.y + ")"));
-        transformP.add(createPropRow("Scale:", "(" + item.scaleX + ", " + item.scaleY + ")"));
-        transformP.add(createPropRow("Rotation:", item.rotation + "°"));
-        transformP.add(createPropRow("Origin:", "(" + item.originX + ", " + item.originY + ")"));
-        transformP.add(createPropRow("Z-Index:", String.valueOf(item.zIndex)));
-        transformP.add(createPropRow("Visible:", item.isVisible ? "Yes" : "No"));
-        contentPanel.add(transformP);
-
-        // Box2D Physics Section
-        if (item.physics != null) {
-            contentPanel.add(Box.createVerticalStrut(6));
-            JPanel physP = createSection("Box2D Physics Body");
-            String[] types = {"Static", "Kinematic", "Dynamic"};
-            physP.add(createPropRow("Body Type:", types[Math.max(0, Math.min(2, item.physics.bodyType))]));
-            physP.add(createPropRow("Density:", String.valueOf(item.physics.density)));
-            physP.add(createPropRow("Friction:", String.valueOf(item.physics.friction)));
-            physP.add(createPropRow("Restitution:", String.valueOf(item.physics.restitution)));
-            physP.add(createPropRow("Sensor:", item.physics.sensor ? "True" : "False"));
-            physP.add(createPropRow("Bullet:", item.physics.bullet ? "True" : "False"));
-            contentPanel.add(physP);
-        }
-
-        // Lighting Section
-        if (item instanceof LightVO) {
-            LightVO lt = (LightVO) item;
-            contentPanel.add(Box.createVerticalStrut(6));
-            JPanel ltP = createSection("Light Properties");
-            ltP.add(createPropRow("Light Type:", lt.type.name()));
-            ltP.add(createPropRow("Rays:", String.valueOf(lt.rays)));
-            ltP.add(createPropRow("Distance:", lt.distance + " px"));
-            contentPanel.add(ltP);
-        }
-
-        contentPanel.add(Box.createVerticalGlue());
-        contentPanel.revalidate();
-        contentPanel.repaint();
-    }
-
     private void inspectFileAsset(File file) {
-        headerTitle.setText("Asset: " + file.getName());
-        headerIcon.setIcon(new ImageIcon(LibGdxProjectNode.getCustomIcon("picture.png")));
-        contentPanel.removeAll();
+        wrapperPanel.removeAll();
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(30, 31, 34));
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JPanel p = createSection("File Details");
         p.add(createPropRow("File Name:", file.getName()));
         p.add(createPropRow("Size:", (file.length() / 1024) + " KB"));
         p.add(createPropRow("Location:", file.getParent()));
         p.add(createPropRow("Writable:", file.canWrite() ? "Yes" : "No"));
-        contentPanel.add(p);
+        panel.add(p);
+        panel.add(Box.createVerticalGlue());
 
-        contentPanel.add(Box.createVerticalGlue());
-        contentPanel.revalidate();
-        contentPanel.repaint();
+        wrapperPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     private void inspectProject(LibGdxProject project) {
-        headerTitle.setText("Project: " + project.getName());
-        headerIcon.setIcon(new ImageIcon(LibGdxProjectNode.getCustomIcon("folder.png")));
-        contentPanel.removeAll();
+        wrapperPanel.removeAll();
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(30, 31, 34));
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JPanel p = createSection("Project Overview");
         p.add(createPropRow("Game Name:", project.getName()));
         p.add(createPropRow("LibGDX Version:", project.getGdxVersion()));
         p.add(createPropRow("Package:", project.getPackageName()));
         p.add(createPropRow("Root Path:", project.getRootDirectory().getAbsolutePath()));
-        contentPanel.add(p);
+        panel.add(p);
+        panel.add(Box.createVerticalGlue());
 
-        contentPanel.add(Box.createVerticalGlue());
-        contentPanel.revalidate();
-        contentPanel.repaint();
+        wrapperPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     private JPanel createSection(String title) {
@@ -202,19 +169,24 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
     }
 
     private void showEmptySelection() {
-        headerTitle.setText("No Component Selected");
-        headerIcon.setIcon(null);
-        contentPanel.removeAll();
+        wrapperPanel.removeAll();
 
-        JLabel info = new JLabel("<html><center style='color:#9aa0a6;'>Select an item in <b>Projects</b> or <b>Scene Structure</b> to inspect its properties.</center></html>");
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(30, 31, 34));
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        JLabel info = new JLabel("<html><center style='color:#9aa0a6;'>Select an item in <b>Projects & Assets</b> or <b>Scene Structure</b> to inspect and edit its properties.</center></html>");
         info.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         info.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        contentPanel.add(Box.createVerticalStrut(20));
-        contentPanel.add(info);
-        contentPanel.add(Box.createVerticalGlue());
-        contentPanel.revalidate();
-        contentPanel.repaint();
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(info);
+        panel.add(Box.createVerticalGlue());
+
+        wrapperPanel.add(panel, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     @Override

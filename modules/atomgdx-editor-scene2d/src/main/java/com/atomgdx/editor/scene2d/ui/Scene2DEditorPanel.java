@@ -14,11 +14,12 @@ import java.awt.Color;
 import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
+import java.util.function.Consumer;
 
 /**
- * Full HyperLap2D 2D Composite Scene Editor Panel in AtomGDX.
- * Features hardware OpenGL viewport on LwjglAWTCanvas, Hierarchy & Layer Manager,
- * Interactive Transform Gizmos, Box2D Physics Inspector, Asset Library, and JetBrains Dark Theme.
+ * Clean Center Viewport Editor for HyperLap2D 2D Composite Scenes.
+ * Dedicated to hardware OpenGL rendering on LwjglAWTCanvas, top toolbars, and transform gizmos.
+ * The Hierarchy and Inspector panels are promoted to first-class NetBeans TopComponents.
  */
 public class Scene2DEditorPanel extends JPanel {
 
@@ -36,12 +37,9 @@ public class Scene2DEditorPanel extends JPanel {
     private final GdxAwtViewport gdxViewport;
     private final Scene2DViewportListener viewportListener;
 
-    private final SceneHierarchyTreePanel hierarchyPanel;
-    private final SceneItemInspectorPanel inspectorPanel;
-    private final SceneAssetBrowserPanel assetBrowserPanel;
-
     private int lastMouseX, lastMouseY;
     private boolean isPanning = false;
+    private Consumer<MainItemVO> itemSelectionListener;
 
     public Scene2DEditorPanel() {
         this(new SceneVO("MainScene"));
@@ -58,54 +56,13 @@ public class Scene2DEditorPanel extends JPanel {
             this.scene.composite.sImages.add(new SimpleImageVO("nebula_bg", 400, 200));
         }
 
-        setLayout(new BorderLayout(6, 6));
+        setLayout(new BorderLayout(0, 0));
         setBackground(DarkThemeColors.BG_WINDOW);
-        setBorder(new EmptyBorder(4, 4, 4, 4));
 
         // Center Viewport powered by LibGDX LwjglAWTCanvas
         viewportListener = new Scene2DViewportListener(this.scene);
         gdxViewport = new GdxAwtViewport(viewportListener);
         gdxViewport.setBorder(new LineBorder(DarkThemeColors.BORDER, 1));
-
-        // Sidebars
-        hierarchyPanel = new SceneHierarchyTreePanel(this.scene);
-        inspectorPanel = new SceneItemInspectorPanel(this.scene);
-        assetBrowserPanel = new SceneAssetBrowserPanel();
-
-        JTabbedPane leftTabs = new JTabbedPane();
-        leftTabs.setBackground(DarkThemeColors.BG_PANEL);
-        leftTabs.setForeground(DarkThemeColors.TEXT_PRIMARY);
-        leftTabs.setPreferredSize(new Dimension(280, 600));
-        leftTabs.addTab("Hierarchy", getIcon("folder.png"), hierarchyPanel);
-        leftTabs.addTab("Assets", getIcon("picture.png"), assetBrowserPanel);
-
-        inspectorPanel.setPreferredSize(new Dimension(300, 600));
-
-        // Connect Listeners
-        hierarchyPanel.setSelectionListener(item -> {
-            viewportListener.getGizmo().setTargetItem(item);
-            inspectorPanel.setItem(item);
-        });
-
-        hierarchyPanel.setChangeListener(() -> {
-            inspectorPanel.setItem(hierarchyPanel.getSelectedItem());
-        });
-
-        inspectorPanel.setChangeListener(() -> {
-            hierarchyPanel.rebuildTree();
-            hierarchyPanel.selectItem(viewportListener.getGizmo().getTargetItem());
-        });
-
-        assetBrowserPanel.setAssetAddListener(file -> {
-            String name = file.getName();
-            viewportListener.loadTexture(name, file);
-            SimpleImageVO img = new SimpleImageVO(name, 640, 360);
-            this.scene.composite.sImages.add(img);
-            hierarchyPanel.rebuildTree();
-            hierarchyPanel.selectItem(img);
-            viewportListener.getGizmo().setTargetItem(img);
-            inspectorPanel.setItem(img);
-        });
 
         // Setup Viewport Mouse Controls
         setupCanvasInteractions();
@@ -114,17 +71,21 @@ public class Scene2DEditorPanel extends JPanel {
         JToolBar toolBar = createToolBar();
 
         add(toolBar, BorderLayout.NORTH);
-        add(leftTabs, BorderLayout.WEST);
         add(gdxViewport, BorderLayout.CENTER);
-        add(inspectorPanel, BorderLayout.EAST);
 
         // Select first item by default
         if (!this.scene.composite.sImages.isEmpty()) {
             MainItemVO first = this.scene.composite.sImages.get(0);
-            hierarchyPanel.selectItem(first);
             viewportListener.getGizmo().setTargetItem(first);
-            inspectorPanel.setItem(first);
         }
+    }
+
+    public void setItemSelectionListener(Consumer<MainItemVO> listener) {
+        this.itemSelectionListener = listener;
+    }
+
+    public void setSelectedItem(MainItemVO item) {
+        viewportListener.getGizmo().setTargetItem(item);
     }
 
     public int getRenderedFrameCount() {
@@ -133,6 +94,10 @@ public class Scene2DEditorPanel extends JPanel {
 
     public SceneVO getScene() {
         return scene;
+    }
+
+    public Scene2DViewportListener getViewportListener() {
+        return viewportListener;
     }
 
     public static ImageIcon getIcon(String name) {
@@ -235,8 +200,9 @@ public class Scene2DEditorPanel extends JPanel {
                             }
                         }
                         viewportListener.getGizmo().setTargetItem(hitItem);
-                        hierarchyPanel.selectItem(hitItem);
-                        inspectorPanel.setItem(hitItem);
+                        if (itemSelectionListener != null) {
+                            itemSelectionListener.accept(hitItem);
+                        }
                     }
                 }
             }
@@ -245,7 +211,9 @@ public class Scene2DEditorPanel extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 isPanning = false;
                 viewportListener.getGizmo().endDrag();
-                inspectorPanel.setItem(viewportListener.getGizmo().getTargetItem());
+                if (itemSelectionListener != null) {
+                    itemSelectionListener.accept(viewportListener.getGizmo().getTargetItem());
+                }
             }
         });
 
@@ -266,7 +234,6 @@ public class Scene2DEditorPanel extends JPanel {
                 } else {
                     Vector3 world = viewportListener.screenToWorld(e.getX(), e.getY());
                     viewportListener.getGizmo().updateDrag(world.x, world.y);
-                    inspectorPanel.setItem(viewportListener.getGizmo().getTargetItem());
                 }
             }
         });
