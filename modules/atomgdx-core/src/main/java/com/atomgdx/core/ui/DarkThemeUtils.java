@@ -202,6 +202,7 @@ public final class DarkThemeUtils {
             this.contentPanel = content;
             setLayout(new BorderLayout(0, 0));
             setOpaque(false);
+            setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JPanel header = new JPanel(new BorderLayout(4, 0));
             header.setBackground(BG_HEADER);

@@ -53,9 +53,9 @@ public class Model3DViewportListener implements ApplicationListener {
 
     // Orbit Camera State
     private float cameraYaw = 45f;
-    private float cameraPitch = 30f;
+    private float cameraPitch = 20f;
     private float cameraDistance = 8f;
-    private final Vector3 target = new Vector3(0, 0, 0);
+    private final Vector3 target = new Vector3(0, 2.0f, 0);
 
     public Model3DViewportListener() {
         this(null);
@@ -567,9 +567,9 @@ public class Model3DViewportListener implements ApplicationListener {
 
     public void resetCamera() {
         cameraYaw = 45f;
-        cameraPitch = 30f;
+        cameraPitch = 20f;
         cameraDistance = 8f;
-        target.set(0, 0, 0);
+        target.set(0, 2.0f, 0);
         updateCamera();
     }
 

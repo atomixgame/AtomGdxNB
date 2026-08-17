@@ -38,6 +38,7 @@
                 <package>com.badlogic.gdx.graphics.g2d</package>
                 <package>com.badlogic.gdx.graphics.glutils</package>
                 <package>com.badlogic.gdx.math</package>
+                <package>com.badlogic.gdx.math.collision</package>
                 <package>com.badlogic.gdx.utils</package>
                 <package>com.badlogic.gdx.scenes.scene2d</package>
                 <package>com.badlogic.gdx.scenes.scene2d.ui</package>

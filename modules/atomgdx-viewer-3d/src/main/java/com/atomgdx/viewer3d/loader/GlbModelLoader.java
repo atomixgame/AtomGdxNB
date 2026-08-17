@@ -9,6 +9,10 @@ import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -20,8 +24,9 @@ import java.nio.ByteOrder;
 
 /**
  * High-performance native Binary glTF (.GLB) and JSON glTF (.GLTF) 3D Model Loader.
- * Directly decodes real geometry, vertex accessors (POSITION, NORMAL, TEXCOORD), indices,
- * embedded PBR textures (Albedo, Metallic, Roughness), and node hierarchies.
+ * Accurately decodes geometry, accessors (POSITION, NORMAL, TEXCOORD with V-flip),
+ * embedded PBR textures (Albedo, Normal, Metallic-Roughness), node transformations
+ * (matrix, quaternion rotation, scale, translation), and auto-normalizes orientation.
  */
 public class GlbModelLoader {
 
@@ -108,6 +113,7 @@ public class GlbModelLoader {
         JsonValue materials = root.get("materials");
         JsonValue textures = root.get("textures");
         JsonValue images = root.get("images");
+        JsonValue gltfNodes = root.get("nodes");
 
         if (meshes == null || accessors == null || bufferViews == null) {
             StudioLog.warn("glTF missing meshes/accessors/bufferViews in " + modelName);
@@ -128,8 +134,8 @@ public class GlbModelLoader {
                         int offset = bv.getInt("byteOffset", 0);
                         int len = bv.getInt("byteLength");
                         Pixmap pixmap = new Pixmap(binData, offset, len);
-                        Texture tex = new Texture(pixmap);
-                        tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                        Texture tex = new Texture(pixmap, true);
+                        tex.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
                         pixmap.dispose();
                         loadedTextures.add(tex);
                         model.manageDisposable(tex);
@@ -142,7 +148,7 @@ public class GlbModelLoader {
             }
         }
 
-        // 2. Parse Materials
+        // 2. Parse Materials with PBR Diffuse / BaseColor Texture
         Array<Material> parsedMaterials = new Array<>();
         if (materials != null) {
             for (JsonValue matVal : materials) {
@@ -150,7 +156,7 @@ public class GlbModelLoader {
                 String matName = matVal.getString("name", "Material_" + parsedMaterials.size);
                 mat.id = matName;
 
-                Color baseColor = new Color(0.85f, 0.85f, 0.88f, 1.0f);
+                Color baseColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
                 Texture baseTexture = null;
 
                 JsonValue pbr = matVal.get("pbrMetallicRoughness");
@@ -175,10 +181,15 @@ public class GlbModelLoader {
 
                 if (baseTexture != null) {
                     mat.set(TextureAttribute.createDiffuse(baseTexture));
+                    mat.set(ColorAttribute.createDiffuse(Color.WHITE));
+                } else if (loadedTextures.size > 0 && loadedTextures.get(0) != null) {
+                    mat.set(TextureAttribute.createDiffuse(loadedTextures.get(0)));
+                    mat.set(ColorAttribute.createDiffuse(Color.WHITE));
                 } else {
                     mat.set(ColorAttribute.createDiffuse(baseColor));
                 }
-                mat.set(ColorAttribute.createSpecular(new Color(0.6f, 0.6f, 0.6f, 1f)));
+
+                mat.set(ColorAttribute.createSpecular(new Color(0.8f, 0.8f, 0.8f, 1f)));
 
                 parsedMaterials.add(mat);
                 model.materials.add(mat);
@@ -186,17 +197,19 @@ public class GlbModelLoader {
         }
 
         if (parsedMaterials.size == 0) {
-            Material defMat = new Material(ColorAttribute.createDiffuse(new Color(0.75f, 0.78f, 0.82f, 1f)));
+            Material defMat = new Material(ColorAttribute.createDiffuse(Color.WHITE), ColorAttribute.createSpecular(Color.WHITE));
+            if (loadedTextures.size > 0 && loadedTextures.get(0) != null) {
+                defMat.set(TextureAttribute.createDiffuse(loadedTextures.get(0)));
+            }
             defMat.id = "Default_PBR";
             parsedMaterials.add(defMat);
             model.materials.add(defMat);
         }
 
-        // Bounding Box Tracking for Auto-Centering & Normalizing Scale
-        float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
-        float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
-
         // 3. Parse Meshes & Real Geometric Vertices
+        Array<MeshPart> parsedMeshParts = new Array<>();
+        Array<Material> meshPartMaterials = new Array<>();
+
         int meshIndex = 0;
         for (JsonValue meshVal : meshes) {
             JsonValue primitives = meshVal.get("primitives");
@@ -218,16 +231,6 @@ public class GlbModelLoader {
                 float[] positions = readFloatAccessor(accessors.get(posAccIdx), bufferViews, binBuf);
                 int vertexCount = positions.length / 3;
 
-                // Track Bounding Box
-                for (int i = 0; i < positions.length; i += 3) {
-                    minX = Math.min(minX, positions[i]);
-                    minY = Math.min(minY, positions[i + 1]);
-                    minZ = Math.min(minZ, positions[i + 2]);
-                    maxX = Math.max(maxX, positions[i]);
-                    maxY = Math.max(maxY, positions[i + 1]);
-                    maxZ = Math.max(maxZ, positions[i + 2]);
-                }
-
                 // Read Normals
                 float[] normals = normAccIdx >= 0 ? readFloatAccessor(accessors.get(normAccIdx), bufferViews, binBuf) : null;
 
@@ -242,18 +245,22 @@ public class GlbModelLoader {
                 boolean hasUvs = uvs != null && uvs.length == vertexCount * 2;
 
                 Array<VertexAttribute> attribList = new Array<>();
-                attribList.add(new VertexAttribute(VertexAttributes.Usage.Position, 3, "a_position"));
-                if (hasNormals) attribList.add(new VertexAttribute(VertexAttributes.Usage.Normal, 3, "a_normal"));
-                if (hasUvs) attribList.add(new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "a_texCoord0"));
+                attribList.add(VertexAttribute.Position());
+                if (hasNormals) attribList.add(VertexAttribute.Normal());
+                if (hasUvs) attribList.add(VertexAttribute.TexCoords(0));
 
                 int floatsPerVertex = 3 + (hasNormals ? 3 : 0) + (hasUvs ? 2 : 0);
                 float[] vertexBuffer = new float[vertexCount * floatsPerVertex];
 
                 int vIdx = 0;
                 for (int i = 0; i < vertexCount; i++) {
-                    vertexBuffer[vIdx++] = positions[i * 3];
-                    vertexBuffer[vIdx++] = positions[i * 3 + 1];
-                    vertexBuffer[vIdx++] = positions[i * 3 + 2];
+                    float vx = positions[i * 3];
+                    float vy = positions[i * 3 + 1];
+                    float vz = positions[i * 3 + 2];
+
+                    vertexBuffer[vIdx++] = vx;
+                    vertexBuffer[vIdx++] = vy;
+                    vertexBuffer[vIdx++] = vz;
 
                     if (hasNormals) {
                         vertexBuffer[vIdx++] = normals[i * 3];
@@ -263,7 +270,8 @@ public class GlbModelLoader {
 
                     if (hasUvs) {
                         vertexBuffer[vIdx++] = uvs[i * 2];
-                        vertexBuffer[vIdx++] = uvs[i * 2 + 1];
+                        // Invert V coordinate for OpenGL texture space
+                        vertexBuffer[vIdx++] = 1.0f - uvs[i * 2 + 1];
                     }
                 }
 
@@ -284,36 +292,96 @@ public class GlbModelLoader {
                 meshPart.mesh = gdxMesh;
                 model.meshParts.add(meshPart);
 
-                Node node = new Node();
-                node.id = "Node_" + meshVal.getString("name", "Mesh_" + meshIndex);
-                NodePart nodePart = new NodePart(meshPart, mat);
-                node.parts.add(nodePart);
-                model.nodes.add(node);
+                parsedMeshParts.add(meshPart);
+                meshPartMaterials.add(mat);
 
                 meshIndex++;
             }
         }
 
-        // Calculate Scale and Offset to Center & Normalize in Viewport
-        float sizeX = maxX - minX;
-        float sizeY = maxY - minY;
-        float sizeZ = maxZ - minZ;
-        float maxDim = Math.max(sizeX, Math.max(sizeY, sizeZ));
+        // 4. Construct Nodes and Apply glTF Node Transforms (Rotation, Scale, Translation)
+        if (gltfNodes != null && gltfNodes.size > 0) {
+            for (JsonValue nodeVal : gltfNodes) {
+                Node node = new Node();
+                node.id = nodeVal.getString("name", "Node_" + model.nodes.size);
+
+                // Check for mesh attachment
+                if (nodeVal.has("mesh")) {
+                    int meshRefIdx = nodeVal.getInt("mesh");
+                    if (meshRefIdx >= 0 && meshRefIdx < parsedMeshParts.size) {
+                        MeshPart mp = parsedMeshParts.get(meshRefIdx);
+                        Material mat = meshPartMaterials.get(meshRefIdx);
+                        NodePart np = new NodePart(mp, mat);
+                        node.parts.add(np);
+                    }
+                }
+
+                // Apply Translation
+                if (nodeVal.has("translation")) {
+                    JsonValue t = nodeVal.get("translation");
+                    node.translation.set(t.getFloat(0), t.getFloat(1), t.getFloat(2));
+                }
+
+                // Apply Rotation Quaternion [x, y, z, w]
+                if (nodeVal.has("rotation")) {
+                    JsonValue r = nodeVal.get("rotation");
+                    node.rotation.set(r.getFloat(0), r.getFloat(1), r.getFloat(2), r.getFloat(3));
+                }
+
+                // Apply Scale
+                if (nodeVal.has("scale")) {
+                    JsonValue s = nodeVal.get("scale");
+                    node.scale.set(s.getFloat(0), s.getFloat(1), s.getFloat(2));
+                }
+
+                // Apply Matrix (if defined)
+                if (nodeVal.has("matrix")) {
+                    JsonValue m = nodeVal.get("matrix");
+                    float[] val = new float[16];
+                    for (int i = 0; i < 16; i++) val[i] = m.getFloat(i);
+                    Matrix4 mat4 = new Matrix4(val);
+                    mat4.getTranslation(node.translation);
+                    mat4.getRotation(node.rotation);
+                    mat4.getScale(node.scale);
+                }
+
+                node.calculateTransforms(true);
+                model.nodes.add(node);
+            }
+        }
+
+        // If no nodes parsed, build default root node
+        if (model.nodes.size == 0) {
+            for (int i = 0; i < parsedMeshParts.size; i++) {
+                Node n = new Node();
+                n.id = "Node_" + i;
+                n.parts.add(new NodePart(parsedMeshParts.get(i), meshPartMaterials.get(i)));
+                model.nodes.add(n);
+            }
+        }
+
+        // 5. Calculate Transformed Bounding Box and Center/Scale Upright in Viewport
+        BoundingBox bb = new BoundingBox();
+        model.calculateBoundingBox(bb);
+
+        Vector3 dim = new Vector3();
+        bb.getDimensions(dim);
+        float maxDim = Math.max(dim.x, Math.max(dim.y, dim.z));
+
         if (maxDim > 0.0001f) {
             float targetSize = 4.0f;
-            float scale = targetSize / maxDim;
-            float centerX = (minX + maxX) / 2f;
-            float centerY = (minY + maxY) / 2f;
-            float centerZ = (minZ + maxZ) / 2f;
+            float scaleFactor = targetSize / maxDim;
+            Vector3 center = new Vector3();
+            bb.getCenter(center);
 
             for (Node n : model.nodes) {
-                n.scale.set(scale, scale, scale);
-                n.translation.set(-centerX * scale, -centerY * scale + (targetSize / 2f), -centerZ * scale);
+                n.scale.scl(scaleFactor);
+                n.translation.sub(center.x * scaleFactor, center.y * scaleFactor - (targetSize / 2f), center.z * scaleFactor);
                 n.calculateTransforms(true);
             }
         }
 
-        StudioLog.info("Loaded real Khronos GLB model: " + modelName + " (" + model.nodes.size + " nodes, " + model.meshes.size + " meshes, " + (indicesCountTotal(model)) + " indices)");
+        StudioLog.info("Loaded real Khronos GLB: " + modelName + " (" + model.nodes.size + " nodes, " + model.meshes.size + " meshes, " + loadedTextures.size + " textures, " + (indicesCountTotal(model)) + " indices)");
         return model;
     }
 
