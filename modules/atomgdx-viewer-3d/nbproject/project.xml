@@ -17,6 +17,7 @@
             </module-dependencies>
             <public-packages>
                 <package>com.atomgdx.viewer3d</package>
+                <package>com.atomgdx.viewer3d.data</package>
                 <package>com.atomgdx.viewer3d.ui</package>
             </public-packages>
         </data>

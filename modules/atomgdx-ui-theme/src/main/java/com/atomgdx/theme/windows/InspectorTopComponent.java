@@ -1,9 +1,13 @@
 package com.atomgdx.theme.windows;
 
 import com.atomgdx.core.project.LibGdxProject;
+import com.atomgdx.core.ui.DarkThemeUtils;
 import com.atomgdx.editor.scene2d.data.vo.*;
 import com.atomgdx.editor.scene2d.ui.SceneItemInspectorPanel;
 import com.atomgdx.theme.project.LibGdxProjectNode;
+import com.atomgdx.viewer3d.data.Material3DVO;
+import com.atomgdx.viewer3d.data.Node3DVO;
+import com.atomgdx.viewer3d.ui.Model3DInspectorPanel;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -13,39 +17,58 @@ import org.openide.windows.TopComponent;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 
 /**
  * NetBeans TopComponent for the Property & Component Inspector.
- * Docks on the Right side ("properties") hosting the full interactive SceneItemInspectorPanel.
+ * Docks on the Right side ("properties"), dynamically switching between 2D HyperLap Items,
+ * 3D GameObjects / SceneGraph Nodes, PBR Materials, and Project Settings.
  */
 public class InspectorTopComponent extends TopComponent implements LookupListener {
 
     private Lookup.Result<Object> lookupResult;
     private final JPanel wrapperPanel = new JPanel(new BorderLayout());
-    private SceneItemInspectorPanel itemInspectorPanel;
-    private SceneVO activeScene;
+
+    private SceneItemInspectorPanel itemInspector2D;
+    private Model3DInspectorPanel inspector3D;
+    private SceneVO activeScene2D;
 
     public InspectorTopComponent() {
         setName("Inspector");
-        setToolTipText("LibGDX Property & Component Inspector");
+        setToolTipText("LibGDX Property, 3D GameObject & Component Inspector");
         setLayout(new BorderLayout());
-        setBackground(new Color(30, 31, 34));
+        setBackground(DarkThemeUtils.BG_DARK);
 
-        this.activeScene = new SceneVO("MainScene");
-        itemInspectorPanel = new SceneItemInspectorPanel(this.activeScene);
+        this.activeScene2D = new SceneVO("MainScene");
+        itemInspector2D = new SceneItemInspectorPanel(this.activeScene2D);
+        inspector3D = new Model3DInspectorPanel();
 
         add(wrapperPanel, BorderLayout.CENTER);
         showEmptySelection();
     }
 
-    public void setScene(SceneVO scene) {
-        this.activeScene = scene != null ? scene : new SceneVO("MainScene");
-        if (itemInspectorPanel != null) {
-            itemInspectorPanel = new SceneItemInspectorPanel(this.activeScene);
+    public void setScene2D(SceneVO scene) {
+        this.activeScene2D = scene != null ? scene : new SceneVO("MainScene");
+        if (itemInspector2D != null) {
+            itemInspector2D = new SceneItemInspectorPanel(this.activeScene2D);
         }
+    }
+
+    public void inspectNode3D(Node3DVO node) {
+        if (node == null) {
+            showEmptySelection();
+            return;
+        }
+        setName("Inspector - " + node.nodeName);
+        wrapperPanel.removeAll();
+        if (inspector3D == null) {
+            inspector3D = new Model3DInspectorPanel();
+        }
+        inspector3D.setNode(node);
+        wrapperPanel.add(inspector3D, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     public void inspectItem(MainItemVO item) {
@@ -53,12 +76,33 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
             showEmptySelection();
             return;
         }
+        setName("Inspector - " + (item.itemName != null ? item.itemName : "2D Item"));
         wrapperPanel.removeAll();
-        if (itemInspectorPanel == null) {
-            itemInspectorPanel = new SceneItemInspectorPanel(activeScene);
+        if (itemInspector2D == null) {
+            itemInspector2D = new SceneItemInspectorPanel(activeScene2D);
         }
-        itemInspectorPanel.setItem(item);
-        wrapperPanel.add(itemInspectorPanel, BorderLayout.CENTER);
+        itemInspector2D.setItem(item);
+        wrapperPanel.add(itemInspector2D, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
+    }
+
+    public void inspectMaterial(Material3DVO material) {
+        if (material == null) {
+            showEmptySelection();
+            return;
+        }
+        setName("Inspector - Material: " + material.materialName);
+        wrapperPanel.removeAll();
+
+        Node3DVO previewNode = new Node3DVO(material.materialName, Node3DVO.MeshShape.SPHERE, 0, 0, 0);
+        previewNode.material = material;
+
+        if (inspector3D == null) {
+            inspector3D = new Model3DInspectorPanel();
+        }
+        inspector3D.setNode(previewNode);
+        wrapperPanel.add(inspector3D, BorderLayout.CENTER);
         wrapperPanel.revalidate();
         wrapperPanel.repaint();
     }
@@ -85,7 +129,13 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         if (lookupResult == null) return;
         java.util.Collection<?> selected = lookupResult.allInstances();
         for (Object obj : selected) {
-            if (obj instanceof MainItemVO) {
+            if (obj instanceof Node3DVO) {
+                inspectNode3D((Node3DVO) obj);
+                return;
+            } else if (obj instanceof Material3DVO) {
+                inspectMaterial((Material3DVO) obj);
+                return;
+            } else if (obj instanceof MainItemVO) {
                 inspectItem((MainItemVO) obj);
                 return;
             } else if (obj instanceof File) {
@@ -101,90 +151,48 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
 
     private void inspectFileAsset(File file) {
         wrapperPanel.removeAll();
+        setName("Inspector - " + file.getName());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(30, 31, 34));
-        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        JPanel p = new JPanel(new GridLayout(0, 1, 4, 4));
+        p.setBackground(DarkThemeUtils.BG_PANEL);
+        p.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JPanel p = createSection("File Details");
-        p.add(createPropRow("File Name:", file.getName()));
-        p.add(createPropRow("Size:", (file.length() / 1024) + " KB"));
-        p.add(createPropRow("Location:", file.getParent()));
-        p.add(createPropRow("Writable:", file.canWrite() ? "Yes" : "No"));
-        panel.add(p);
-        panel.add(Box.createVerticalGlue());
-
-        wrapperPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+        p.add(new JLabel("File: " + file.getName()));
+        p.add(new JLabel("Path: " + file.getAbsolutePath()));
+        p.add(new JLabel("Size: " + (file.length() / 1024) + " KB"));
+        wrapperPanel.add(p, BorderLayout.NORTH);
         wrapperPanel.revalidate();
         wrapperPanel.repaint();
     }
 
     private void inspectProject(LibGdxProject project) {
         wrapperPanel.removeAll();
+        setName("Inspector - " + project.getName());
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(30, 31, 34));
-        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        JPanel p = new JPanel(new GridLayout(0, 1, 4, 4));
+        p.setBackground(DarkThemeUtils.BG_PANEL);
+        p.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JPanel p = createSection("Project Overview");
-        p.add(createPropRow("Game Name:", project.getName()));
-        p.add(createPropRow("LibGDX Version:", project.getGdxVersion()));
-        p.add(createPropRow("Package:", project.getPackageName()));
-        p.add(createPropRow("Root Path:", project.getRootDirectory().getAbsolutePath()));
-        panel.add(p);
-        panel.add(Box.createVerticalGlue());
-
-        wrapperPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+        p.add(new JLabel("Project: " + project.getName()));
+        p.add(new JLabel("Java: " + project.getJavaVersion()));
+        p.add(new JLabel("LibGDX: " + project.getGdxVersion()));
+        wrapperPanel.add(p, BorderLayout.NORTH);
         wrapperPanel.revalidate();
         wrapperPanel.repaint();
     }
 
-    private JPanel createSection(String title) {
-        JPanel p = new JPanel(new GridLayout(0, 1, 2, 2));
-        p.setBackground(new Color(43, 45, 48));
-        TitledBorder tb = BorderFactory.createTitledBorder(new LineBorder(new Color(60, 63, 65), 1), title);
-        tb.setTitleColor(new Color(223, 225, 229));
-        tb.setTitleFont(new Font("Segoe UI", Font.BOLD, 11));
-        p.setBorder(BorderFactory.createCompoundBorder(tb, new EmptyBorder(4, 6, 4, 6)));
-        return p;
-    }
-
-    private JPanel createPropRow(String label, String value) {
-        JPanel r = new JPanel(new BorderLayout(4, 0));
-        r.setOpaque(false);
-        JLabel lbl = new JLabel(label);
-        lbl.setForeground(new Color(154, 160, 166));
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setPreferredSize(new Dimension(80, 20));
-
-        JLabel val = new JLabel(value != null ? value : "");
-        val.setForeground(new Color(223, 225, 229));
-        val.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-
-        r.add(lbl, BorderLayout.WEST);
-        r.add(val, BorderLayout.CENTER);
-        return r;
-    }
-
     private void showEmptySelection() {
+        setName("Inspector");
         wrapperPanel.removeAll();
+        JPanel empty = new JPanel(new GridBagLayout());
+        empty.setBackground(DarkThemeUtils.BG_DARK);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(new Color(30, 31, 34));
-        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        JLabel msg = new JLabel("No item or 3D node selected", SwingConstants.CENTER);
+        msg.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        msg.setForeground(DarkThemeUtils.TEXT_MUTED);
+        empty.add(msg);
 
-        JLabel info = new JLabel("<html><center style='color:#9aa0a6;'>Select an item in <b>Projects & Assets</b> or <b>Scene Structure</b> to inspect and edit its properties.</center></html>");
-        info.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        info.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        panel.add(Box.createVerticalStrut(20));
-        panel.add(info);
-        panel.add(Box.createVerticalGlue());
-
-        wrapperPanel.add(panel, BorderLayout.CENTER);
+        wrapperPanel.add(empty, BorderLayout.CENTER);
         wrapperPanel.revalidate();
         wrapperPanel.repaint();
     }
