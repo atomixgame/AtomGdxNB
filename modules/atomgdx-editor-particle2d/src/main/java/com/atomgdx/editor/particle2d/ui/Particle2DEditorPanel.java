@@ -14,8 +14,10 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
@@ -27,19 +29,21 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Modern Sci-Fi 2D Particle Editor Panel powered by native LibGDX LwjglAWTCanvas OpenGL viewport.
- * Features 100 categorized and tagged presets, asset texture browser, fatcow UI icons, and interactive canvas.
+ * Modern Dark Theme 2D Particle Editor Panel powered by native LibGDX LwjglAWTCanvas OpenGL viewport.
+ * Features 100 categorized and tagged presets, asset texture browser, Fatcow UI icons, and interactive canvas.
  */
 public class Particle2DEditorPanel extends JPanel {
 
-    private static class SciFiColors {
-        public static final Color BG_DARKEST = new Color(10, 14, 23);
-        public static final Color BG_PANEL = new Color(18, 24, 38);
-        public static final Color BG_CARD = new Color(24, 32, 50);
-        public static final Color BG_DARK = new Color(14, 18, 28);
-        public static final Color ACCENT_CYAN = new Color(0, 240, 255);
-        public static final Color TEXT_PRIMARY = new Color(240, 246, 252);
-        public static final Color TEXT_MUTED = new Color(139, 148, 158);
+    public static class DarkThemeColors {
+        public static final Color BG_WINDOW = new Color(30, 31, 34);           // #1e1f22
+        public static final Color BG_PANEL = new Color(43, 45, 48);            // #2b2d30
+        public static final Color BG_DARK = new Color(30, 31, 34);             // #1e1f22
+        public static final Color BG_ITEM_ALT = new Color(38, 40, 44);         // #26282c
+        public static final Color ACCENT_PRIMARY = new Color(53, 116, 240);    // #3574f0 (Clean IDE Blue)
+        public static final Color TEXT_PRIMARY = new Color(223, 225, 229);     // #dfe1e5
+        public static final Color TEXT_SECONDARY = new Color(154, 160, 166);   // #9aa0a6
+        public static final Color TEXT_MUTED = new Color(110, 118, 129);       // #6e7681
+        public static final Color BORDER = new Color(60, 63, 65);              // #3c3f41
     }
 
     private final Particle2DEffectModel effectModel;
@@ -85,13 +89,15 @@ public class Particle2DEditorPanel extends JPanel {
             this.effectModel.addEmitter(new Particle2DEmitterModel("Default Emitter"));
         }
 
-        setLayout(new BorderLayout(10, 10));
-        setBackground(SciFiColors.BG_DARKEST);
-        setBorder(new EmptyBorder(8, 8, 8, 8));
+        setLayout(new BorderLayout(8, 8));
+        setBackground(DarkThemeColors.BG_WINDOW);
+        setBorder(new EmptyBorder(6, 6, 6, 6));
 
         // Center Viewport powered by real LibGDX LwjglAWTCanvas
         particleListener = new ParticleApplicationListener(this.effectModel);
         gdxViewport = new GdxAwtViewport(particleListener);
+        gdxViewport.setBorder(new LineBorder(DarkThemeColors.BORDER, 1));
+
         if (gdxViewport.getCanvas() != null) {
             Canvas awtCanvas = gdxViewport.getCanvas().getCanvas();
             awtCanvas.addMouseMotionListener(new MouseMotionAdapter() {
@@ -106,7 +112,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Sidebar Tabs (Properties & 100 Presets Library)
         JTabbedPane sidebarTabs = new JTabbedPane();
-        sidebarTabs.setPreferredSize(new Dimension(360, 600));
+        sidebarTabs.setBackground(DarkThemeColors.BG_PANEL);
+        sidebarTabs.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        sidebarTabs.setPreferredSize(new Dimension(380, 600));
         sidebarTabs.addTab("Emitter Properties", getIcon("cog.png"), createPropertiesPanel());
         sidebarTabs.addTab("Presets Library (100)", getIcon("star.png"), createPresetsPanel());
 
@@ -128,7 +136,16 @@ public class Particle2DEditorPanel extends JPanel {
 
     public static ImageIcon getIcon(String name) {
         try {
-            URL url = Particle2DEditorPanel.class.getResource("/com/atomgdx/editor/particle2d/icons/" + name);
+            URL url = Particle2DEditorPanel.class.getResource("icons/" + name);
+            if (url == null) {
+                url = Particle2DEditorPanel.class.getResource("/com/atomgdx/editor/particle2d/ui/icons/" + name);
+            }
+            if (url == null) {
+                url = Particle2DEditorPanel.class.getResource("/com/atomgdx/editor/particle2d/icons/" + name);
+            }
+            if (url == null) {
+                url = Particle2DEditorPanel.class.getClassLoader().getResource("com/atomgdx/editor/particle2d/icons/" + name);
+            }
             if (url != null) {
                 return new ImageIcon(url);
             }
@@ -139,13 +156,20 @@ public class Particle2DEditorPanel extends JPanel {
     private JToolBar createToolBar() {
         JToolBar tb = new JToolBar();
         tb.setFloatable(false);
-        tb.setBackground(SciFiColors.BG_PANEL);
+        tb.setBackground(DarkThemeColors.BG_PANEL);
+        tb.setBorder(new LineBorder(DarkThemeColors.BORDER, 1));
 
         JButton playBtn = new JButton("Play", getIcon("control_play_blue.png"));
         JButton pauseBtn = new JButton("Pause", getIcon("control_pause_blue.png"));
         JButton restartBtn = new JButton("Restart", getIcon("arrow_refresh.png"));
         JButton addEmitterBtn = new JButton("Add Emitter", getIcon("add.png"));
         JButton deleteEmitterBtn = new JButton("Delete Emitter", getIcon("delete.png"));
+
+        for (JButton b : new JButton[]{playBtn, pauseBtn, restartBtn, addEmitterBtn, deleteEmitterBtn}) {
+            b.setBackground(DarkThemeColors.BG_PANEL);
+            b.setForeground(DarkThemeColors.TEXT_PRIMARY);
+            b.setFocusPainted(false);
+        }
 
         playBtn.addActionListener(e -> particleListener.start());
         pauseBtn.addActionListener(e -> particleListener.pauseSimulation());
@@ -177,17 +201,20 @@ public class Particle2DEditorPanel extends JPanel {
 
     private JPanel createPropertiesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setBackground(SciFiColors.BG_PANEL);
+        panel.setBackground(DarkThemeColors.BG_PANEL);
+        panel.setBorder(new EmptyBorder(6, 6, 6, 6));
 
-        emitterList.setBackground(SciFiColors.BG_DARK);
-        emitterList.setForeground(SciFiColors.TEXT_PRIMARY);
+        emitterList.setBackground(DarkThemeColors.BG_DARK);
+        emitterList.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        emitterList.setSelectionBackground(DarkThemeColors.ACCENT_PRIMARY);
+        emitterList.setSelectionForeground(java.awt.Color.WHITE);
         emitterList.setVisibleRowCount(4);
         panel.add(new JScrollPane(emitterList), BorderLayout.NORTH);
 
         // Property Controls Grid
         JPanel propsPanel = new JPanel(new GridBagLayout());
         propsPanel.setOpaque(false);
-        propsPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
+        propsPanel.setBorder(new EmptyBorder(6, 4, 6, 4));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(3, 3, 3, 3);
@@ -196,22 +223,33 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Name
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Name:"), gbc);
+        JLabel nameLbl = new JLabel("Name:");
+        nameLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(nameLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         nameField = new JTextField();
+        nameField.setBackground(DarkThemeColors.BG_DARK);
+        nameField.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        nameField.setCaretColor(DarkThemeColors.TEXT_PRIMARY);
         propsPanel.add(nameField, gbc);
         row++;
 
         // Particle Image Asset
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Image:"), gbc);
+        JLabel imgLbl = new JLabel("Image:");
+        imgLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(imgLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel imgP = new JPanel(new BorderLayout(4, 0));
         imgP.setOpaque(false);
         imagePathField = new JTextField();
+        imagePathField.setBackground(DarkThemeColors.BG_DARK);
+        imagePathField.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        imagePathField.setCaretColor(DarkThemeColors.TEXT_PRIMARY);
         browseImageBtn = new JButton(getIcon("picture.png"));
         browseImageBtn.setToolTipText("Browse texture in assets folder");
         browseImageBtn.setPreferredSize(new Dimension(28, 22));
+        browseImageBtn.setBackground(DarkThemeColors.BG_PANEL);
         browseImageBtn.addActionListener(e -> browseAssetTexture());
         imgP.add(imagePathField, BorderLayout.CENTER);
         imgP.add(browseImageBtn, BorderLayout.EAST);
@@ -220,7 +258,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Count Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Max Count:"), gbc);
+        JLabel countLbl = new JLabel("Max Count:");
+        countLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(countLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         countSpinner = new JSpinner(new SpinnerNumberModel(200, 1, 10000, 10));
         propsPanel.add(countSpinner, gbc);
@@ -228,7 +268,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Duration
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Duration (ms):"), gbc);
+        JLabel durLbl = new JLabel("Duration (ms):");
+        durLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(durLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         durationSpinner = new JSpinner(new SpinnerNumberModel(1000f, 50f, 60000f, 100f));
         propsPanel.add(durationSpinner, gbc);
@@ -236,7 +278,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Emission Rate
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Emission Rate:"), gbc);
+        JLabel emLbl = new JLabel("Emission Rate:");
+        emLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(emLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         emissionSpinner = new JSpinner(new SpinnerNumberModel(50f, 1f, 1000f, 5f));
         propsPanel.add(emissionSpinner, gbc);
@@ -244,7 +288,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Life Min/Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Life Min/Max:"), gbc);
+        JLabel lifeLbl = new JLabel("Life Min/Max:");
+        lifeLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(lifeLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel lifeP = new JPanel(new GridLayout(1, 2, 4, 0));
         lifeP.setOpaque(false);
@@ -257,7 +303,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Scale Min/Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Scale Min/Max:"), gbc);
+        JLabel scaleLbl = new JLabel("Scale Min/Max:");
+        scaleLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(scaleLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel scaleP = new JPanel(new GridLayout(1, 2, 4, 0));
         scaleP.setOpaque(false);
@@ -270,7 +318,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Velocity Min/Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Velocity Min/Max:"), gbc);
+        JLabel velLbl = new JLabel("Velocity Min/Max:");
+        velLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(velLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel velP = new JPanel(new GridLayout(1, 2, 4, 0));
         velP.setOpaque(false);
@@ -283,7 +333,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Angle Min/Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Angle Min/Max:"), gbc);
+        JLabel angLbl = new JLabel("Angle Min/Max:");
+        angLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(angLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel angP = new JPanel(new GridLayout(1, 2, 4, 0));
         angP.setOpaque(false);
@@ -296,7 +348,9 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Wind / Gravity
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Wind / Gravity:"), gbc);
+        JLabel wgLbl = new JLabel("Wind / Gravity:");
+        wgLbl.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        propsPanel.add(wgLbl, gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel wgP = new JPanel(new GridLayout(1, 2, 4, 0));
         wgP.setOpaque(false);
@@ -315,6 +369,10 @@ public class Particle2DEditorPanel extends JPanel {
         continuousBox = new JCheckBox("Continuous", true);
         attachedBox = new JCheckBox("Attached", false);
         behindBox = new JCheckBox("Behind", false);
+        for (JCheckBox cb : new JCheckBox[]{additiveBox, continuousBox, attachedBox, behindBox}) {
+            cb.setOpaque(false);
+            cb.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        }
         checkP.add(additiveBox);
         checkP.add(continuousBox);
         checkP.add(attachedBox);
@@ -327,7 +385,7 @@ public class Particle2DEditorPanel extends JPanel {
 
     private JPanel createPresetsPanel() {
         JPanel panel = new JPanel(new BorderLayout(6, 6));
-        panel.setBackground(SciFiColors.BG_PANEL);
+        panel.setBackground(DarkThemeColors.BG_PANEL);
         panel.setBorder(new EmptyBorder(6, 6, 6, 6));
 
         // Filters
@@ -338,10 +396,15 @@ public class Particle2DEditorPanel extends JPanel {
         categories.add("All Categories");
         categories.addAll(ParticlePresetsLibrary.getCategories());
         categoryCombo = new JComboBox<>(categories.toArray(new String[0]));
+        categoryCombo.setBackground(DarkThemeColors.BG_DARK);
+        categoryCombo.setForeground(DarkThemeColors.TEXT_PRIMARY);
         categoryCombo.setRenderer(new CategoryComboRenderer());
         categoryCombo.addActionListener(e -> filterPresets());
 
         presetSearchField = new JTextField();
+        presetSearchField.setBackground(DarkThemeColors.BG_DARK);
+        presetSearchField.setForeground(DarkThemeColors.TEXT_PRIMARY);
+        presetSearchField.setCaretColor(DarkThemeColors.TEXT_PRIMARY);
         presetSearchField.putClientProperty("JTextField.placeholderText", "Search 100 presets (#fire, #magic, #scifi)...");
         presetSearchField.addActionListener(e -> filterPresets());
 
@@ -357,8 +420,8 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Preset List
         presetJList = new JList<>(presetListModel);
-        presetJList.setBackground(SciFiColors.BG_DARK);
-        presetJList.setForeground(SciFiColors.TEXT_PRIMARY);
+        presetJList.setBackground(DarkThemeColors.BG_DARK);
+        presetJList.setForeground(DarkThemeColors.TEXT_PRIMARY);
         presetJList.setCellRenderer(new PresetListRenderer());
         presetJList.addMouseListener(new MouseAdapter() {
             @Override
@@ -375,9 +438,10 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Bottom Apply Button
         JButton applyPresetBtn = new JButton("Apply Preset to Effect", getIcon("wand.png"));
-        applyPresetBtn.setBackground(SciFiColors.ACCENT_CYAN);
-        applyPresetBtn.setForeground(java.awt.Color.BLACK);
+        applyPresetBtn.setBackground(DarkThemeColors.ACCENT_PRIMARY);
+        applyPresetBtn.setForeground(java.awt.Color.WHITE);
         applyPresetBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        applyPresetBtn.setFocusPainted(false);
         applyPresetBtn.addActionListener(e -> {
             ParticlePreset preset = presetJList.getSelectedValue();
             if (preset != null) {
@@ -553,12 +617,19 @@ public class Particle2DEditorPanel extends JPanel {
                 label.setText(cat);
                 label.setIcon(getCategoryIcon(cat));
             }
+            if (isSelected) {
+                label.setBackground(DarkThemeColors.ACCENT_PRIMARY);
+                label.setForeground(java.awt.Color.WHITE);
+            } else {
+                label.setBackground(DarkThemeColors.BG_DARK);
+                label.setForeground(DarkThemeColors.TEXT_PRIMARY);
+            }
             return label;
         }
     }
 
     /**
-     * Custom List Cell Renderer for Particle Presets with Tags, Category, and Icons.
+     * Custom List Cell Renderer for Particle Presets with Tags, Category, and Icons in Dark Theme.
      */
     private static class PresetListRenderer extends JPanel implements ListCellRenderer<ParticlePreset> {
         private final JLabel nameLabel = new JLabel();
@@ -570,7 +641,7 @@ public class Particle2DEditorPanel extends JPanel {
             setBorder(new EmptyBorder(4, 6, 4, 6));
             nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
             categoryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-            tagsLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
+            tagsLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
             add(nameLabel);
             add(categoryLabel);
             add(tagsLabel);
@@ -586,15 +657,15 @@ public class Particle2DEditorPanel extends JPanel {
             }
 
             if (isSelected) {
-                setBackground(SciFiColors.ACCENT_CYAN);
-                nameLabel.setForeground(java.awt.Color.BLACK);
-                categoryLabel.setForeground(new java.awt.Color(30, 30, 30));
-                tagsLabel.setForeground(new java.awt.Color(40, 40, 40));
+                setBackground(DarkThemeColors.ACCENT_PRIMARY);
+                nameLabel.setForeground(java.awt.Color.WHITE);
+                categoryLabel.setForeground(new java.awt.Color(210, 230, 255));
+                tagsLabel.setForeground(new java.awt.Color(200, 220, 245));
             } else {
-                setBackground(index % 2 == 0 ? SciFiColors.BG_DARK : SciFiColors.BG_CARD);
-                nameLabel.setForeground(SciFiColors.TEXT_PRIMARY);
-                categoryLabel.setForeground(SciFiColors.ACCENT_CYAN);
-                tagsLabel.setForeground(SciFiColors.TEXT_MUTED);
+                setBackground(index % 2 == 0 ? DarkThemeColors.BG_DARK : DarkThemeColors.BG_ITEM_ALT);
+                nameLabel.setForeground(DarkThemeColors.TEXT_PRIMARY);
+                categoryLabel.setForeground(DarkThemeColors.TEXT_SECONDARY);
+                tagsLabel.setForeground(DarkThemeColors.TEXT_MUTED);
             }
             return this;
         }
@@ -717,8 +788,8 @@ public class Particle2DEditorPanel extends JPanel {
                 pendingTextureFile = null;
             }
 
-            // Dark Sci-Fi background
-            ScreenUtils.clear(0.04f, 0.06f, 0.10f, 1f);
+            // Dark neutral background
+            ScreenUtils.clear(0.12f, 0.12f, 0.13f, 1f);
 
             float delta = Gdx.graphics.getDeltaTime();
             if (running && delta > 0) {
