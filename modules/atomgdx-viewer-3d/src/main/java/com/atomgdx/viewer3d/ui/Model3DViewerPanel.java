@@ -9,31 +9,46 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.function.Consumer;
 
 /**
- * 3D Model & GLTF/GLB Viewer panel powered by native LibGDX OpenGL 3D pipeline.
- * Edge-to-edge fullscreen viewport with orbit camera controls and PBR environment lighting.
+ * 3D Model & GLTF/GLB Viewer panel (Read-Only Preview Mode).
+ * Features quick-selector for 10 popular GLTF demo models, orbit camera controls,
+ * and edge-to-edge hardware OpenGL viewport.
  */
 public class Model3DViewerPanel extends JPanel {
 
-    private final Model3DDescriptor descriptor;
+    private Model3DDescriptor descriptor;
     private final Model3DViewportListener viewportListener;
     private final GdxAwtViewport gdxViewport;
+    private Consumer<Model3DDescriptor> modelChangedListener;
 
     private int lastMouseX, lastMouseY;
     private boolean isOrbiting = false;
     private boolean isPanning = false;
 
+    private static final String[] DEMO_MODELS = {
+            "spacecraft_cruiser.gltf",
+            "asteroid_large.gltf",
+            "scifi_turret.gltf",
+            "cargo_container.gltf",
+            "energy_shield_bubble.gltf",
+            "space_station_module.gltf",
+            "cyber_hovercraft.gltf",
+            "quantum_warp_beacon.gltf",
+            "modular_scifi_wall.gltf",
+            "plasma_cannon_heavy.gltf"
+    };
+
     public Model3DViewerPanel(Model3DDescriptor descriptor) {
-        this.descriptor = descriptor;
+        this.descriptor = descriptor != null ? descriptor : new Model3DDescriptor(new File(DEMO_MODELS[0]));
         setLayout(new BorderLayout(0, 0));
         setBackground(DarkThemeUtils.BG_DARK);
 
-        File file = descriptor != null ? descriptor.getModelFile() : null;
+        File file = this.descriptor.getModelFile();
         viewportListener = new Model3DViewportListener(file);
         gdxViewport = new GdxAwtViewport(viewportListener);
 
-        // Setup mouse controls for 3D Viewport
         setupMouseInteractions();
 
         // Top Toolbar
@@ -41,6 +56,10 @@ public class Model3DViewerPanel extends JPanel {
 
         add(toolbar, BorderLayout.NORTH);
         add(gdxViewport, BorderLayout.CENTER);
+    }
+
+    public void setModelChangedListener(Consumer<Model3DDescriptor> listener) {
+        this.modelChangedListener = listener;
     }
 
     public Model3DDescriptor getDescriptor() {
@@ -61,6 +80,31 @@ public class Model3DViewerPanel extends JPanel {
         tb.setBackground(DarkThemeUtils.BG_HEADER);
         tb.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
 
+        JLabel modelLbl = new JLabel(" Demo 3D Model: ");
+        modelLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        modelLbl.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+        tb.add(modelLbl);
+
+        JComboBox<String> modelCombo = new JComboBox<>(DEMO_MODELS);
+        modelCombo.setBackground(DarkThemeUtils.BG_INPUT);
+        modelCombo.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+        modelCombo.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        modelCombo.setMaximumSize(new Dimension(200, 24));
+        modelCombo.addActionListener(e -> {
+            String selected = (String) modelCombo.getSelectedItem();
+            if (selected != null) {
+                File mf = new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets/models/" + selected);
+                this.descriptor = new Model3DDescriptor(mf);
+                viewportListener.setModelFile(mf);
+                if (modelChangedListener != null) {
+                    modelChangedListener.accept(this.descriptor);
+                }
+            }
+        });
+        tb.add(modelCombo);
+
+        tb.addSeparator();
+
         JToggleButton gridBtn = new JToggleButton("Grid & Axes", true);
         JToggleButton pbrBtn = new JToggleButton("PBR Lighting", true);
         JButton resetCamBtn = new JButton("Reset Camera");
@@ -70,16 +114,12 @@ public class Model3DViewerPanel extends JPanel {
             b.setForeground(DarkThemeUtils.TEXT_PRIMARY);
             b.setFont(new Font("Segoe UI", Font.PLAIN, 11));
             b.setFocusPainted(false);
+            tb.add(b);
         }
 
         gridBtn.addActionListener(e -> viewportListener.setShowGrid(gridBtn.isSelected()));
-        pbrBtn.addActionListener(e -> viewportListener.setPbrLighting(pbrBtn.isSelected()));
+        pbrBtn.addActionListener(e -> viewportListener.setShadingMode(pbrBtn.isSelected() ? Model3DViewportListener.ShadingMode.SHADED_PBR : Model3DViewportListener.ShadingMode.UNLIT));
         resetCamBtn.addActionListener(e -> viewportListener.resetCamera());
-
-        tb.add(gridBtn);
-        tb.add(pbrBtn);
-        tb.addSeparator();
-        tb.add(resetCamBtn);
 
         return tb;
     }

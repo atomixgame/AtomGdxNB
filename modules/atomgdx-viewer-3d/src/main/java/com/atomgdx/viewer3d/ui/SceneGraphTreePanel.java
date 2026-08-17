@@ -7,7 +7,6 @@ import com.atomgdx.viewer3d.data.Scene3DVO;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -18,8 +17,7 @@ import java.awt.event.MouseEvent;
 import java.util.function.Consumer;
 
 /**
- * Interactive 3D SceneGraph Tree Panel displaying hierarchical 3D entities.
- * Supports adding/removing nodes, lights, cameras, and prefabs.
+ * Interactive 3D SceneGraph Tree Panel with custom node icons and comprehensive context menus.
  */
 public class SceneGraphTreePanel extends JPanel {
 
@@ -65,7 +63,6 @@ public class SceneGraphTreePanel extends JPanel {
         tree.setCellRenderer(new SceneGraphCellRenderer());
         tree.setRowHeight(22);
 
-        // Expand all nodes by default
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
         }
@@ -130,17 +127,21 @@ public class SceneGraphTreePanel extends JPanel {
         JPopupMenu menu = new JPopupMenu();
 
         JMenu meshMenu = new JMenu("3D Mesh");
+        meshMenu.setIcon(DarkThemeUtils.getFatcowIcon("box.png"));
         meshMenu.add(createMenuItem("Cube / Box", "box.png", () -> addNodeToSelection(new Node3DVO("Cube_Mesh", Node3DVO.MeshShape.BOX, 0, 1, 0))));
         meshMenu.add(createMenuItem("Sphere", "world.png", () -> addNodeToSelection(new Node3DVO("Sphere_Mesh", Node3DVO.MeshShape.SPHERE, 0, 1, 0))));
         meshMenu.add(createMenuItem("Cylinder", "cog.png", () -> addNodeToSelection(new Node3DVO("Cylinder_Mesh", Node3DVO.MeshShape.CYLINDER, 0, 1, 0))));
         meshMenu.add(createMenuItem("Cone", "bullet_red.png", () -> addNodeToSelection(new Node3DVO("Cone_Mesh", Node3DVO.MeshShape.CONE, 0, 1, 0))));
         meshMenu.add(createMenuItem("Plane / Grid Floor", "layout.png", () -> addNodeToSelection(new Node3DVO("Ground_Plane", Node3DVO.MeshShape.PLANE, 0, 0, 0))));
+        meshMenu.add(createMenuItem("Capsule", "pill.png", () -> addNodeToSelection(new Node3DVO("Capsule_Mesh", Node3DVO.MeshShape.CAPSULE, 0, 1, 0))));
 
         JMenu lightMenu = new JMenu("Lighting");
+        lightMenu.setIcon(DarkThemeUtils.getFatcowIcon("lightning.png"));
         lightMenu.add(createMenuItem("Point Light", "lightning.png", () -> addNodeToSelection(new Node3DVO("PointLight_3D", Node3DVO.NodeType.LIGHT_POINT))));
         lightMenu.add(createMenuItem("Directional Light", "weather_sun.png", () -> addNodeToSelection(new Node3DVO("DirectionalLight_Sun", Node3DVO.NodeType.LIGHT_DIRECTIONAL))));
 
         JMenu prefabMenu = new JMenu("Prefab");
+        prefabMenu.setIcon(DarkThemeUtils.getFatcowIcon("brick.png"));
         prefabMenu.add(createMenuItem("Spacecraft Fighter", "car.png", () -> addNodeToSelection(Prefab3DVO.createSpacecraftFighter().rootNode)));
         prefabMenu.add(createMenuItem("Asteroid Rock", "world.png", () -> addNodeToSelection(Prefab3DVO.createAsteroidRock().rootNode)));
         prefabMenu.add(createMenuItem("SciFi Defense Turret", "shield.png", () -> addNodeToSelection(Prefab3DVO.createSciFiTurret().rootNode)));
@@ -184,7 +185,43 @@ public class SceneGraphTreePanel extends JPanel {
     private void showNodeContextMenu(Node3DVO node, Component invoker, int x, int y) {
         JPopupMenu menu = new JPopupMenu();
 
-        JMenuItem renameItem = new JMenuItem("Rename...", DarkThemeUtils.getFatcowIcon("textfield_rename.png"));
+        JMenu addMenu = new JMenu("Add Child");
+        addMenu.setIcon(DarkThemeUtils.getFatcowIcon("add.png"));
+        addMenu.add(createMenuItem("Child Box Mesh", "box.png", () -> {
+            node.addChild(new Node3DVO("Child_Box", Node3DVO.MeshShape.BOX, 0, 1, 0));
+            rebuildTree();
+        }));
+        addMenu.add(createMenuItem("Child Sphere Mesh", "world.png", () -> {
+            node.addChild(new Node3DVO("Child_Sphere", Node3DVO.MeshShape.SPHERE, 0, 1, 0));
+            rebuildTree();
+        }));
+        addMenu.add(createMenuItem("Child Point Light", "lightning.png", () -> {
+            node.addChild(new Node3DVO("Child_Light", Node3DVO.NodeType.LIGHT_POINT));
+            rebuildTree();
+        }));
+        addMenu.add(createMenuItem("Child Empty Node", "folder.png", () -> {
+            node.addChild(new Node3DVO("Child_Empty", Node3DVO.NodeType.EMPTY));
+            rebuildTree();
+        }));
+        menu.add(addMenu);
+        menu.addSeparator();
+
+        JMenuItem duplicateItem = new JMenuItem("Duplicate (Ctrl+D)", DarkThemeUtils.getFatcowIcon("page_copy.png"));
+        duplicateItem.addActionListener(e -> {
+            Node3DVO dup = new Node3DVO(node.nodeName + "_Copy", node.meshShape, node.posX + 1.5f, node.posY, node.posZ);
+            dup.nodeType = node.nodeType;
+            dup.material = node.material;
+            scene.rootNode.addChild(dup);
+            rebuildTree();
+        });
+
+        JMenuItem visibilityItem = new JMenuItem(node.isVisible ? "Hide Node (H)" : "Show Node (H)", DarkThemeUtils.getFatcowIcon(node.isVisible ? "eye.png" : "bullet_cross.png"));
+        visibilityItem.addActionListener(e -> {
+            node.isVisible = !node.isVisible;
+            rebuildTree();
+        });
+
+        JMenuItem renameItem = new JMenuItem("Rename... (F2)", DarkThemeUtils.getFatcowIcon("textfield_rename.png"));
         renameItem.addActionListener(e -> {
             String newName = JOptionPane.showInputDialog(this, "Enter new node name:", node.nodeName);
             if (newName != null && !newName.trim().isEmpty()) {
@@ -193,14 +230,18 @@ public class SceneGraphTreePanel extends JPanel {
             }
         });
 
-        JMenuItem deleteItem = new JMenuItem("Delete", DarkThemeUtils.getFatcowIcon("delete.png"));
+        JMenuItem deleteItem = new JMenuItem("Delete (Del)", DarkThemeUtils.getFatcowIcon("delete.png"));
         deleteItem.addActionListener(e -> {
             removeNodeFromScene(scene.rootNode, node);
             rebuildTree();
         });
 
+        menu.add(duplicateItem);
+        menu.add(visibilityItem);
         menu.add(renameItem);
+        menu.addSeparator();
         menu.add(deleteItem);
+
         menu.show(invoker, x, y);
     }
 
@@ -230,7 +271,7 @@ public class SceneGraphTreePanel extends JPanel {
                 Object uo = ((DefaultMutableTreeNode) value).getUserObject();
                 if (uo instanceof Node3DVO) {
                     Node3DVO n = (Node3DVO) uo;
-                    setText(n.nodeName);
+                    setText(n.nodeName + (n.isVisible ? "" : " (Hidden)"));
                     switch (n.nodeType) {
                         case MESH:
                             setIcon(DarkThemeUtils.getFatcowIcon("box.png"));
@@ -244,6 +285,9 @@ public class SceneGraphTreePanel extends JPanel {
                             break;
                         case PREFAB:
                             setIcon(DarkThemeUtils.getFatcowIcon("brick.png"));
+                            break;
+                        case PARTICLE_EMITTER:
+                            setIcon(DarkThemeUtils.getFatcowIcon("fire.png"));
                             break;
                         default:
                             setIcon(DarkThemeUtils.getFatcowIcon("folder.png"));

@@ -17,14 +17,16 @@ import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
 
 /**
  * NetBeans TopComponent for the Property & Component Inspector.
- * Docks on the Right side ("properties"), dynamically inspecting 3D Models & File Metadata,
- * 3D GameObjects, PBR Materials, 2D HyperLap Items, and Project Settings.
+ * Docks on the Right side ("properties"), dynamically inspecting 3D Models & File Metadata (Read-Only banner),
+ * 3D GameObjects (Editable), PBR Materials, 2D HyperLap Items, and Project Settings.
  */
 public class InspectorTopComponent extends TopComponent implements LookupListener {
 
@@ -84,6 +86,30 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBackground(DarkThemeUtils.BG_DARK);
         container.setBorder(new EmptyBorder(4, 4, 4, 4));
+
+        // 0. Read-Only Model Viewer Banner
+        JPanel bannerPanel = new JPanel(new BorderLayout(8, 0));
+        bannerPanel.setBackground(new Color(45, 38, 20));
+        bannerPanel.setBorder(new CompoundBorder(
+                new LineBorder(new Color(234, 179, 8), 1, true),
+                new EmptyBorder(6, 8, 6, 8)
+        ));
+        bannerPanel.setMaximumSize(new Dimension(500, 52));
+
+        JLabel noteIcon = new JLabel(DarkThemeUtils.getFatcowIcon("information.png"));
+        JLabel noteText = new JLabel("<html><b>Read-Only Asset Preview</b><br/><font color='#d1d5db' size='2'>Inspecting raw 3D mesh asset. Use 3D Scene Editor to edit hierarchy, materials & physics.</font></html>");
+        noteText.setForeground(new Color(253, 224, 71));
+        noteText.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+        bannerPanel.add(noteIcon, BorderLayout.WEST);
+        bannerPanel.add(noteText, BorderLayout.CENTER);
+
+        JPanel bannerWrap = new JPanel(new BorderLayout());
+        bannerWrap.setOpaque(false);
+        bannerWrap.setMaximumSize(new Dimension(500, 56));
+        bannerWrap.add(bannerPanel, BorderLayout.CENTER);
+        bannerWrap.add(Box.createVerticalStrut(4), BorderLayout.SOUTH);
+        container.add(bannerWrap);
 
         // 1. File Metadata Section
         JPanel fileMeta = new JPanel();
