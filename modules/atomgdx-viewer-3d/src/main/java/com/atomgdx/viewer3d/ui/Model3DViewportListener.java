@@ -96,8 +96,18 @@ public class Model3DViewportListener implements ApplicationListener {
 
     public void rebuildModel() {
         disposeModels();
-        ModelBuilder mb = new ModelBuilder();
 
+        if (modelFile != null && modelFile.exists() && modelFile.getName().toLowerCase().endsWith(".glb")) {
+            Model realGlb = com.atomgdx.viewer3d.loader.GlbModelLoader.loadGlbModel(modelFile);
+            if (realGlb != null) {
+                loadedModels.add(realGlb);
+                ModelInstance mi = new ModelInstance(realGlb);
+                instances.add(mi);
+                return;
+            }
+        }
+
+        ModelBuilder mb = new ModelBuilder();
         String fileName = modelFile != null ? modelFile.getName().toLowerCase() : "damagedhelmet.glb";
 
         if (fileName.contains("helmet")) {
