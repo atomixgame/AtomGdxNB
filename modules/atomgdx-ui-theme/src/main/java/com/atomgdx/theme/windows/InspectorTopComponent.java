@@ -16,7 +16,7 @@ import java.awt.*;
 
 /**
  * NetBeans TopComponent for the Property & Component Inspector.
- * Docks on the right side ("properties") and listens to NetBeans Global Lookup.
+ * Docks on the right side ("properties") with compact 24px component styling.
  */
 public class InspectorTopComponent extends TopComponent implements LookupListener {
 
@@ -33,8 +33,8 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(SciFiColors.BG_PANEL);
-        header.setBorder(new EmptyBorder(8, 12, 8, 12));
-        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        header.setBorder(new EmptyBorder(6, 10, 6, 10));
+        headerTitle.setFont(new Font("Segoe UI", Font.BOLD, 12));
         headerTitle.setForeground(SciFiColors.ACCENT_CYAN);
         header.add(headerTitle, BorderLayout.WEST);
         add(header, BorderLayout.NORTH);
@@ -42,7 +42,7 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         // Content
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(SciFiColors.BG_DARKEST);
-        contentPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        contentPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setBorder(null);
@@ -93,8 +93,9 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         info.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         info.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        contentPanel.add(Box.createVerticalStrut(30));
+        contentPanel.add(Box.createVerticalStrut(20));
         contentPanel.add(info);
+        contentPanel.add(Box.createVerticalGlue());
         contentPanel.revalidate();
         contentPanel.repaint();
     }
@@ -121,10 +122,11 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
             addField(physicsBox, "Density", String.valueOf(item.getPhysicsData().getDensity()));
             addField(physicsBox, "Friction", String.valueOf(item.getPhysicsData().getFriction()));
             addField(physicsBox, "Restitution", String.valueOf(item.getPhysicsData().getRestitution()));
-            contentPanel.add(Box.createVerticalStrut(10));
+            contentPanel.add(Box.createVerticalStrut(8));
             contentPanel.add(physicsBox);
         }
 
+        contentPanel.add(Box.createVerticalGlue());
         contentPanel.revalidate();
         contentPanel.repaint();
     }
@@ -141,13 +143,15 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         addField(generalBox, "Root Directory", project.getRootDirectory().getName());
         contentPanel.add(generalBox);
 
+        contentPanel.add(Box.createVerticalGlue());
         contentPanel.revalidate();
         contentPanel.repaint();
     }
 
     private JPanel createSection(String title) {
-        JPanel panel = new JPanel(new GridLayout(0, 2, 8, 6));
+        JPanel panel = new JPanel(new GridLayout(0, 2, 6, 4));
         panel.setBackground(SciFiColors.BG_CARD);
+        panel.setMaximumSize(new Dimension(Short.MAX_VALUE, panel.getPreferredSize().height));
         TitledBorder border = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(SciFiColors.BORDER_SUBTLE, 1),
                 title
@@ -164,10 +168,15 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         lbl.setForeground(SciFiColors.TEXT_SECONDARY);
 
         JTextField txt = new JTextField(val);
+        txt.setPreferredSize(new Dimension(80, 24));
+        txt.setMaximumSize(new Dimension(Short.MAX_VALUE, 24));
         txt.setBackground(SciFiColors.BG_DARK);
         txt.setForeground(SciFiColors.TEXT_PRIMARY);
         txt.setCaretColor(SciFiColors.ACCENT_CYAN);
-        txt.setBorder(BorderFactory.createLineBorder(SciFiColors.BORDER_SUBTLE, 1));
+        txt.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(SciFiColors.BORDER_SUBTLE, 1),
+                new EmptyBorder(2, 4, 2, 4)
+        ));
         txt.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 
         panel.add(lbl);

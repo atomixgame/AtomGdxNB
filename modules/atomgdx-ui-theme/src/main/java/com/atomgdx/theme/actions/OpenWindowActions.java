@@ -1,6 +1,5 @@
 package com.atomgdx.theme.actions;
 
-import com.atomgdx.core.project.LibGdxProject;
 import com.atomgdx.core.settings.AtomGdxSettings;
 import com.atomgdx.theme.AboutDialogPanel;
 import com.atomgdx.theme.AtomGdxPreferencesPanel;
@@ -84,6 +83,20 @@ public class OpenWindowActions {
         @Override
         public void actionPerformed(ActionEvent e) {
             openTopComponent(new InspectorTopComponent(), "properties");
+        }
+    }
+
+    public static class OpenModelPropertiesAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new ModelPropertiesTopComponent(), "properties");
+        }
+    }
+
+    public static class OpenWidgetStylesAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new WidgetStylesTopComponent(), "explorer");
         }
     }
 

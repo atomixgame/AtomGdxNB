@@ -55,6 +55,10 @@ public class Model3DDescriptor implements Serializable {
         return Format.UNKNOWN;
     }
 
+    public String getName() {
+        return modelFile != null ? modelFile.getName() : "Unnamed 3D Model";
+    }
+
     public File getModelFile() { return modelFile; }
     public Format getFormat() { return format; }
 

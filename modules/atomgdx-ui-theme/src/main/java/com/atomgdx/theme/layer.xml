@@ -41,6 +41,18 @@
                 <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenInspectorAction"/>
                 <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/inspector.png"/>
             </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenModelPropertiesAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenModelPropertiesAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenModelPropertiesAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/model_properties.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenWidgetStylesAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenWidgetStylesAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenWidgetStylesAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/widget_styles.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenParticleEditorAction"/>
@@ -136,6 +148,14 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="ModelPropertiesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModelPropertiesAction.instance"/>
+                <attr name="position" intvalue="160"/>
+            </file>
+            <file name="WidgetStylesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenWidgetStylesAction.instance"/>
+                <attr name="position" intvalue="170"/>
+            </file>
             <file name="Sep1.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                 <attr name="position" intvalue="180"/>
@@ -189,6 +209,14 @@
                 <file name="InspectorAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
                     <attr name="position" intvalue="140"/>
+                </file>
+                <file name="ModelPropertiesAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModelPropertiesAction.instance"/>
+                    <attr name="position" intvalue="160"/>
+                </file>
+                <file name="WidgetStylesAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenWidgetStylesAction.instance"/>
+                    <attr name="position" intvalue="170"/>
                 </file>
                 <file name="ParticleEditorAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
@@ -265,6 +293,14 @@
             <file name="InspectorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenInspectorAction.instance"/>
                 <attr name="position" intvalue="190"/>
+            </file>
+            <file name="ModelPropertiesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModelPropertiesAction.instance"/>
+                <attr name="position" intvalue="192"/>
+            </file>
+            <file name="WidgetStylesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenWidgetStylesAction.instance"/>
+                <attr name="position" intvalue="194"/>
             </file>
             <file name="ParticleEditorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticleEditorAction.instance"/>
