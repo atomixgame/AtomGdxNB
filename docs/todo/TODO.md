@@ -1,57 +1,38 @@
-# TODO: AtomGdx Studio
+# AtomGdx Studio - Task Tracker & Living TODO
 
-Living roadmap and task checklist for AtomGdx Studio development.
+## Active Milestone: v0.1.72 (Core Complete)
 
----
-
-## High Priority (v0.1.0 Release)
-
-### Branding & Theme
-- [x] Sci-Fi branding concept and splash screen generation (`AtomGdx Studio v0.1.0`).
-- [x] High-resolution application icons (16x16 up to 512x512).
-- [ ] Implement custom FlatLaf Sci-Fi Dark theme with neon cyan accent highlights.
-- [ ] Configure NetBeans Platform branding tokens (`atomgdxnb`, window title, About dialog).
-
-### Architecture & Build System
-- [x] Define i2c documentation layout and guidelines compliance.
-- [ ] Configure multi-module Gradle build suite (`build.gradle.kts` / `settings.gradle.kts`).
-- [ ] Configure NetBeans Platform Harness and dependency clusters.
-
-### LibGDX Tool Integration Suite
-- [ ] **Liftoff Module**: Port Liftoff template engine into a NetBeans `WizardDescriptor` project wizard.
-- [ ] **Particle2D Module**: Port LibGDX 2D Particle Editor into a dockable NetBeans `TopComponent`.
-- [ ] **Particle3D Module**: Port LibGDX 3D Flame Particle Editor into a `TopComponent`.
-- [ ] **Skin Composer Module**: Visual Scene2D / VisUI Skin Designer with JSON AST synchronization.
-- [ ] **Scene2D / Level Designer**: Implement 2D scene editor with layers, Box2D physics polygon tool, and Box2DLight visualizer.
-- [ ] **Texture Packer Module**: Integrated `TexturePacker` GUI with 9-Patch editor.
-- [ ] **Font Generator Module**: Hiero & FreeType distance-field (SDF/MSDF) font converter.
-- [ ] **3D Viewer Module**: GLTF/GLB/G3D model viewer with PBR shader preview and animation timeline.
-- [ ] **Media Viewer Module**: Audio visualizer (WAV, MP3, OGG) and texture inspector.
-
-### Polyglot Languages & Shaders
-- [ ] Register MIME resolvers and syntax highlighters for GLSL (`.vert`, `.frag`, `.glsl`, `.geom`).
-- [ ] Enable language support for Java, Kotlin, Groovy, JS, HTML, JSON, YAML, XML.
-
-### AI Assistant & MCP
-- [ ] Implement AI Chat TopComponent with API key configuration (Gemini, Claude, OpenAI, Ollama).
-- [ ] Implement MCP Server endpoint exposing project AST, scene hierarchy, and assets to MCP clients.
-- [ ] Implement generative art texture creation pipeline.
-
-### Deployment & Emulation
-- [ ] Implement Android AVD emulator runner and ADB logcat streaming panel.
-- [ ] Implement Web TeaVM/GWT local dev server launcher.
+### Completed Tasks
+- [x] **Branding & Assets**: SVG Logo, window icons (16–512px), dark theme tokens, splash screen.
+- [x] **2D Scene & Level Designer**: HyperLap2D integration, fullscreen `LwjglAWTCanvas`, layers, composite items, point lights, soft shadows.
+- [x] **Scene Structure (2D/3D)**: Dual-mode hierarchy supporting 2D HyperLap layers and 3D SceneGraph trees with context menus (Create, Duplicate, Rename, Delete).
+- [x] **Unity-Style Inspectors**:
+  - [x] 2D Item Inspector: Transform, Box2D Rigidbody, Dynamic Light 2D, `+ Add Component`.
+  - [x] 3D GameObject Inspector: 3D Transform, Mesh geometry stats, PBR Material, Bullet Physics 3D.
+- [x] **SpriteSheet Editor & Image Viewer**: 1:1 Pixel Zoom, frame slicing, live Animation Player with FPS spinner and frame scrubber.
+- [x] **Particle 2D Designer**: Curve editors, emitter parameters, hardware OpenGL renderer, preset library (*Fireball Blast, Nebula Swarm, Toxic Spores, Cosmic Portal*).
+- [x] **3D Model & GLTF Viewer**: Native LibGDX 3D viewport, Orbit camera controls (Yaw/Pitch/Pan/Zoom), 3D grid floor, coordinate axes.
+- [x] **3D Asset Palette**: Primitives (*Cube, Sphere, Cylinder, Cone, Plane, Capsule*), Prefabs (*Spacecraft Fighter, Asteroid Rock, SciFi Turret, Energy Shield*), Materials (*Metallic Gold, Brushed Steel, Neon Cyan, Hull Paint, Glass*).
+- [x] **Audio & Media Studio**: Real-time waveform visualizer, playback timeline, Volume/Pan sliders, Looping toggle.
+- [x] **Skin Composer & 9-Patch Editor**: VisUI styles, 9-patch interactive slicing, SDF font generator.
+- [x] **AI Assistant & MCP Studio**: Multi-LLM provider integration, Model Context Protocol server.
+- [x] **Build & Runtime Engine**: Desktop (LWJGL3) runner with live output streaming to NetBeans `IOProvider`, Android & Web targets.
+- [x] **Documentation & User Guide**: `docs/UserGuide.md`, `docs/plan/v0.1.0_Milestone_Plan.md`, `docs/progress/v0.1.md`, `README.md`.
 
 ---
 
-## Medium Priority (v0.2.0 Roadmap)
-- [ ] Visual Shader Graph Editor (Node-based GLSL generator).
-- [ ] Visual Behavior Tree & State Machine Editor for `gdx-ai`.
-- [ ] Spine & DragonBones skeletal 2D animation playback component.
-- [ ] Multiplayer networking inspector and packet visualizer.
-- [ ] Profiling overlay with GPU frame-time graph and memory leak detector.
+## Next Roadmap Items (v0.2.0)
 
----
+### 1. Advanced 3D Engine Features
+- [ ] GLTF skeletal animation playback timeline (play/pause/scrub specific animation tracks).
+- [ ] 3D Gizmos (Translation, Rotation, Scale handles directly inside the OpenGL canvas).
+- [ ] Procedural Terrain / Heightmap Editor with brush tools.
 
-## Low Priority / Backlog
-- [ ] Steamworks & Google Play Game Services configuration wizard.
-- [ ] WebAssembly / WebGPU backend target support.
+### 2. Enhanced 2D Tilemap & Level Tools
+- [ ] Isometric / Hexagonal tilemap grid support.
+- [ ] Auto-tiling rules and terrain brush presets.
+- [ ] Smart Box2D pathfinding navmesh generator.
+
+### 3. Visual Scripting & Behavior Trees
+- [ ] Node-based visual logic graph for entity behaviors.
+- [ ] State Machine Editor for LibGDX Ashley ECS components.
