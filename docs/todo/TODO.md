@@ -36,3 +36,12 @@
 ### 3. Visual Scripting & Behavior Trees
 - [ ] Node-based visual logic graph for entity behaviors.
 - [ ] State Machine Editor for LibGDX Ashley ECS components.
+
+### 4. Feature/Concept of Build, BuildConfig, Preview Canvas, Device , Resolution, ScreenMode: 
+- Add a Preview Canvas with Dropdown to select different Canvas size, represent different Devices with Resolution, ScreenMode [ Inspired by Unity]
+- The Game Layout should adapt to each Resoluton immediately after change
+- Build and Build Config translate and connect closely with the underlying Build of Gradle and ecosystem, platform: eg: Desktop, Android, iOS...
+
+### 5. Improve Materials & Shader
+- Create 2 more TopComponent: Material Editor, can review the linked Shader
+- Node base editor for Shader, Material [like Unity, Blender]
