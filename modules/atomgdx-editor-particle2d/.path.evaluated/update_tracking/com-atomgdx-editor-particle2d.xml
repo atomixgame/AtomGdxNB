@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.atomgdx.editor.particle2d">
+    <module_version install_time="1786949000202" last="true" origin="installer" specification_version="0.1.0">
+        <file crc="3163573977" name="config/Modules/com-atomgdx-editor-particle2d.xml"/>
+        <file crc="1214621896" name="modules/com-atomgdx-editor-particle2d.jar"/>
+    </module_version>
+</module>

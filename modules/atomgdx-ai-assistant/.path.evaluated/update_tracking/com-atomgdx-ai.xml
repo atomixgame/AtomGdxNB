@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.atomgdx.ai">
+    <module_version install_time="1786948998602" last="true" origin="installer" specification_version="0.1.0">
+        <file crc="988814945" name="config/Modules/com-atomgdx-ai.xml"/>
+        <file crc="2162969551" name="modules/com-atomgdx-ai.jar"/>
+    </module_version>
+</module>

@@ -17,6 +17,8 @@
             </module-dependencies>
             <public-packages>
                 <package>com.atomgdx.editor.scene2d</package>
+                <package>com.atomgdx.editor.scene2d.data.vo</package>
+                <package>com.atomgdx.editor.scene2d.runtime</package>
                 <package>com.atomgdx.editor.scene2d.ui</package>
             </public-packages>
         </data>

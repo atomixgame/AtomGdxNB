@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.atomgdx.editor.font">
+    <module_version install_time="1786948999372" last="true" origin="installer" specification_version="0.1.0">
+        <file crc="4255954996" name="config/Modules/com-atomgdx-editor-font.xml"/>
+        <file crc="859163723" name="modules/com-atomgdx-editor-font.jar"/>
+    </module_version>
+</module>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.atomgdx.core">
+    <module_version install_time="1786948997414" last="true" origin="installer" specification_version="0.1.0">
+        <file crc="2289582946" name="config/Modules/com-atomgdx-core.xml"/>
+        <file crc="1603317568" name="modules/com-atomgdx-core.jar"/>
+        <file crc="1675287803" name="modules/ext/gdx-1.12.1.jar"/>
+        <file crc="1849241267" name="modules/ext/gdx-backend-lwjgl-1.12.1.jar"/>
+        <file crc="167018036" name="modules/ext/gdx-jnigen-loader-2.3.1.jar"/>
+        <file crc="774564121" name="modules/ext/gdx-platform-1.12.1-natives-desktop.jar"/>
+        <file crc="426864957" name="modules/ext/jinput-2.0.5.jar"/>
+        <file crc="2042331736" name="modules/ext/jinput-platform-2.0.5-natives-windows.jar"/>
+        <file crc="1529865491" name="modules/ext/jutils-1.0.0.jar"/>
+        <file crc="1131781346" name="modules/ext/lwjgl-2.9.3.jar"/>
+        <file crc="4182559041" name="modules/ext/lwjgl-platform-2.9.3-natives-windows.jar"/>
+        <file crc="1311417881" name="modules/ext/lwjgl_util-2.9.3.jar"/>
+    </module_version>
+</module>

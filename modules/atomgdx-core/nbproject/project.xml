@@ -21,6 +21,9 @@
                 <package>com.badlogic.gdx.graphics.glutils</package>
                 <package>com.badlogic.gdx.math</package>
                 <package>com.badlogic.gdx.utils</package>
+                <package>com.badlogic.gdx.scenes.scene2d</package>
+                <package>com.badlogic.gdx.scenes.scene2d.ui</package>
+                <package>com.badlogic.gdx.scenes.scene2d.utils</package>
                 <package>org.lwjgl</package>
                 <package>org.lwjgl.opengl</package>
             </public-packages>
