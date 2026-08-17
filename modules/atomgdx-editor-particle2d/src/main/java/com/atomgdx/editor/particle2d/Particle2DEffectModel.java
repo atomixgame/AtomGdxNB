@@ -37,7 +37,20 @@ public class Particle2DEffectModel implements Serializable {
     }
 
     public void addEmitter(Particle2DEmitterModel emitter) {
-        emitters.add(emitter);
+        if (emitter != null) {
+            emitters.add(emitter);
+        }
+    }
+
+    public void clearEmitters() {
+        emitters.clear();
+    }
+
+    public void setEmitters(List<Particle2DEmitterModel> newEmitters) {
+        emitters.clear();
+        if (newEmitters != null) {
+            emitters.addAll(newEmitters);
+        }
     }
 
     public void removeEmitter(Particle2DEmitterModel emitter) {

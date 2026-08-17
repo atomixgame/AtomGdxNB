@@ -69,6 +69,7 @@ public class ParticlePreset {
 
     public Particle2DEffectModel createEffect() {
         Particle2DEffectModel effect = new Particle2DEffectModel(name);
+        effect.clearEmitters();
         Particle2DEmitterModel emitter = new Particle2DEmitterModel(name + " Emitter");
         emitter.setDuration(duration);
         emitter.setMinParticleCount(0);
