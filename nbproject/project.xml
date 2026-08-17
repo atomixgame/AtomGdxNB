@@ -4,62 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-suite-project/1">
             <name>AtomGdxNB</name>
-            <modules>
-                <module>
-                    <path>modules/atomgdx-core</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-ui-theme</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-gradle-integration</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-project-liftoff</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-languages</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-texturepacker</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-particle2d</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-particle3d</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-font</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-ui-skin</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-editor-scene2d</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-viewer-3d</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-viewer-media</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-platform-android</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-platform-web</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-ai-assistant</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-mcp-server</path>
-                </module>
-                <module>
-                    <path>modules/atomgdx-genart-tools</path>
-                </module>
-            </modules>
         </data>
     </configuration>
 </project>
