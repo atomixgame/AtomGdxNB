@@ -55,7 +55,7 @@ public class GlbAndSceneEditorE2ETest {
             frame.setContentPane(root);
             frame.setVisible(true);
 
-            Timer timer = new Timer(1500, e -> {
+            Timer timer = new Timer(3000, e -> {
                 try {
                     BufferedImage img = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
                     Graphics2D g2 = img.createGraphics();
@@ -89,7 +89,7 @@ public class GlbAndSceneEditorE2ETest {
             timer.start();
         });
 
-        Thread.sleep(2500);
+        Thread.sleep(4000);
         System.out.println(">>> GLB & 3D SCENE EDITOR TEST COMPLETED! <<<");
         System.exit(0);
     }

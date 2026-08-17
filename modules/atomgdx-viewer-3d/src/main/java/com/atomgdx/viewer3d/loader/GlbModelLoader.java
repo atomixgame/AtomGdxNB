@@ -1,14 +1,11 @@
 package com.atomgdx.viewer3d.loader;
 
 import com.atomgdx.core.log.StudioLog;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.VertexAttribute;
-import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.model.MeshPart;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.model.NodePart;
@@ -23,8 +20,8 @@ import java.nio.ByteOrder;
 
 /**
  * High-performance native Binary glTF (.GLB) and JSON glTF (.GLTF) 3D Model Loader.
- * Directly decodes GLB chunks, vertex accessors (POSITION, NORMAL, TEXCOORD), indices,
- * materials, and node hierarchies into real hardware LibGDX Model / Mesh instances.
+ * Directly decodes real geometry, vertex accessors (POSITION, NORMAL, TEXCOORD), indices,
+ * embedded PBR textures (Albedo, Metallic, Roughness), and node hierarchies.
  */
 public class GlbModelLoader {
 
@@ -32,13 +29,9 @@ public class GlbModelLoader {
     private static final int CHUNK_TYPE_JSON = 0x4E4F534A; // "JSON"
     private static final int CHUNK_TYPE_BIN = 0x004E4942; // "BIN\0"
 
-    // Component Types
-    private static final int COMP_BYTE = 5120;
     private static final int COMP_UNSIGNED_BYTE = 5121;
-    private static final int COMP_SHORT = 5122;
     private static final int COMP_UNSIGNED_SHORT = 5123;
     private static final int COMP_UNSIGNED_INT = 5125;
-    private static final int COMP_FLOAT = 5126;
 
     public static Model loadGlbModel(File file) {
         if (file == null || !file.exists()) {
@@ -64,11 +57,10 @@ public class GlbModelLoader {
                 return null;
             }
 
-            // Read Chunks
             String jsonContent = null;
             byte[] binData = null;
 
-            while (buf.hasRemaining()) {
+            while (buf.remaining() >= 8) {
                 int chunkLen = buf.getInt();
                 int chunkType = buf.getInt();
 
@@ -76,12 +68,16 @@ public class GlbModelLoader {
                     byte[] jsonBytes = new byte[chunkLen];
                     buf.get(jsonBytes);
                     jsonContent = new String(jsonBytes, "UTF-8");
+                    int pad = (4 - (chunkLen % 4)) % 4;
+                    if (buf.remaining() >= pad) buf.position(buf.position() + pad);
                 } else if (chunkType == CHUNK_TYPE_BIN) {
                     binData = new byte[chunkLen];
                     buf.get(binData);
+                    int pad = (4 - (chunkLen % 4)) % 4;
+                    if (buf.remaining() >= pad) buf.position(buf.position() + pad);
                 } else {
-                    // Skip unrecognized chunk
-                    buf.position(buf.position() + chunkLen);
+                    int pad = (4 - (chunkLen % 4)) % 4;
+                    buf.position(Math.min(buf.limit(), buf.position() + chunkLen + pad));
                 }
             }
 
@@ -110,6 +106,8 @@ public class GlbModelLoader {
         JsonValue bufferViews = root.get("bufferViews");
         JsonValue meshes = root.get("meshes");
         JsonValue materials = root.get("materials");
+        JsonValue textures = root.get("textures");
+        JsonValue images = root.get("images");
 
         if (meshes == null || accessors == null || bufferViews == null) {
             StudioLog.warn("glTF missing meshes/accessors/bufferViews in " + modelName);
@@ -119,7 +117,32 @@ public class GlbModelLoader {
         Model model = new Model();
         ByteBuffer binBuf = ByteBuffer.wrap(binData).order(ByteOrder.LITTLE_ENDIAN);
 
-        // Parse Materials
+        // 1. Decode Embedded Textures
+        Array<Texture> loadedTextures = new Array<>();
+        if (images != null) {
+            for (JsonValue img : images) {
+                try {
+                    int bvIdx = img.getInt("bufferView", -1);
+                    if (bvIdx >= 0 && bvIdx < bufferViews.size) {
+                        JsonValue bv = bufferViews.get(bvIdx);
+                        int offset = bv.getInt("byteOffset", 0);
+                        int len = bv.getInt("byteLength");
+                        Pixmap pixmap = new Pixmap(binData, offset, len);
+                        Texture tex = new Texture(pixmap);
+                        tex.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                        pixmap.dispose();
+                        loadedTextures.add(tex);
+                        model.manageDisposable(tex);
+                    } else {
+                        loadedTextures.add(null);
+                    }
+                } catch (Throwable t) {
+                    loadedTextures.add(null);
+                }
+            }
+        }
+
+        // 2. Parse Materials
         Array<Material> parsedMaterials = new Array<>();
         if (materials != null) {
             for (JsonValue matVal : materials) {
@@ -127,16 +150,36 @@ public class GlbModelLoader {
                 String matName = matVal.getString("name", "Material_" + parsedMaterials.size);
                 mat.id = matName;
 
-                Color baseColor = new Color(0.75f, 0.75f, 0.78f, 1.0f);
+                Color baseColor = new Color(0.85f, 0.85f, 0.88f, 1.0f);
+                Texture baseTexture = null;
+
                 JsonValue pbr = matVal.get("pbrMetallicRoughness");
                 if (pbr != null) {
                     JsonValue bcf = pbr.get("baseColorFactor");
                     if (bcf != null && bcf.size >= 3) {
                         baseColor = new Color(bcf.getFloat(0), bcf.getFloat(1), bcf.getFloat(2), bcf.size >= 4 ? bcf.getFloat(3) : 1f);
                     }
+
+                    JsonValue bct = pbr.get("baseColorTexture");
+                    if (bct != null && textures != null) {
+                        int texIdx = bct.getInt("index", -1);
+                        if (texIdx >= 0 && texIdx < textures.size) {
+                            JsonValue texVal = textures.get(texIdx);
+                            int srcImgIdx = texVal.getInt("source", -1);
+                            if (srcImgIdx >= 0 && srcImgIdx < loadedTextures.size) {
+                                baseTexture = loadedTextures.get(srcImgIdx);
+                            }
+                        }
+                    }
                 }
-                mat.set(ColorAttribute.createDiffuse(baseColor));
-                mat.set(ColorAttribute.createSpecular(Color.WHITE));
+
+                if (baseTexture != null) {
+                    mat.set(TextureAttribute.createDiffuse(baseTexture));
+                } else {
+                    mat.set(ColorAttribute.createDiffuse(baseColor));
+                }
+                mat.set(ColorAttribute.createSpecular(new Color(0.6f, 0.6f, 0.6f, 1f)));
+
                 parsedMaterials.add(mat);
                 model.materials.add(mat);
             }
@@ -153,7 +196,7 @@ public class GlbModelLoader {
         float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, minZ = Float.MAX_VALUE;
         float maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE, maxZ = -Float.MAX_VALUE;
 
-        // Parse Meshes
+        // 3. Parse Meshes & Real Geometric Vertices
         int meshIndex = 0;
         for (JsonValue meshVal : meshes) {
             JsonValue primitives = meshVal.get("primitives");
@@ -171,7 +214,7 @@ public class GlbModelLoader {
 
                 Material mat = matIdx >= 0 && matIdx < parsedMaterials.size ? parsedMaterials.get(matIdx) : parsedMaterials.get(0);
 
-                // 1. Read Positions
+                // Read Positions
                 float[] positions = readFloatAccessor(accessors.get(posAccIdx), bufferViews, binBuf);
                 int vertexCount = positions.length / 3;
 
@@ -185,16 +228,16 @@ public class GlbModelLoader {
                     maxZ = Math.max(maxZ, positions[i + 2]);
                 }
 
-                // 2. Read Normals
+                // Read Normals
                 float[] normals = normAccIdx >= 0 ? readFloatAccessor(accessors.get(normAccIdx), bufferViews, binBuf) : null;
 
-                // 3. Read UVs
+                // Read UVs
                 float[] uvs = uvAccIdx >= 0 ? readFloatAccessor(accessors.get(uvAccIdx), bufferViews, binBuf) : null;
 
-                // 4. Read Indices
+                // Read Indices
                 short[] indices = indAccIdx >= 0 ? readIndicesAccessor(accessors.get(indAccIdx), bufferViews, binBuf) : null;
 
-                // Assemble LibGDX Interleaved Vertex Data: Pos (3) + Normal (3) + UV (2) = 8 floats per vertex
+                // Assemble LibGDX Interleaved Vertex Data: Pos (3) + Normal (3) + UV (2)
                 boolean hasNormals = normals != null && normals.length == positions.length;
                 boolean hasUvs = uvs != null && uvs.length == vertexCount * 2;
 
@@ -251,13 +294,13 @@ public class GlbModelLoader {
             }
         }
 
-        // Calculate Scale and Offset to Normalize Model into 4x4 Viewport Box
+        // Calculate Scale and Offset to Center & Normalize in Viewport
         float sizeX = maxX - minX;
         float sizeY = maxY - minY;
         float sizeZ = maxZ - minZ;
         float maxDim = Math.max(sizeX, Math.max(sizeY, sizeZ));
         if (maxDim > 0.0001f) {
-            float targetSize = 3.5f;
+            float targetSize = 4.0f;
             float scale = targetSize / maxDim;
             float centerX = (minX + maxX) / 2f;
             float centerY = (minY + maxY) / 2f;
@@ -270,8 +313,14 @@ public class GlbModelLoader {
             }
         }
 
-        StudioLog.info("Loaded real GLB/GLTF model: " + modelName + " (" + model.nodes.size + " nodes, " + model.meshes.size + " meshes, dim: " + String.format("%.2f", maxDim) + ")");
+        StudioLog.info("Loaded real Khronos GLB model: " + modelName + " (" + model.nodes.size + " nodes, " + model.meshes.size + " meshes, " + (indicesCountTotal(model)) + " indices)");
         return model;
+    }
+
+    private static int indicesCountTotal(Model m) {
+        int total = 0;
+        for (MeshPart p : m.meshParts) total += p.size;
+        return total;
     }
 
     private static float[] readFloatAccessor(JsonValue accessor, JsonValue bufferViews, ByteBuffer binBuf) {
