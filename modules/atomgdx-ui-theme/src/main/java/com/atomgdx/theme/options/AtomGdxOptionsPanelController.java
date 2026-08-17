@@ -11,14 +11,15 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- * Standard NetBeans Options Panel Controller for the LibGDX category in the NetBeans Options Dialog.
- * Ref: https://netbeans.apache.org/tutorial/main/tutorials/nbm-options/
+ * NetBeans Options Panel Controller registering a top-level 'LibGDX' category in the Options Dialog.
+ * Reference: https://netbeans.apache.org/tutorial/main/tutorials/nbm-options/
  */
-@OptionsPanelController.SubRegistration(
-        location = "LibGDX",
-        displayName = "#AdvancedOption_DisplayName_LibGDX",
-        keywords = "#AdvancedOption_Keywords_LibGDX",
-        keywordsCategory = "LibGDX"
+@OptionsPanelController.TopLevelRegistration(
+        categoryName = "#OptionsCategory_Name_LibGDX",
+        iconBase = "com/atomgdx/theme/icons/settings.png",
+        keywords = "#OptionsCategory_Keywords_LibGDX",
+        keywordsCategory = "LibGDX",
+        position = 800
 )
 public class AtomGdxOptionsPanelController extends OptionsPanelController {
 
