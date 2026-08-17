@@ -4,13 +4,17 @@ import com.atomgdx.core.SciFiColors;
 import com.atomgdx.core.viewport.GdxAwtViewport;
 import com.atomgdx.editor.particle2d.Particle2DEffectModel;
 import com.atomgdx.editor.particle2d.Particle2DEmitterModel;
+import com.atomgdx.editor.particle2d.presets.ParticlePreset;
+import com.atomgdx.editor.particle2d.presets.ParticlePresetsLibrary;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -20,6 +24,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +32,7 @@ import java.util.Random;
 
 /**
  * Visual Editor for 2D Particle Effects powered by real hardware-accelerated LwjglAWTCanvas.
+ * Includes a 100-preset library with category/tag filtering and asset texture browsing.
  */
 public class Particle2DEditorPanel extends JPanel {
 
@@ -55,6 +61,14 @@ public class Particle2DEditorPanel extends JPanel {
     private JCheckBox continuousBox;
     private JCheckBox attachedBox;
     private JCheckBox behindBox;
+    private JTextField imagePathField;
+    private JButton browseImageBtn;
+
+    // Preset selector
+    private JComboBox<String> categoryCombo;
+    private JTextField presetSearchField;
+    private DefaultListModel<ParticlePreset> presetListModel = new DefaultListModel<>();
+    private JList<ParticlePreset> presetJList;
 
     private boolean updatingUI = false;
 
@@ -66,24 +80,28 @@ public class Particle2DEditorPanel extends JPanel {
 
         setLayout(new BorderLayout(10, 10));
         setBackground(SciFiColors.BG_DARKEST);
-        setBorder(new EmptyBorder(10, 10, 10, 10));
+        setBorder(new EmptyBorder(8, 8, 8, 8));
 
         // Center Viewport powered by real LibGDX LwjglAWTCanvas
         particleListener = new ParticleApplicationListener(this.effectModel);
         gdxViewport = new GdxAwtViewport(particleListener);
 
-        // Left Sidebar
-        JPanel sidebar = createSidebar();
+        // Sidebar Tabs (Properties & 100 Presets Library)
+        JTabbedPane sidebarTabs = new JTabbedPane();
+        sidebarTabs.setPreferredSize(new Dimension(360, 600));
+        sidebarTabs.addTab("Emitter Properties", createPropertiesPanel());
+        sidebarTabs.addTab("Presets Library (100)", createPresetsPanel());
 
         // Top Toolbar
         JToolBar toolBar = createToolBar();
 
         add(toolBar, BorderLayout.NORTH);
-        add(sidebar, BorderLayout.WEST);
+        add(sidebarTabs, BorderLayout.WEST);
         add(gdxViewport, BorderLayout.CENTER);
 
         refreshEmitterList();
         setupEvents();
+        filterPresets();
     }
 
     private JToolBar createToolBar() {
@@ -98,7 +116,7 @@ public class Particle2DEditorPanel extends JPanel {
         JButton deleteEmitterBtn = new JButton("- Delete Emitter");
 
         playBtn.addActionListener(e -> particleListener.start());
-        pauseBtn.addActionListener(e -> particleListener.pause());
+        pauseBtn.addActionListener(e -> particleListener.pauseSimulation());
         restartBtn.addActionListener(e -> particleListener.restart());
         addEmitterBtn.addActionListener(e -> {
             Particle2DEmitterModel newEmitter = new Particle2DEmitterModel("Emitter " + (effectModel.getEmitters().size() + 1));
@@ -124,27 +142,19 @@ public class Particle2DEditorPanel extends JPanel {
         return tb;
     }
 
-    private JPanel createSidebar() {
+    private JPanel createPropertiesPanel() {
         JPanel panel = new JPanel(new BorderLayout(5, 5));
-        panel.setPreferredSize(new Dimension(320, 600));
         panel.setBackground(SciFiColors.BG_PANEL);
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(SciFiColors.BORDER_SUBTLE),
-                "Emitters & Parameters",
-                TitledBorder.DEFAULT_JUSTIFICATION,
-                TitledBorder.DEFAULT_POSITION,
-                new Font("Segoe UI", Font.BOLD, 12),
-                SciFiColors.ACCENT_CYAN
-        ));
 
         emitterList.setBackground(SciFiColors.BG_DARK);
         emitterList.setForeground(SciFiColors.TEXT_PRIMARY);
+        emitterList.setVisibleRowCount(4);
         panel.add(new JScrollPane(emitterList), BorderLayout.NORTH);
 
         // Property Controls Grid
         JPanel propsPanel = new JPanel(new GridBagLayout());
         propsPanel.setOpaque(false);
-        propsPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        propsPanel.setBorder(new EmptyBorder(6, 6, 6, 6));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(3, 3, 3, 3);
@@ -159,9 +169,25 @@ public class Particle2DEditorPanel extends JPanel {
         propsPanel.add(nameField, gbc);
         row++;
 
+        // Particle Image Asset
+        gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
+        propsPanel.add(new JLabel("Image:"), gbc);
+        gbc.gridx = 1; gbc.weightx = 1;
+        JPanel imgP = new JPanel(new BorderLayout(4, 0));
+        imgP.setOpaque(false);
+        imagePathField = new JTextField();
+        browseImageBtn = new JButton("...");
+        browseImageBtn.setToolTipText("Browse texture in assets folder");
+        browseImageBtn.setPreferredSize(new Dimension(32, 22));
+        browseImageBtn.addActionListener(e -> browseAssetTexture());
+        imgP.add(imagePathField, BorderLayout.CENTER);
+        imgP.add(browseImageBtn, BorderLayout.EAST);
+        propsPanel.add(imgP, gbc);
+        row++;
+
         // Count Max
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Max Particles:"), gbc);
+        propsPanel.add(new JLabel("Max Count:"), gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         countSpinner = new JSpinner(new SpinnerNumberModel(200, 1, 10000, 10));
         propsPanel.add(countSpinner, gbc);
@@ -185,7 +211,7 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Life (Min/Max)
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Life Min/Max (ms):"), gbc);
+        propsPanel.add(new JLabel("Life Min/Max:"), gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel lifeP = new JPanel(new GridLayout(1, 2, 4, 0));
         lifeP.setOpaque(false);
@@ -198,7 +224,7 @@ public class Particle2DEditorPanel extends JPanel {
 
         // Scale (Min/Max)
         gbc.gridx = 0; gbc.gridy = row; gbc.weightx = 0;
-        propsPanel.add(new JLabel("Scale Min/Max (px):"), gbc);
+        propsPanel.add(new JLabel("Scale Min/Max:"), gbc);
         gbc.gridx = 1; gbc.weightx = 1;
         JPanel scaleP = new JPanel(new GridLayout(1, 2, 4, 0));
         scaleP.setOpaque(false);
@@ -266,6 +292,94 @@ public class Particle2DEditorPanel extends JPanel {
         return panel;
     }
 
+    private JPanel createPresetsPanel() {
+        JPanel panel = new JPanel(new BorderLayout(6, 6));
+        panel.setBackground(SciFiColors.BG_PANEL);
+        panel.setBorder(new EmptyBorder(6, 6, 6, 6));
+
+        // Filters
+        JPanel topFilters = new JPanel(new GridLayout(2, 1, 4, 4));
+        topFilters.setOpaque(false);
+
+        List<String> categories = new ArrayList<>();
+        categories.add("All Categories");
+        categories.addAll(ParticlePresetsLibrary.getCategories());
+        categoryCombo = new JComboBox<>(categories.toArray(new String[0]));
+        categoryCombo.addActionListener(e -> filterPresets());
+
+        presetSearchField = new JTextField();
+        presetSearchField.putClientProperty("JTextField.placeholderText", "Search 100 presets (#fire, #magic, #scifi)...");
+        presetSearchField.addActionListener(e -> filterPresets());
+
+        topFilters.add(categoryCombo);
+        topFilters.add(presetSearchField);
+        panel.add(topFilters, BorderLayout.NORTH);
+
+        // Preset List
+        presetJList = new JList<>(presetListModel);
+        presetJList.setBackground(SciFiColors.BG_DARK);
+        presetJList.setForeground(SciFiColors.TEXT_PRIMARY);
+        presetJList.setCellRenderer(new PresetListRenderer());
+        panel.add(new JScrollPane(presetJList), BorderLayout.CENTER);
+
+        // Bottom Apply Button
+        JButton applyPresetBtn = new JButton("Apply Preset to Effect");
+        applyPresetBtn.setBackground(SciFiColors.ACCENT_CYAN);
+        applyPresetBtn.setForeground(java.awt.Color.BLACK);
+        applyPresetBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        applyPresetBtn.addActionListener(e -> {
+            ParticlePreset preset = presetJList.getSelectedValue();
+            if (preset != null) {
+                applyPreset(preset);
+            }
+        });
+        panel.add(applyPresetBtn, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private void filterPresets() {
+        String category = (String) categoryCombo.getSelectedItem();
+        String query = presetSearchField.getText().trim();
+        List<ParticlePreset> results = ParticlePresetsLibrary.search(category, query);
+        presetListModel.clear();
+        for (ParticlePreset p : results) {
+            presetListModel.addElement(p);
+        }
+        if (!presetListModel.isEmpty()) {
+            presetJList.setSelectedIndex(0);
+        }
+    }
+
+    private void applyPreset(ParticlePreset preset) {
+        Particle2DEffectModel newEffect = preset.createEffect();
+        effectModel.getEmitters().clear();
+        for (Particle2DEmitterModel e : newEffect.getEmitters()) {
+            effectModel.addEmitter(e);
+        }
+        refreshEmitterList();
+        particleListener.restart();
+    }
+
+    private void browseAssetTexture() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Select Particle Texture from Assets Folder");
+        // Look into workspace assets folder if available
+        File assetsDir = new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets");
+        if (assetsDir.exists()) {
+            chooser.setCurrentDirectory(assetsDir);
+        }
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = chooser.getSelectedFile();
+            imagePathField.setText(selectedFile.getName());
+            Particle2DEmitterModel emitter = getSelectedEmitter();
+            if (emitter != null) {
+                emitter.setImagePath(selectedFile.getName());
+                particleListener.loadCustomTexture(selectedFile);
+            }
+        }
+    }
+
     private void setupEvents() {
         emitterList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -274,6 +388,7 @@ public class Particle2DEditorPanel extends JPanel {
         });
 
         nameField.addActionListener(e -> syncToModel());
+        imagePathField.addActionListener(e -> syncToModel());
         countSpinner.addChangeListener(e -> syncToModel());
         durationSpinner.addChangeListener(e -> syncToModel());
         emissionSpinner.addChangeListener(e -> syncToModel());
@@ -307,6 +422,7 @@ public class Particle2DEditorPanel extends JPanel {
 
         updatingUI = true;
         nameField.setText(emitter.getName());
+        imagePathField.setText(emitter.getImagePath() != null ? emitter.getImagePath() : "");
         countSpinner.setValue(emitter.getMaxParticleCount());
         durationSpinner.setValue(emitter.getDuration());
         emissionSpinner.setValue(emitter.getEmissionRate());
@@ -333,6 +449,7 @@ public class Particle2DEditorPanel extends JPanel {
         if (emitter == null) return;
 
         emitter.setName(nameField.getText().trim());
+        emitter.setImagePath(imagePathField.getText().trim());
         emitter.setMaxParticleCount(((Number) countSpinner.getValue()).intValue());
         emitter.setDuration(((Number) durationSpinner.getValue()).floatValue());
         emitter.setEmissionRate(((Number) emissionSpinner.getValue()).floatValue());
@@ -364,7 +481,49 @@ public class Particle2DEditorPanel extends JPanel {
     }
 
     /**
-     * Native LibGDX ApplicationListener rendering particles via SpriteBatch and OpenGL.
+     * Custom List Cell Renderer for Particle Presets with Tags and Category.
+     */
+    private static class PresetListRenderer extends JPanel implements ListCellRenderer<ParticlePreset> {
+        private final JLabel nameLabel = new JLabel();
+        private final JLabel categoryLabel = new JLabel();
+        private final JLabel tagsLabel = new JLabel();
+
+        public PresetListRenderer() {
+            setLayout(new GridLayout(3, 1, 2, 2));
+            setBorder(new EmptyBorder(4, 6, 4, 6));
+            nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            categoryLabel.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            tagsLabel.setFont(new Font("Segoe UI", Font.ITALIC, 10));
+            add(nameLabel);
+            add(categoryLabel);
+            add(tagsLabel);
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends ParticlePreset> list, ParticlePreset value, int index, boolean isSelected, boolean cellHasFocus) {
+            if (value != null) {
+                nameLabel.setText(value.getName());
+                categoryLabel.setText("Category: " + value.getCategory());
+                tagsLabel.setText("Tags: #" + String.join(" #", value.getTags()));
+            }
+
+            if (isSelected) {
+                setBackground(SciFiColors.BG_CARD);
+                nameLabel.setForeground(SciFiColors.ACCENT_CYAN);
+                categoryLabel.setForeground(SciFiColors.TEXT_PRIMARY);
+                tagsLabel.setForeground(SciFiColors.TEXT_SECONDARY);
+            } else {
+                setBackground(SciFiColors.BG_DARK);
+                nameLabel.setForeground(SciFiColors.TEXT_PRIMARY);
+                categoryLabel.setForeground(SciFiColors.TEXT_MUTED);
+                tagsLabel.setForeground(SciFiColors.TEXT_MUTED);
+            }
+            return this;
+        }
+    }
+
+    /**
+     * Real Hardware LibGDX ApplicationListener rendering particles via SpriteBatch and OpenGL.
      */
     public static class ParticleApplicationListener implements ApplicationListener {
         private final Particle2DEffectModel effectModel;
@@ -372,6 +531,8 @@ public class Particle2DEditorPanel extends JPanel {
         private final Random random = new Random();
         private SpriteBatch batch;
         private Texture particleTexture;
+        private Texture customTexture;
+        private File pendingTextureFile;
         private OrthographicCamera camera;
         private boolean running = true;
         private float emitterX = 0f;
@@ -387,12 +548,19 @@ public class Particle2DEditorPanel extends JPanel {
             particles.clear();
             emitterX = 0f;
             emitterY = 0f;
+            spawnBurst(40);
+        }
+
+        public void loadCustomTexture(File file) {
+            this.pendingTextureFile = file;
         }
 
         @Override
         public void create() {
             batch = new SpriteBatch();
-            camera = new OrthographicCamera(800, 600);
+            camera = new OrthographicCamera();
+            camera.setToOrtho(false, 800, 600);
+            camera.position.set(0, 0, 0);
 
             // Generate circular soft glow particle texture procedurally
             Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
@@ -405,24 +573,59 @@ public class Particle2DEditorPanel extends JPanel {
             }
             particleTexture = new Texture(pixmap);
             pixmap.dispose();
+
+            spawnBurst(50);
+        }
+
+        private void spawnBurst(int count) {
+            for (int i = 0; i < count; i++) {
+                GdxParticle p = new GdxParticle();
+                p.x = emitterX;
+                p.y = emitterY;
+                float angleDeg = random.nextFloat() * 360f;
+                float angleRad = (float) Math.toRadians(angleDeg);
+                float speed = 50f + random.nextFloat() * 150f;
+                p.vx = (float) Math.cos(angleRad) * speed;
+                p.vy = (float) Math.sin(angleRad) * speed;
+                p.totalLife = 0.5f + random.nextFloat() * 1.0f;
+                p.currentLife = p.totalLife;
+                p.scaleMin = 10f;
+                p.scaleMax = 30f;
+                p.additive = true;
+                particles.add(p);
+            }
         }
 
         @Override
         public void resize(int width, int height) {
+            if (width <= 0 || height <= 0) return;
             if (camera != null) {
                 camera.viewportWidth = width;
                 camera.viewportHeight = height;
+                camera.position.set(0, 0, 0);
                 camera.update();
             }
         }
 
         @Override
         public void render() {
-            ScreenUtils.clear(0.04f, 0.05f, 0.08f, 1f);
+            // Load pending custom texture on GL thread
+            if (pendingTextureFile != null && pendingTextureFile.exists()) {
+                try {
+                    if (customTexture != null) customTexture.dispose();
+                    customTexture = new Texture(new FileHandle(pendingTextureFile));
+                } catch (Throwable t) {
+                    System.err.println("Failed to load particle texture: " + t.getMessage());
+                }
+                pendingTextureFile = null;
+            }
+
+            // Dark Sci-Fi background
+            ScreenUtils.clear(0.04f, 0.06f, 0.10f, 1f);
 
             float delta = Gdx.graphics.getDeltaTime();
             if (running && delta > 0) {
-                updateSimulation(delta);
+                updateSimulation(Math.min(delta, 0.05f));
             }
 
             if (batch == null || camera == null || particleTexture == null) return;
@@ -430,6 +633,8 @@ public class Particle2DEditorPanel extends JPanel {
             camera.update();
             batch.setProjectionMatrix(camera.combined);
             batch.begin();
+
+            Texture activeTex = (customTexture != null) ? customTexture : particleTexture;
 
             for (GdxParticle p : particles) {
                 float lifePercent = Math.max(0f, Math.min(1f, p.currentLife / p.totalLife));
@@ -443,8 +648,12 @@ public class Particle2DEditorPanel extends JPanel {
                 }
 
                 batch.setColor(0f, 0.94f, 1f, alpha);
-                batch.draw(particleTexture, p.x - currentScale / 2f, p.y - currentScale / 2f, currentScale, currentScale);
+                batch.draw(activeTex, p.x - currentScale / 2f, p.y - currentScale / 2f, currentScale, currentScale);
             }
+
+            // Draw emitter center crosshair
+            batch.setColor(1f, 1f, 0f, 0.8f);
+            batch.draw(activeTex, emitterX - 4, emitterY - 4, 8, 8);
 
             batch.end();
         }
@@ -495,18 +704,14 @@ public class Particle2DEditorPanel extends JPanel {
             }
         }
 
-        @Override
-        public void pause() {
-        }
-
-        @Override
-        public void resume() {
-        }
+        @Override public void pause() {}
+        @Override public void resume() {}
 
         @Override
         public void dispose() {
             if (batch != null) batch.dispose();
             if (particleTexture != null) particleTexture.dispose();
+            if (customTexture != null) customTexture.dispose();
         }
 
         private static class GdxParticle {

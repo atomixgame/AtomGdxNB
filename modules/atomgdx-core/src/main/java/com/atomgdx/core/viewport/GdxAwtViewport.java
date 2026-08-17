@@ -17,17 +17,26 @@ public class GdxAwtViewport extends JPanel {
     public GdxAwtViewport(ApplicationListener listener) {
         this.listener = listener;
         setLayout(new BorderLayout());
-        setBackground(Color.BLACK);
+        setBackground(new Color(0x06, 0x08, 0x0C));
+        setPreferredSize(new Dimension(640, 480));
+        setMinimumSize(new Dimension(320, 240));
+
+        LwjglNativesLoader.load();
         initCanvas();
     }
 
     private void initCanvas() {
         try {
             canvas = new LwjglAWTCanvas(listener);
-            add(canvas.getCanvas(), BorderLayout.CENTER);
+            Canvas awtCanvas = canvas.getCanvas();
+            awtCanvas.setBackground(new Color(0x06, 0x08, 0x0C));
+            add(awtCanvas, BorderLayout.CENTER);
+            revalidate();
+            repaint();
         } catch (Throwable t) {
             System.err.println("GdxAwtViewport fallback: " + t.getMessage());
-            JLabel fallback = new JLabel("LibGDX OpenGL Viewport: " + t.getMessage(), SwingConstants.CENTER);
+            t.printStackTrace();
+            JLabel fallback = new JLabel("LibGDX OpenGL Viewport Initializing...", SwingConstants.CENTER);
             fallback.setForeground(Color.CYAN);
             add(fallback, BorderLayout.CENTER);
         }
