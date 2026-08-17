@@ -134,7 +134,19 @@ public class Scene2DViewportListener implements ApplicationListener {
 
         for (SimpleImageVO img : scene.composite.sImages) {
             if (!img.isVisible) continue;
-            Texture tex = textureCache.getOrDefault(img.imageName, defaultTexture);
+            Texture tex = textureCache.get(img.imageName);
+            if (tex == null && img.imageName != null && !img.imageName.isEmpty()) {
+                File texFile = new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets/textures", img.imageName);
+                if (!texFile.exists()) {
+                    texFile = new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets/textures", img.imageName + ".png");
+                }
+                if (texFile.exists()) {
+                    loadTexture(img.imageName, texFile);
+                    tex = textureCache.get(img.imageName);
+                }
+            }
+            if (tex == null) tex = defaultTexture;
+
             float w = img.width > 0 ? img.width : tex.getWidth();
             float h = img.height > 0 ? img.height : tex.getHeight();
 
