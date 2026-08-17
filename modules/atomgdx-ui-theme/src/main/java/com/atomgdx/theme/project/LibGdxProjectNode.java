@@ -318,15 +318,21 @@ public class LibGdxProjectNode extends AbstractNode {
         @Override
         public Image getIcon(int type) {
             String name = file.getName().toLowerCase();
-            if (name.endsWith(".dt") || name.endsWith(".scene") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
+            if (name.endsWith(".scene3d") || name.endsWith(".scene3d.json") || name.endsWith(".scene")) {
+                return getCustomIcon("world.png");
+            } else if (name.endsWith(".dt") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
                 return getCustomIcon("star.png");
+            } else if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
+                return getCustomIcon("box.png");
+            } else if (name.endsWith(".prefab.json")) {
+                return getCustomIcon("brick.png");
+            } else if (name.endsWith(".mat.json")) {
+                return getCustomIcon("color_wheel.png");
             } else if (name.endsWith(".particle") || name.endsWith(".p")) {
                 return getCustomIcon("fire.png");
             } else if (name.endsWith(".glsl") || name.endsWith(".frag") || name.endsWith(".vert")) {
                 return getCustomIcon("lightning.png");
-            } else if (name.endsWith(".gltf") || name.endsWith(".obj")) {
-                return getCustomIcon("bomb.png");
-            } else if (name.endsWith(".png") || name.endsWith(".jpg")) {
+            } else if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
                 return getCustomIcon("picture.png");
             } else if (name.endsWith(".ogg") || name.endsWith(".wav") || name.endsWith(".mp3")) {
                 return getCustomIcon("weather_clouds.png");
@@ -348,7 +354,11 @@ public class LibGdxProjectNode extends AbstractNode {
 
         private void openFileInEditor() {
             String name = file.getName().toLowerCase();
-            if (name.endsWith(".dt") || name.endsWith(".scene") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
+            if (name.endsWith(".scene3d") || name.endsWith(".scene3d.json")) {
+                openEditor(new Scene3DEditorTopComponent(file));
+            } else if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
+                openEditor(new Model3DViewerTopComponent(file));
+            } else if (name.endsWith(".dt") || name.endsWith(".scene") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
                 openEditor(new Scene2DTopComponent());
             } else if (name.endsWith(".particle") || name.endsWith(".p")) {
                 openEditor(new Particle2DTopComponent());
@@ -360,8 +370,6 @@ public class LibGdxProjectNode extends AbstractNode {
                 openEditor(new NinePatchEditorTopComponent());
             } else if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
                 openEditor(new SpriteSheetEditorTopComponent(file));
-            } else if (name.endsWith(".gltf") || name.endsWith(".obj")) {
-                openEditor(new Model3DViewerTopComponent());
             } else if (name.endsWith(".ogg") || name.endsWith(".wav") || name.endsWith(".mp3")) {
                 openEditor(new MediaViewerTopComponent());
             }

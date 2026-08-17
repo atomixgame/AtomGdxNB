@@ -10,7 +10,7 @@ import java.awt.event.ComponentEvent;
 
 /**
  * Reusable Swing host panel for LibGDX OpenGL viewports powered by LwjglAWTCanvas.
- * Ensures edge-to-edge fullscreen canvas rendering without forced sizes or gaps.
+ * Ensures 100% edge-to-edge fullscreen canvas rendering without dead margins or gaps.
  */
 public class GdxAwtViewport extends JPanel {
 
@@ -21,6 +21,7 @@ public class GdxAwtViewport extends JPanel {
         this.listener = listener;
         setLayout(new BorderLayout(0, 0));
         setBackground(new Color(20, 21, 23));
+        setBorder(null);
 
         LwjglNativesLoader.load();
         initCanvas();
@@ -28,9 +29,7 @@ public class GdxAwtViewport extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                if (canvas != null && canvas.getCanvas() != null) {
-                    canvas.getCanvas().setSize(getSize());
-                }
+                stretchCanvasToFit();
             }
         });
     }
@@ -41,6 +40,7 @@ public class GdxAwtViewport extends JPanel {
             Canvas awtCanvas = canvas.getCanvas();
             awtCanvas.setBackground(new Color(20, 21, 23));
             add(awtCanvas, BorderLayout.CENTER);
+            stretchCanvasToFit();
             revalidate();
             repaint();
         } catch (Throwable t) {
@@ -50,6 +50,27 @@ public class GdxAwtViewport extends JPanel {
             fallback.setForeground(new Color(53, 116, 240));
             add(fallback, BorderLayout.CENTER);
         }
+    }
+
+    private void stretchCanvasToFit() {
+        if (canvas != null && canvas.getCanvas() != null) {
+            int w = getWidth();
+            int h = getHeight();
+            if (w > 0 && h > 0) {
+                canvas.getCanvas().setBounds(0, 0, w, h);
+            }
+        }
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        stretchCanvasToFit();
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(0, 0);
     }
 
     public LwjglAWTCanvas getCanvas() {

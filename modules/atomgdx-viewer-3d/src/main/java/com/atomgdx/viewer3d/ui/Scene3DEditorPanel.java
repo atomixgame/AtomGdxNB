@@ -2,43 +2,55 @@ package com.atomgdx.viewer3d.ui;
 
 import com.atomgdx.core.ui.DarkThemeUtils;
 import com.atomgdx.core.viewport.GdxAwtViewport;
+import com.atomgdx.viewer3d.data.Node3DVO;
+import com.atomgdx.viewer3d.data.Prefab3DVO;
 import com.atomgdx.viewer3d.data.Scene3DVO;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Full-featured interactive 3D Scene & Level Editor panel.
- * Features edge-to-edge hardware OpenGL canvas, Unity-inspired 3D View Gizmo,
- * Transform Gizmo modes with icons, Shading options, and Physics simulation triggers.
+ * Features edge-to-edge hardware OpenGL canvas (100% space without gaps),
+ * Unity-inspired 3D View Orientation Gizmo, Drag & Drop model loading (.glb, .gltf, .obj),
+ * and Unsaved/Untitled scene state tracking.
  */
 public class Scene3DEditorPanel extends JPanel {
 
     private final Scene3DVO scene;
     private final Model3DViewportListener viewportListener;
     private final GdxAwtViewport gdxViewport;
+    private File activeSceneFile = null;
+    private boolean isDirty = false;
+    private Consumer<Boolean> dirtyStateListener;
+    private Consumer<Node3DVO> nodeCreatedListener;
 
     private int lastMouseX, lastMouseY;
     private boolean isOrbiting = false;
     private boolean isPanning = false;
 
     public Scene3DEditorPanel() {
-        this(new Scene3DVO("MainScene3D"));
+        this(new Scene3DVO("Untitled Scene"));
     }
 
     public Scene3DEditorPanel(Scene3DVO scene) {
-        this.scene = scene != null ? scene : new Scene3DVO("MainScene3D");
+        this.scene = scene != null ? scene : new Scene3DVO("Untitled Scene");
         setLayout(new BorderLayout(0, 0));
         setBackground(DarkThemeUtils.BG_DARK);
+        setBorder(null);
 
         viewportListener = new Model3DViewportListener(new File("spacecraft_cruiser.gltf"));
         gdxViewport = new GdxAwtViewport(viewportListener);
 
         setupMouseInteractions();
+        setupDragAndDrop();
 
         // Top Scene Editor Toolbar with rich icons
         JToolBar toolbar = createSceneEditorToolBar();
@@ -53,6 +65,85 @@ public class Scene3DEditorPanel extends JPanel {
 
     public Model3DViewportListener getViewportListener() {
         return viewportListener;
+    }
+
+    public File getActiveSceneFile() {
+        return activeSceneFile;
+    }
+
+    public void setActiveSceneFile(File file) {
+        this.activeSceneFile = file;
+        setDirty(false);
+    }
+
+    public boolean isDirty() {
+        return isDirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.isDirty = dirty;
+        if (dirtyStateListener != null) {
+            dirtyStateListener.accept(dirty);
+        }
+    }
+
+    public void setDirtyStateListener(Consumer<Boolean> listener) {
+        this.dirtyStateListener = listener;
+    }
+
+    public void setNodeCreatedListener(Consumer<Node3DVO> listener) {
+        this.nodeCreatedListener = listener;
+    }
+
+    /**
+     * Drag and Drop support for .glb, .gltf, .obj, .prefab.json files onto the 3D Scene Viewport.
+     */
+    private void setupDragAndDrop() {
+        new DropTarget(this, DnDConstants.ACTION_COPY_OR_MOVE, new DropTargetAdapter() {
+            @Override
+            public void drop(DropTargetDropEvent dtde) {
+                try {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    if (dtde.getTransferable().isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                        @SuppressWarnings("unchecked")
+                        List<File> files = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                        for (File file : files) {
+                            handleDroppedFile(file);
+                        }
+                        dtde.dropComplete(true);
+                    } else {
+                        dtde.rejectDrop();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    dtde.rejectDrop();
+                }
+            }
+        });
+    }
+
+    public void handleDroppedFile(File file) {
+        if (file == null || !file.exists()) return;
+        String name = file.getName().toLowerCase();
+
+        Node3DVO newNode;
+        if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db")) {
+            String baseName = file.getName().replaceFirst("[.][^.]+$", "");
+            newNode = new Node3DVO(baseName + "_Model", Node3DVO.NodeType.MESH);
+            newNode.posY = 1.0f;
+            viewportListener.setModelFile(file);
+        } else if (name.endsWith(".prefab.json")) {
+            newNode = Prefab3DVO.createSpacecraftFighter().rootNode;
+        } else {
+            newNode = new Node3DVO(file.getName(), Node3DVO.NodeType.MESH);
+        }
+
+        scene.rootNode.addChild(newNode);
+        setDirty(true);
+
+        if (nodeCreatedListener != null) {
+            nodeCreatedListener.accept(newNode);
+        }
     }
 
     private JToolBar createSceneEditorToolBar() {
@@ -182,5 +273,10 @@ public class Scene3DEditorPanel extends JPanel {
             float delta = (float) e.getPreciseWheelRotation();
             viewportListener.zoom(delta * 0.8f);
         });
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(0, 0);
     }
 }
