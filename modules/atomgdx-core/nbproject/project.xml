@@ -49,9 +49,33 @@
                 <package>com.badlogic.gdx.graphics.g3d.model</package>
                 <package>com.badlogic.gdx.graphics.g3d.utils</package>
                 <package>com.badlogic.gdx.graphics.g3d.shaders</package>
+                <package>net.mgsx.gltf.loaders.glb</package>
+                <package>net.mgsx.gltf.loaders.gltf</package>
+                <package>net.mgsx.gltf.loaders.shared</package>
+                <package>net.mgsx.gltf.loaders.shared.material</package>
+                <package>net.mgsx.gltf.loaders.shared.geometry</package>
+                <package>net.mgsx.gltf.loaders.shared.animation</package>
+                <package>net.mgsx.gltf.loaders.shared.texture</package>
+                <package>net.mgsx.gltf.loaders.shared.scene</package>
+                <package>net.mgsx.gltf.loaders.shared.data</package>
+                <package>net.mgsx.gltf.scene3d.scene</package>
+                <package>net.mgsx.gltf.scene3d.shaders</package>
+                <package>net.mgsx.gltf.scene3d.attributes</package>
+                <package>net.mgsx.gltf.scene3d.lights</package>
+                <package>net.mgsx.gltf.scene3d.model</package>
+                <package>net.mgsx.gltf.scene3d.animation</package>
+                <package>net.mgsx.gltf.data</package>
+                <package>net.mgsx.gltf.data.material</package>
+                <package>net.mgsx.gltf.data.geometry</package>
+                <package>net.mgsx.gltf.data.scene</package>
+                <package>net.mgsx.gltf.data.extensions</package>
                 <package>org.lwjgl</package>
                 <package>org.lwjgl.opengl</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/gdx-gltf-2.2.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gdx-gltf-2.2.1.jar</binary-origin>
+            </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/gdx-1.12.1.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/gdx-1.12.1.jar</binary-origin>

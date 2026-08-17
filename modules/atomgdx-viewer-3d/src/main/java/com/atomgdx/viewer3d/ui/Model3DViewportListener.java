@@ -54,8 +54,8 @@ public class Model3DViewportListener implements ApplicationListener {
     // Orbit Camera State
     private float cameraYaw = 45f;
     private float cameraPitch = 20f;
-    private float cameraDistance = 8f;
-    private final Vector3 target = new Vector3(0, 2.0f, 0);
+    private float cameraDistance = 6.5f;
+    private final Vector3 target = new Vector3(0, 0, 0);
 
     private final java.util.concurrent.atomic.AtomicReference<File> pendingModelFile = new java.util.concurrent.atomic.AtomicReference<>();
 
@@ -583,8 +583,8 @@ public class Model3DViewportListener implements ApplicationListener {
     public void resetCamera() {
         cameraYaw = 45f;
         cameraPitch = 20f;
-        cameraDistance = 8f;
-        target.set(0, 2.0f, 0);
+        cameraDistance = 6.5f;
+        target.set(0, 0, 0);
         updateCamera();
     }
 

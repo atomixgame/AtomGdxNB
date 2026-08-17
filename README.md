@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="docs/plan/v0.1.0_Milestone_Plan.md"><img src="https://img.shields.io/badge/version-v0.1.83-00e5ff.svg?style=flat-square" alt="Version v0.1.83"/></a>
+  <a href="docs/plan/v0.1.0_Milestone_Plan.md"><img src="https://img.shields.io/badge/version-v0.1.84-00e5ff.svg?style=flat-square" alt="Version v0.1.84"/></a>
   <a href="docs/progress/v0.1.md"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square" alt="Build Status"/></a>
   <a href="https://libgdx.com/"><img src="https://img.shields.io/badge/libGDX-1.13.1-e11d48.svg?style=flat-square" alt="LibGDX Version"/></a>
   <a href="docs/howto/Dev_Setup.md"><img src="https://img.shields.io/badge/JDK-21%20LTS-f59e0b.svg?style=flat-square" alt="Java 21 LTS"/></a>
