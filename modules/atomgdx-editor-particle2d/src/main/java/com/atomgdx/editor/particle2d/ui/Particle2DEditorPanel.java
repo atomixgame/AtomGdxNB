@@ -1,8 +1,18 @@
 package com.atomgdx.editor.particle2d.ui;
 
 import com.atomgdx.core.SciFiColors;
+import com.atomgdx.core.viewport.GdxAwtViewport;
 import com.atomgdx.editor.particle2d.Particle2DEffectModel;
 import com.atomgdx.editor.particle2d.Particle2DEmitterModel;
+import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -16,15 +26,15 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Visual Editor for 2D Particle Effects with real-time physics simulation,
- * interactive keyframing/controls, and multi-emitter hierarchy.
+ * Visual Editor for 2D Particle Effects powered by real hardware-accelerated LwjglAWTCanvas.
  */
 public class Particle2DEditorPanel extends JPanel {
 
     private final Particle2DEffectModel effectModel;
     private final DefaultListModel<String> emitterListModel = new DefaultListModel<>();
     private final JList<String> emitterList = new JList<>(emitterListModel);
-    private final ParticlePreviewCanvas previewCanvas;
+    private final GdxAwtViewport gdxViewport;
+    private final ParticleApplicationListener particleListener;
 
     // Property editors
     private JTextField nameField;
@@ -58,8 +68,9 @@ public class Particle2DEditorPanel extends JPanel {
         setBackground(SciFiColors.BG_DARKEST);
         setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Center Viewport
-        previewCanvas = new ParticlePreviewCanvas(this.effectModel);
+        // Center Viewport powered by real LibGDX LwjglAWTCanvas
+        particleListener = new ParticleApplicationListener(this.effectModel);
+        gdxViewport = new GdxAwtViewport(particleListener);
 
         // Left Sidebar
         JPanel sidebar = createSidebar();
@@ -69,7 +80,7 @@ public class Particle2DEditorPanel extends JPanel {
 
         add(toolBar, BorderLayout.NORTH);
         add(sidebar, BorderLayout.WEST);
-        add(previewCanvas, BorderLayout.CENTER);
+        add(gdxViewport, BorderLayout.CENTER);
 
         refreshEmitterList();
         setupEvents();
@@ -86,9 +97,9 @@ public class Particle2DEditorPanel extends JPanel {
         JButton addEmitterBtn = new JButton("+ Add Emitter");
         JButton deleteEmitterBtn = new JButton("- Delete Emitter");
 
-        playBtn.addActionListener(e -> previewCanvas.start());
-        pauseBtn.addActionListener(e -> previewCanvas.pause());
-        restartBtn.addActionListener(e -> previewCanvas.restart());
+        playBtn.addActionListener(e -> particleListener.start());
+        pauseBtn.addActionListener(e -> particleListener.pause());
+        restartBtn.addActionListener(e -> particleListener.restart());
         addEmitterBtn.addActionListener(e -> {
             Particle2DEmitterModel newEmitter = new Particle2DEmitterModel("Emitter " + (effectModel.getEmitters().size() + 1));
             effectModel.addEmitter(newEmitter);
@@ -262,7 +273,6 @@ public class Particle2DEditorPanel extends JPanel {
             }
         });
 
-        // Add change listeners to sync values back to the active model
         nameField.addActionListener(e -> syncToModel());
         countSpinner.addChangeListener(e -> syncToModel());
         durationSpinner.addChangeListener(e -> syncToModel());
@@ -354,62 +364,100 @@ public class Particle2DEditorPanel extends JPanel {
     }
 
     /**
-     * Real-time Physics Particle Simulation Canvas with LibGDX trajectory & alpha blend calculations.
+     * Native LibGDX ApplicationListener rendering particles via SpriteBatch and OpenGL.
      */
-    public static class ParticlePreviewCanvas extends JPanel {
+    public static class ParticleApplicationListener implements ApplicationListener {
         private final Particle2DEffectModel effectModel;
-        private final List<SimulatedParticle> activeParticles = new ArrayList<>();
+        private final List<GdxParticle> particles = new ArrayList<>();
         private final Random random = new Random();
-        private final Timer simulationTimer;
+        private SpriteBatch batch;
+        private Texture particleTexture;
+        private OrthographicCamera camera;
         private boolean running = true;
         private float emitterX = 0f;
         private float emitterY = 0f;
 
-        public ParticlePreviewCanvas(Particle2DEffectModel effectModel) {
+        public ParticleApplicationListener(Particle2DEffectModel effectModel) {
             this.effectModel = effectModel;
-            setBackground(new Color(0x06, 0x08, 0x0C));
-            setBorder(BorderFactory.createLineBorder(SciFiColors.BORDER_SUBTLE, 1));
-
-            // Mouse interaction to move emitter spawn origin
-            MouseAdapter mouse = new MouseAdapter() {
-                @Override
-                public void mouseDragged(MouseEvent e) {
-                    emitterX = e.getX() - getWidth() / 2f;
-                    emitterY = e.getY() - getHeight() / 2f;
-                }
-            };
-            addMouseListener(mouse);
-            addMouseMotionListener(mouse);
-
-            // 60 FPS simulation loop
-            simulationTimer = new Timer(16, e -> {
-                if (running) {
-                    updateSimulation(0.016f);
-                    repaint();
-                }
-            });
-            simulationTimer.start();
         }
 
         public void start() { running = true; }
-        public void pause() { running = false; }
+        public void pauseSimulation() { running = false; }
         public void restart() {
-            activeParticles.clear();
+            particles.clear();
             emitterX = 0f;
             emitterY = 0f;
-            repaint();
+        }
+
+        @Override
+        public void create() {
+            batch = new SpriteBatch();
+            camera = new OrthographicCamera(800, 600);
+
+            // Generate circular soft glow particle texture procedurally
+            Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+            pixmap.setColor(0, 0, 0, 0);
+            pixmap.fill();
+            for (int r = 16; r > 0; r--) {
+                float alpha = (float) r / 16f;
+                pixmap.setColor(1f, 1f, 1f, alpha * alpha);
+                pixmap.fillCircle(16, 16, r);
+            }
+            particleTexture = new Texture(pixmap);
+            pixmap.dispose();
+        }
+
+        @Override
+        public void resize(int width, int height) {
+            if (camera != null) {
+                camera.viewportWidth = width;
+                camera.viewportHeight = height;
+                camera.update();
+            }
+        }
+
+        @Override
+        public void render() {
+            ScreenUtils.clear(0.04f, 0.05f, 0.08f, 1f);
+
+            float delta = Gdx.graphics.getDeltaTime();
+            if (running && delta > 0) {
+                updateSimulation(delta);
+            }
+
+            if (batch == null || camera == null || particleTexture == null) return;
+
+            camera.update();
+            batch.setProjectionMatrix(camera.combined);
+            batch.begin();
+
+            for (GdxParticle p : particles) {
+                float lifePercent = Math.max(0f, Math.min(1f, p.currentLife / p.totalLife));
+                float currentScale = p.scaleMin + (p.scaleMax - p.scaleMin) * (1f - lifePercent);
+                float alpha = lifePercent;
+
+                if (p.additive) {
+                    batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE);
+                } else {
+                    batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+                }
+
+                batch.setColor(0f, 0.94f, 1f, alpha);
+                batch.draw(particleTexture, p.x - currentScale / 2f, p.y - currentScale / 2f, currentScale, currentScale);
+            }
+
+            batch.end();
         }
 
         private void updateSimulation(float delta) {
-            // Spawn new particles from all enabled emitters
             for (Particle2DEmitterModel emitter : effectModel.getEmitters()) {
                 if (!emitter.isEnabled()) continue;
 
                 int spawnCount = Math.max(1, (int) (emitter.getEmissionRate() * delta));
                 for (int i = 0; i < spawnCount; i++) {
-                    if (activeParticles.size() >= emitter.getMaxParticleCount()) break;
+                    if (particles.size() >= emitter.getMaxParticleCount()) break;
 
-                    SimulatedParticle p = new SimulatedParticle();
+                    GdxParticle p = new GdxParticle();
                     p.x = emitterX;
                     p.y = emitterY;
 
@@ -427,14 +475,13 @@ public class Particle2DEditorPanel extends JPanel {
                     p.gravity = emitter.getGravity();
                     p.additive = emitter.isAdditive();
 
-                    activeParticles.add(p);
+                    particles.add(p);
                 }
             }
 
-            // Update existing particles
-            Iterator<SimulatedParticle> it = activeParticles.iterator();
+            Iterator<GdxParticle> it = particles.iterator();
             while (it.hasNext()) {
-                SimulatedParticle p = it.next();
+                GdxParticle p = it.next();
                 p.currentLife -= delta;
                 if (p.currentLife <= 0) {
                     it.remove();
@@ -449,55 +496,20 @@ public class Particle2DEditorPanel extends JPanel {
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            int cx = getWidth() / 2;
-            int cy = getHeight() / 2;
-
-            // Coordinate grid
-            g2.setColor(new Color(0x13, 0x1A, 0x24));
-            g2.drawLine(0, cy, getWidth(), cy);
-            g2.drawLine(cx, 0, cx, getHeight());
-
-            // Render particles
-            for (SimulatedParticle p : activeParticles) {
-                float lifePercent = Math.max(0f, Math.min(1f, p.currentLife / p.totalLife));
-                float currentScale = p.scaleMin + (p.scaleMax - p.scaleMin) * (1f - lifePercent);
-                int alpha = (int) (255 * lifePercent);
-
-                int px = (int) (cx + p.x);
-                int py = (int) (cy + p.y);
-                int r = (int) (currentScale / 2);
-
-                if (p.additive) {
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, lifePercent * 0.85f));
-                } else {
-                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, lifePercent));
-                }
-
-                // Outer glow
-                g2.setColor(new Color(0, 240, 255, Math.min(255, alpha)));
-                g2.fillOval(px - r, py - r, r * 2, r * 2);
-
-                // Core highlight
-                g2.setColor(new Color(255, 255, 255, Math.min(255, alpha)));
-                g2.fillOval(px - r / 3, py - r / 3, Math.max(2, r * 2 / 3), Math.max(2, r * 2 / 3));
-            }
-
-            // HUD stats
-            g2.setComposite(AlphaComposite.SrcOver);
-            g2.setColor(SciFiColors.ACCENT_CYAN);
-            g2.setFont(new Font("Monospaced", Font.PLAIN, 11));
-            g2.drawString("Particles: " + activeParticles.size(), 12, 20);
-            g2.drawString("Emitter: (" + (int) emitterX + ", " + (int) emitterY + ") [Drag to move]", 12, 36);
-
-            g2.dispose();
+        public void pause() {
         }
 
-        private static class SimulatedParticle {
+        @Override
+        public void resume() {
+        }
+
+        @Override
+        public void dispose() {
+            if (batch != null) batch.dispose();
+            if (particleTexture != null) particleTexture.dispose();
+        }
+
+        private static class GdxParticle {
             float x, y;
             float vx, vy;
             float totalLife;
