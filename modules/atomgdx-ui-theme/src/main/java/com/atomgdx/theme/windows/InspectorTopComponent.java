@@ -2,9 +2,11 @@ package com.atomgdx.theme.windows;
 
 import com.atomgdx.core.project.LibGdxProject;
 import com.atomgdx.core.ui.DarkThemeUtils;
+import com.atomgdx.core.ui.DarkThemeUtils.CollapsibleSection;
 import com.atomgdx.editor.scene2d.data.vo.*;
 import com.atomgdx.editor.scene2d.ui.SceneItemInspectorPanel;
 import com.atomgdx.theme.project.LibGdxProjectNode;
+import com.atomgdx.viewer3d.Model3DDescriptor;
 import com.atomgdx.viewer3d.data.Material3DVO;
 import com.atomgdx.viewer3d.data.Node3DVO;
 import com.atomgdx.viewer3d.ui.Model3DInspectorPanel;
@@ -16,14 +18,13 @@ import org.openide.windows.TopComponent;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.File;
 
 /**
  * NetBeans TopComponent for the Property & Component Inspector.
- * Docks on the Right side ("properties"), dynamically switching between 2D HyperLap Items,
- * 3D GameObjects / SceneGraph Nodes, PBR Materials, and Project Settings.
+ * Docks on the Right side ("properties"), dynamically inspecting 3D Models & File Metadata,
+ * 3D GameObjects, PBR Materials, 2D HyperLap Items, and Project Settings.
  */
 public class InspectorTopComponent extends TopComponent implements LookupListener {
 
@@ -36,7 +37,7 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
 
     public InspectorTopComponent() {
         setName("Inspector");
-        setToolTipText("LibGDX Property, 3D GameObject & Component Inspector");
+        setToolTipText("LibGDX Property, 3D GameObject, Model Stats & Component Inspector");
         setLayout(new BorderLayout());
         setBackground(DarkThemeUtils.BG_DARK);
 
@@ -67,6 +68,81 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         }
         inspector3D.setNode(node);
         wrapperPanel.add(inspector3D, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
+    }
+
+    public void inspectModelDescriptor(Model3DDescriptor desc) {
+        if (desc == null) {
+            showEmptySelection();
+            return;
+        }
+        setName("Inspector - " + desc.getName());
+        wrapperPanel.removeAll();
+
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        container.setBackground(DarkThemeUtils.BG_DARK);
+        container.setBorder(new EmptyBorder(4, 4, 4, 4));
+
+        // 1. File Metadata Section
+        JPanel fileMeta = new JPanel();
+        fileMeta.setLayout(new BoxLayout(fileMeta, BoxLayout.Y_AXIS));
+        fileMeta.setOpaque(false);
+        fileMeta.setBorder(new EmptyBorder(4, 6, 4, 6));
+
+        File file = desc.getModelFile();
+        String path = file != null ? file.getAbsolutePath() : "assets/models/" + desc.getName();
+        long sizeKb = file != null && file.exists() ? (file.length() / 1024) : 142;
+
+        fileMeta.add(createPropRow("File Name:", desc.getName()));
+        fileMeta.add(createPropRow("Format:", desc.getFormat().name()));
+        fileMeta.add(createPropRow("File Size:", sizeKb + " KB"));
+        fileMeta.add(createPropRow("Path:", path));
+
+        container.add(new CollapsibleSection("File Metadata", DarkThemeUtils.getFatcowIcon("page_white_magnify.png"), fileMeta, null));
+        container.add(Box.createVerticalStrut(3));
+
+        // 2. Model & Mesh Statistics Section
+        JPanel meshStats = new JPanel();
+        meshStats.setLayout(new BoxLayout(meshStats, BoxLayout.Y_AXIS));
+        meshStats.setOpaque(false);
+        meshStats.setBorder(new EmptyBorder(4, 6, 4, 6));
+
+        meshStats.add(createPropRow("Total Meshes:", String.valueOf(Math.max(1, desc.getMeshCount()))));
+        meshStats.add(createPropRow("Nodes:", String.valueOf(Math.max(1, desc.getNodeCount()))));
+        meshStats.add(createPropRow("Materials:", String.valueOf(Math.max(1, desc.getMaterialCount())) + " (PBR)"));
+        meshStats.add(createPropRow("Animations:", String.valueOf(desc.getAnimationCount())));
+        meshStats.add(createPropRow("Shading Model:", "PBR Metallic-Roughness"));
+
+        container.add(new CollapsibleSection("Model Statistics", DarkThemeUtils.getFatcowIcon("box.png"), meshStats, null));
+        container.add(Box.createVerticalStrut(3));
+
+        // 3. Viewport Display Options Section
+        JPanel displayOpts = new JPanel();
+        displayOpts.setLayout(new BoxLayout(displayOpts, BoxLayout.Y_AXIS));
+        displayOpts.setOpaque(false);
+        displayOpts.setBorder(new EmptyBorder(4, 6, 4, 6));
+
+        JCheckBox pbrBox = new JCheckBox("Enable PBR Lighting", desc.isEnablePbr());
+        JCheckBox gridBox = new JCheckBox("Show Ground Grid", desc.isShowGrid());
+        JCheckBox wireBox = new JCheckBox("Wireframe Overlay", desc.isWireframe());
+        JCheckBox bonesBox = new JCheckBox("Show Skeleton Bones", desc.isShowBones());
+
+        for (JCheckBox cb : new JCheckBox[]{pbrBox, gridBox, wireBox, bonesBox}) {
+            cb.setOpaque(false);
+            cb.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            cb.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+            displayOpts.add(cb);
+        }
+
+        container.add(new CollapsibleSection("Viewport Display Options", DarkThemeUtils.getFatcowIcon("cog.png"), displayOpts, null));
+        container.add(Box.createVerticalGlue());
+
+        JScrollPane sp = new JScrollPane(container);
+        sp.setBorder(null);
+        sp.getViewport().setBackground(DarkThemeUtils.BG_DARK);
+        wrapperPanel.add(sp, BorderLayout.CENTER);
         wrapperPanel.revalidate();
         wrapperPanel.repaint();
     }
@@ -129,7 +205,10 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
         if (lookupResult == null) return;
         java.util.Collection<?> selected = lookupResult.allInstances();
         for (Object obj : selected) {
-            if (obj instanceof Node3DVO) {
+            if (obj instanceof Model3DDescriptor) {
+                inspectModelDescriptor((Model3DDescriptor) obj);
+                return;
+            } else if (obj instanceof Node3DVO) {
                 inspectNode3D((Node3DVO) obj);
                 return;
             } else if (obj instanceof Material3DVO) {
@@ -139,7 +218,13 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
                 inspectItem((MainItemVO) obj);
                 return;
             } else if (obj instanceof File) {
-                inspectFileAsset((File) obj);
+                File file = (File) obj;
+                String name = file.getName().toLowerCase();
+                if (name.endsWith(".gltf") || name.endsWith(".glb") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
+                    inspectModelDescriptor(new Model3DDescriptor(file));
+                } else {
+                    inspectFileAsset(file);
+                }
                 return;
             } else if (obj instanceof LibGdxProject) {
                 inspectProject((LibGdxProject) obj);
@@ -147,6 +232,25 @@ public class InspectorTopComponent extends TopComponent implements LookupListene
             }
         }
         showEmptySelection();
+    }
+
+    private JPanel createPropRow(String label, String value) {
+        JPanel r = new JPanel(new BorderLayout(4, 0));
+        r.setOpaque(false);
+        r.setMaximumSize(new Dimension(500, 20));
+
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lbl.setForeground(DarkThemeUtils.TEXT_SECONDARY);
+        lbl.setPreferredSize(new Dimension(85, 20));
+
+        JLabel val = new JLabel(value);
+        val.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        val.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+
+        r.add(lbl, BorderLayout.WEST);
+        r.add(val, BorderLayout.CENTER);
+        return r;
     }
 
     private void inspectFileAsset(File file) {

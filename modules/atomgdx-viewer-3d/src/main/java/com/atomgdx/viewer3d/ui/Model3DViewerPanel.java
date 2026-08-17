@@ -5,7 +5,6 @@ import com.atomgdx.core.viewport.GdxAwtViewport;
 import com.atomgdx.viewer3d.Model3DDescriptor;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
@@ -13,7 +12,7 @@ import java.io.File;
 
 /**
  * 3D Model & GLTF/GLB Viewer panel powered by native LibGDX OpenGL 3D pipeline.
- * Features orbit camera controls, PBR environment lighting, and animation player.
+ * Edge-to-edge fullscreen viewport with orbit camera controls and PBR environment lighting.
  */
 public class Model3DViewerPanel extends JPanel {
 
@@ -40,12 +39,12 @@ public class Model3DViewerPanel extends JPanel {
         // Top Toolbar
         JToolBar toolbar = createToolBar();
 
-        // Right Inspector Panel
-        JPanel inspector = createInspector();
-
         add(toolbar, BorderLayout.NORTH);
         add(gdxViewport, BorderLayout.CENTER);
-        add(inspector, BorderLayout.EAST);
+    }
+
+    public Model3DDescriptor getDescriptor() {
+        return descriptor;
     }
 
     public int getRenderedFrameCount() {
@@ -83,56 +82,6 @@ public class Model3DViewerPanel extends JPanel {
         tb.add(resetCamBtn);
 
         return tb;
-    }
-
-    private JPanel createInspector() {
-        JPanel side = new JPanel();
-        side.setPreferredSize(new Dimension(240, 500));
-        side.setBackground(DarkThemeUtils.BG_PANEL);
-        side.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
-        side.setLayout(new BoxLayout(side, BoxLayout.Y_AXIS));
-
-        JPanel propBox = new JPanel(new GridLayout(0, 1, 2, 2));
-        propBox.setOpaque(false);
-        propBox.setBorder(BorderFactory.createTitledBorder(
-                new LineBorder(DarkThemeUtils.BORDER, 1),
-                "Model Statistics",
-                0, 0,
-                new Font("Segoe UI", Font.BOLD, 11),
-                DarkThemeUtils.TEXT_PRIMARY
-        ));
-
-        String name = (descriptor != null && descriptor.getModelFile() != null) ? descriptor.getModelFile().getName() : "Spacecraft_Mesh";
-        int meshes = descriptor != null ? descriptor.getMeshCount() : 1;
-        int nodes = descriptor != null ? descriptor.getNodeCount() : 1;
-
-        propBox.add(createPropRow("Name:", name));
-        propBox.add(createPropRow("Meshes:", String.valueOf(meshes)));
-        propBox.add(createPropRow("Nodes:", String.valueOf(nodes)));
-        propBox.add(createPropRow("Materials:", "1 (PBR)"));
-        propBox.add(createPropRow("Shading:", "Standard Metallic-Roughness"));
-
-        side.add(propBox);
-        side.add(Box.createVerticalGlue());
-
-        return side;
-    }
-
-    private JPanel createPropRow(String label, String value) {
-        JPanel r = new JPanel(new BorderLayout(4, 0));
-        r.setOpaque(false);
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setForeground(DarkThemeUtils.TEXT_SECONDARY);
-        lbl.setPreferredSize(new Dimension(75, 20));
-
-        JLabel val = new JLabel(value);
-        val.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        val.setForeground(DarkThemeUtils.TEXT_PRIMARY);
-
-        r.add(lbl, BorderLayout.WEST);
-        r.add(val, BorderLayout.CENTER);
-        return r;
     }
 
     private void setupMouseInteractions() {

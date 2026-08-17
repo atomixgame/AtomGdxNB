@@ -42,10 +42,14 @@ public class SceneGraph3DPaletteE2ETest {
             Model3DViewerPanel viewportPanel = new Model3DViewerPanel(new Model3DDescriptor(new File("spacecraft.gltf")));
             root.add(viewportPanel);
 
-            // Col 3: 3D Inspector with PBR Material & Bullet Physics
+            // Col 3: Inspector with File Metadata & Model Statistics
             InspectorTopComponent inspector = new InspectorTopComponent();
-            Prefab3DVO ship = Prefab3DVO.createSpacecraftFighter();
-            inspector.inspectNode3D(ship.rootNode);
+            Model3DDescriptor desc = new Model3DDescriptor(new File("spacecraft_cruiser.gltf"));
+            desc.setMeshCount(4);
+            desc.setNodeCount(16);
+            desc.setMaterialCount(3);
+            desc.setAnimationCount(2);
+            inspector.inspectModelDescriptor(desc);
             root.add(inspector);
 
             // Col 4: 3D Palette (Primitives, Prefabs, Materials)

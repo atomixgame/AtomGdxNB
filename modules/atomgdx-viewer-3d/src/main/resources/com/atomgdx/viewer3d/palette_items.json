@@ -1,0 +1,527 @@
+{
+  "version": "1.0",
+  "totalItems": 56,
+  "categories": ["All", "2D Shapes", "2D Prefabs", "3D Primitives", "3D Prefabs", "Materials"],
+  "items": [
+    {
+      "id": "2d_9patch_box",
+      "name": "9-Patch Button Box",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "application_view_tile.png",
+      "subtitle": "Scalable UI 9-Patch container",
+      "tags": ["ui", "9patch", "box", "2d"]
+    },
+    {
+      "id": "2d_rect_shape",
+      "name": "Filled Rectangle",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "shape_square.png",
+      "subtitle": "Solid 2D colored quad (100x100px)",
+      "tags": ["shape", "geometry", "quad", "2d"]
+    },
+    {
+      "id": "2d_circle_shape",
+      "name": "Circle Shape",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "shape_circle.png",
+      "subtitle": "2D radial polygon or circle collider",
+      "tags": ["shape", "circle", "collider", "2d"]
+    },
+    {
+      "id": "2d_capsule_shape",
+      "name": "Capsule 2D",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "pill.png",
+      "subtitle": "2D Character collider shape",
+      "tags": ["shape", "capsule", "collider", "2d"]
+    },
+    {
+      "id": "2d_polygon_collider",
+      "name": "Polygon Collider",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "shape_polygon.png",
+      "subtitle": "Convex / Concave Box2D polygon outline",
+      "tags": ["physics", "polygon", "box2d", "2d"]
+    },
+    {
+      "id": "2d_star_shape",
+      "name": "Star Shape",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "star.png",
+      "subtitle": "5-point vector star graphic",
+      "tags": ["shape", "star", "fx", "2d"]
+    },
+    {
+      "id": "2d_triangle_shape",
+      "name": "Triangle Polygon",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "shape_triangle.png",
+      "subtitle": "3-point equilateral triangle",
+      "tags": ["shape", "triangle", "geometry", "2d"]
+    },
+    {
+      "id": "2d_diamond_shape",
+      "name": "Diamond Quad",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "shape_diamond.png",
+      "subtitle": "Isometric diamond tile shape",
+      "tags": ["shape", "diamond", "isometric", "2d"]
+    },
+    {
+      "id": "2d_laser_ray",
+      "name": "Laser Ray Line",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "line.png",
+      "subtitle": "Segment raycast line indicator",
+      "tags": ["shape", "line", "raycast", "2d"]
+    },
+    {
+      "id": "2d_grid_plane",
+      "name": "Tilemap Grid 2D",
+      "category": "2D Shapes",
+      "type": "2D",
+      "icon": "layout.png",
+      "subtitle": "Orthogonal 2D tilemap chunk (32x32px)",
+      "tags": ["tilemap", "grid", "level", "2d"]
+    },
+
+    {
+      "id": "2d_player_ship",
+      "name": "Player Starfighter 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "car.png",
+      "subtitle": "Player ship with dynamic Box2D physics",
+      "tags": ["prefab", "player", "ship", "2d"]
+    },
+    {
+      "id": "2d_enemy_drone",
+      "name": "Enemy Scout Drone 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "bug.png",
+      "subtitle": "Patrolling AI drone with sensor collider",
+      "tags": ["prefab", "enemy", "drone", "2d"]
+    },
+    {
+      "id": "2d_plasma_bolt",
+      "name": "Plasma Blaster Bolt",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "lightning.png",
+      "subtitle": "Fast CCD bullet projectile entity",
+      "tags": ["prefab", "projectile", "bullet", "2d"]
+    },
+    {
+      "id": "2d_boss_cruiser",
+      "name": "Boss Dreadnought 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "shield.png",
+      "subtitle": "Multi-turret flagship boss composite",
+      "tags": ["prefab", "boss", "cruiser", "2d"]
+    },
+    {
+      "id": "2d_health_bar",
+      "name": "Health Bar UI",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "heart.png",
+      "subtitle": "Composite player health & shield gauge",
+      "tags": ["prefab", "ui", "hud", "2d"]
+    },
+    {
+      "id": "2d_shield_ring",
+      "name": "Energy Shield Ring",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "award_star_gold_3.png",
+      "subtitle": "Pulsing circular defensive forcefield",
+      "tags": ["prefab", "fx", "shield", "2d"]
+    },
+    {
+      "id": "2d_asteroid_prop",
+      "name": "Asteroid Ore Rock 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "world.png",
+      "subtitle": "Destructible static ore asteroid",
+      "tags": ["prefab", "prop", "asteroid", "2d"]
+    },
+    {
+      "id": "2d_coin_pickup",
+      "name": "Gold Coin Pickup",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "coins.png",
+      "subtitle": "Animated rotating collectible coin",
+      "tags": ["prefab", "item", "pickup", "2d"]
+    },
+    {
+      "id": "2d_warp_gate",
+      "name": "Cosmic Warp Gate 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "door_in.png",
+      "subtitle": "Interdimensional level exit portal",
+      "tags": ["prefab", "portal", "gate", "2d"]
+    },
+    {
+      "id": "2d_explosion_emitter",
+      "name": "Explosion Emitter 2D",
+      "category": "2D Prefabs",
+      "type": "2D",
+      "icon": "fire.png",
+      "subtitle": "Pre-configured Particle2D blast entity",
+      "tags": ["prefab", "particle", "explosion", "2d"]
+    },
+
+    {
+      "id": "3d_cube_mesh",
+      "name": "Cube / Box",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "BOX",
+      "icon": "box.png",
+      "subtitle": "Standard 3D Cube Mesh (1x1x1m)",
+      "tags": ["3d", "primitive", "cube", "box"]
+    },
+    {
+      "id": "3d_uv_sphere",
+      "name": "UV Sphere",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "SPHERE",
+      "icon": "world.png",
+      "subtitle": "Smooth UV latitude/longitude sphere",
+      "tags": ["3d", "primitive", "sphere", "uv"]
+    },
+    {
+      "id": "3d_icosphere",
+      "name": "Icosphere",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "SPHERE",
+      "icon": "world.png",
+      "subtitle": "Equilateral geodesic triangle sphere",
+      "tags": ["3d", "primitive", "sphere", "geodesic"]
+    },
+    {
+      "id": "3d_cylinder_mesh",
+      "name": "Radial Cylinder",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CYLINDER",
+      "icon": "cog.png",
+      "subtitle": "32-segment radial cylinder mesh",
+      "tags": ["3d", "primitive", "cylinder", "column"]
+    },
+    {
+      "id": "3d_cone_mesh",
+      "name": "Tapered Cone",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CONE",
+      "icon": "bullet_red.png",
+      "subtitle": "Sharp apex cone primitive",
+      "tags": ["3d", "primitive", "cone", "apex"]
+    },
+    {
+      "id": "3d_capsule_mesh",
+      "name": "Capsule 3D",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CAPSULE",
+      "icon": "pill.png",
+      "subtitle": "Character controller capsule collider",
+      "tags": ["3d", "primitive", "capsule", "character"]
+    },
+    {
+      "id": "3d_plane_mesh",
+      "name": "Plane / Ground Quad",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "PLANE",
+      "icon": "layout.png",
+      "subtitle": "Flat Ground Quad Plane (10x10m)",
+      "tags": ["3d", "primitive", "plane", "floor"]
+    },
+    {
+      "id": "3d_torus_mesh",
+      "name": "Torus / Donut",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "TORUS",
+      "icon": "shape_circle.png",
+      "subtitle": "Circular ring torus geometry",
+      "tags": ["3d", "primitive", "torus", "ring"]
+    },
+    {
+      "id": "3d_tube_mesh",
+      "name": "Tube / Pipe",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CYLINDER",
+      "icon": "wrench.png",
+      "subtitle": "Hollow conduit pipe cylinder",
+      "tags": ["3d", "primitive", "tube", "pipe"]
+    },
+    {
+      "id": "3d_pyramid_mesh",
+      "name": "Pyramid 4-Sided",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CONE",
+      "icon": "shape_square.png",
+      "subtitle": "Classic 4-sided Egyptian pyramid",
+      "tags": ["3d", "primitive", "pyramid", "tetrahedron"]
+    },
+    {
+      "id": "3d_wedge_mesh",
+      "name": "Wedge / Ramp",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "BOX",
+      "icon": "shape_triangle.png",
+      "subtitle": "Triangular slope ramp mesh",
+      "tags": ["3d", "primitive", "wedge", "ramp"]
+    },
+    {
+      "id": "3d_hex_prism",
+      "name": "Hexagonal Prism",
+      "category": "3D Primitives",
+      "type": "3D",
+      "shape": "CYLINDER",
+      "icon": "shape_polygon.png",
+      "subtitle": "6-sided honeycomb pillar mesh",
+      "tags": ["3d", "primitive", "hex", "prism"]
+    },
+
+    {
+      "id": "3d_spacecraft_fighter",
+      "name": "Spacecraft Fighter",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "car.png",
+      "subtitle": "Player Ship with Thruster Light & RigidBody",
+      "tags": ["3d", "prefab", "vehicle", "spacecraft"]
+    },
+    {
+      "id": "3d_asteroid_rock",
+      "name": "Large Asteroid Rock",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "world.png",
+      "subtitle": "Irregular Ore Asteroid with Static Physics",
+      "tags": ["3d", "prefab", "environment", "asteroid"]
+    },
+    {
+      "id": "3d_scifi_turret",
+      "name": "SciFi Defense Turret",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "shield.png",
+      "subtitle": "Compound Base + Cannon Defense Turret",
+      "tags": ["3d", "prefab", "defense", "turret"]
+    },
+    {
+      "id": "3d_cargo_crate",
+      "name": "Cargo Container Crate",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "package.png",
+      "subtitle": "Heavy industrial sci-fi cargo container",
+      "tags": ["3d", "prefab", "prop", "crate"]
+    },
+    {
+      "id": "3d_energy_shield",
+      "name": "Energy Shield Forcefield",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "lightning.png",
+      "subtitle": "Translucent Cyan Forcefield Bubble",
+      "tags": ["3d", "prefab", "fx", "shield"]
+    },
+    {
+      "id": "3d_plasma_cannon",
+      "name": "Heavy Plasma Cannon",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "bomb.png",
+      "subtitle": "High-caliber mounted energy weapon",
+      "tags": ["3d", "prefab", "weapon", "cannon"]
+    },
+    {
+      "id": "3d_space_station",
+      "name": "Orbital Station Module",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "building.png",
+      "subtitle": "Modular cylindrical habitation habitat",
+      "tags": ["3d", "prefab", "architecture", "station"]
+    },
+    {
+      "id": "3d_cyber_hovercraft",
+      "name": "Cyber Hovercraft",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "car.png",
+      "subtitle": "Antigravity ground patrol skimmer",
+      "tags": ["3d", "prefab", "vehicle", "hovercraft"]
+    },
+    {
+      "id": "3d_warp_beacon",
+      "name": "Quantum Warp Beacon",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "transmit.png",
+      "subtitle": "Hyperspace navigation emitter beacon",
+      "tags": ["3d", "prefab", "prop", "beacon"]
+    },
+    {
+      "id": "3d_modular_wall",
+      "name": "Modular SciFi Wall",
+      "category": "3D Prefabs",
+      "type": "3D",
+      "icon": "brick.png",
+      "subtitle": "Snap-fit corridor barrier segment",
+      "tags": ["3d", "prefab", "architecture", "wall"]
+    },
+
+    {
+      "id": "mat_metallic_gold",
+      "name": "Metallic Gold",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "PBR Specular Gold (Metallic 0.9, Roughness 0.2)",
+      "tags": ["material", "pbr", "gold", "metallic"]
+    },
+    {
+      "id": "mat_brushed_steel",
+      "name": "Brushed Steel",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "PBR Brushed Alloy (Metallic 0.85, Roughness 0.35)",
+      "tags": ["material", "pbr", "steel", "alloy"]
+    },
+    {
+      "id": "mat_neon_cyan",
+      "name": "Neon Glow Cyan",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "lightning.png",
+      "subtitle": "Emissive SciFi Neon (Glow Cyan)",
+      "tags": ["material", "emissive", "neon", "cyan"]
+    },
+    {
+      "id": "mat_scifi_hull",
+      "name": "SciFi Hull Paint",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Matte Armor Plate (Metallic 0.3, Roughness 0.6)",
+      "tags": ["material", "pbr", "armor", "hull"]
+    },
+    {
+      "id": "mat_matte_plastic",
+      "name": "Matte Red Plastic",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Diffuse Polymer (Roughness 0.8)",
+      "tags": ["material", "plastic", "matte"]
+    },
+    {
+      "id": "mat_trans_glass",
+      "name": "Transparent Glass",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "application_view_tile.png",
+      "subtitle": "Refractive Glass (Opacity 35%)",
+      "tags": ["material", "transparent", "glass"]
+    },
+    {
+      "id": "mat_chrome",
+      "name": "Polished Chrome",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Mirror Reflection (Metallic 1.0, Roughness 0.05)",
+      "tags": ["material", "pbr", "chrome", "mirror"]
+    },
+    {
+      "id": "mat_carbon_fiber",
+      "name": "Dark Carbon Fiber",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Woven composite weave (Roughness 0.4)",
+      "tags": ["material", "pbr", "carbon", "composite"]
+    },
+    {
+      "id": "mat_molten_magma",
+      "name": "Molten Magma",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "fire.png",
+      "subtitle": "Hot glowing lava crust (Emissive Orange)",
+      "tags": ["material", "emissive", "magma", "lava"]
+    },
+    {
+      "id": "mat_emissive_emerald",
+      "name": "Emissive Emerald",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "lightning.png",
+      "subtitle": "Glowing green alien crystal matrix",
+      "tags": ["material", "emissive", "crystal", "emerald"]
+    },
+    {
+      "id": "mat_hologram_grid",
+      "name": "Hologram Wireframe",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "layout.png",
+      "subtitle": "Cyan volumetric projection wireframe",
+      "tags": ["material", "fx", "hologram", "wireframe"]
+    },
+    {
+      "id": "mat_rusty_iron",
+      "name": "Rusty Iron Metal",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "wrench.png",
+      "subtitle": "Corroded weathered iron plate",
+      "tags": ["material", "pbr", "iron", "rust"]
+    },
+    {
+      "id": "mat_white_marble",
+      "name": "White Smooth Marble",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Polished architectural stone",
+      "tags": ["material", "pbr", "stone", "marble"]
+    },
+    {
+      "id": "mat_obsidian_gloss",
+      "name": "Obsidian Gloss Stone",
+      "category": "Materials",
+      "type": "MATERIAL",
+      "icon": "color_wheel.png",
+      "subtitle": "Dark volcanic glass stone",
+      "tags": ["material", "pbr", "obsidian", "stone"]
+    }
+  ]
+}
