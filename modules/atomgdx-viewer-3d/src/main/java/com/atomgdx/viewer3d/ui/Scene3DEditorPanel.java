@@ -14,7 +14,7 @@ import java.io.File;
 /**
  * Full-featured interactive 3D Scene & Level Editor panel.
  * Features edge-to-edge hardware OpenGL canvas, Unity-inspired 3D View Gizmo,
- * Transform Gizmo modes, Shading options, and Physics simulation triggers.
+ * Transform Gizmo modes with icons, Shading options, and Physics simulation triggers.
  */
 public class Scene3DEditorPanel extends JPanel {
 
@@ -40,7 +40,7 @@ public class Scene3DEditorPanel extends JPanel {
 
         setupMouseInteractions();
 
-        // Top Scene Editor Toolbar
+        // Top Scene Editor Toolbar with rich icons
         JToolBar toolbar = createSceneEditorToolBar();
 
         add(toolbar, BorderLayout.NORTH);
@@ -61,11 +61,11 @@ public class Scene3DEditorPanel extends JPanel {
         tb.setBackground(DarkThemeUtils.BG_HEADER);
         tb.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
 
-        // 1. Transform Gizmo Modes
-        JToggleButton selectBtn = new JToggleButton("Select (Q)", true);
-        JToggleButton translateBtn = new JToggleButton("Move (W)");
-        JToggleButton rotateBtn = new JToggleButton("Rotate (E)");
-        JToggleButton scaleBtn = new JToggleButton("Scale (R)");
+        // 1. Transform Gizmo Modes with Icons
+        JToggleButton selectBtn = new JToggleButton("Select (Q)", DarkThemeUtils.getFatcowIcon("cursor.png"), true);
+        JToggleButton translateBtn = new JToggleButton("Move (W)", DarkThemeUtils.getFatcowIcon("arrow_out.png"), false);
+        JToggleButton rotateBtn = new JToggleButton("Rotate (E)", DarkThemeUtils.getFatcowIcon("arrow_rotate_clockwise.png"), false);
+        JToggleButton scaleBtn = new JToggleButton("Scale (R)", DarkThemeUtils.getFatcowIcon("arrow_inout.png"), false);
 
         ButtonGroup gizmoGroup = new ButtonGroup();
         for (JToggleButton b : new JToggleButton[]{selectBtn, translateBtn, rotateBtn, scaleBtn}) {
@@ -81,7 +81,10 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 2. Shading Modes
+        // 2. Shading Modes with Icon
+        JLabel shadeLbl = new JLabel(DarkThemeUtils.getFatcowIcon("color_wheel.png"));
+        tb.add(shadeLbl);
+
         JComboBox<String> shadingCombo = new JComboBox<>(new String[]{"PBR Shaded", "Wireframe", "Unlit"});
         shadingCombo.setBackground(DarkThemeUtils.BG_INPUT);
         shadingCombo.setForeground(DarkThemeUtils.TEXT_PRIMARY);
@@ -96,12 +99,12 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 3. View Snapping Controls
-        JButton topViewBtn = new JButton("Top (Y)");
-        JButton frontViewBtn = new JButton("Front (Z)");
-        JButton rightViewBtn = new JButton("Right (X)");
-        JButton isoViewBtn = new JButton("Iso (45°)");
-        JButton resetCamBtn = new JButton("Reset (Home)");
+        // 3. View Snapping Controls with Icons
+        JButton topViewBtn = new JButton("Top (Y)", DarkThemeUtils.getFatcowIcon("bullet_green.png"));
+        JButton frontViewBtn = new JButton("Front (Z)", DarkThemeUtils.getFatcowIcon("bullet_blue.png"));
+        JButton rightViewBtn = new JButton("Right (X)", DarkThemeUtils.getFatcowIcon("bullet_red.png"));
+        JButton isoViewBtn = new JButton("Iso", DarkThemeUtils.getFatcowIcon("box.png"));
+        JButton resetCamBtn = new JButton("Reset", DarkThemeUtils.getFatcowIcon("camera.png"));
 
         for (JButton b : new JButton[]{topViewBtn, frontViewBtn, rightViewBtn, isoViewBtn, resetCamBtn}) {
             styleToolbarButton(b);
@@ -116,13 +119,13 @@ public class Scene3DEditorPanel extends JPanel {
 
         tb.addSeparator();
 
-        // 4. Environment & Grid Toggles
-        JToggleButton gridBtn = new JToggleButton("Grid", true);
+        // 4. Environment & Grid Toggles with Icons
+        JToggleButton gridBtn = new JToggleButton("Grid", DarkThemeUtils.getFatcowIcon("layout.png"), true);
         styleToolbarButton(gridBtn);
         gridBtn.addActionListener(e -> viewportListener.setShowGrid(gridBtn.isSelected()));
         tb.add(gridBtn);
 
-        JToggleButton physicsBtn = new JToggleButton("Play Physics", false);
+        JToggleButton physicsBtn = new JToggleButton("Play Physics", DarkThemeUtils.getFatcowIcon("control_play_blue.png"), false);
         styleToolbarButton(physicsBtn);
         tb.add(physicsBtn);
 

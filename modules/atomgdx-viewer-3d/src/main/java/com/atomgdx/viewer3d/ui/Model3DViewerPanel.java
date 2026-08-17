@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 
 /**
  * 3D Model & GLTF/GLB Viewer panel (Read-Only Preview Mode).
- * Features quick-selector for 10 popular GLTF demo models, orbit camera controls,
- * and edge-to-edge hardware OpenGL viewport.
+ * Features quick-selector for popular GLTF demo models & Khronos samples,
+ * orbit camera controls, toolbar icons, and edge-to-edge hardware OpenGL viewport.
  */
 public class Model3DViewerPanel extends JPanel {
 
@@ -37,7 +37,16 @@ public class Model3DViewerPanel extends JPanel {
             "cyber_hovercraft.gltf",
             "quantum_warp_beacon.gltf",
             "modular_scifi_wall.gltf",
-            "plasma_cannon_heavy.gltf"
+            "plasma_cannon_heavy.gltf",
+            "khronos/DamagedHelmet.glb",
+            "khronos/CesiumMilkTruck.glb",
+            "khronos/ToyCar.glb",
+            "khronos/Duck.glb",
+            "khronos/Fox.glb",
+            "khronos/BoomBox.glb",
+            "khronos/WaterBottle.glb",
+            "khronos/BarramundiFish.glb",
+            "khronos/BoxTextured.glb"
     };
 
     public Model3DViewerPanel(Model3DDescriptor descriptor) {
@@ -51,7 +60,7 @@ public class Model3DViewerPanel extends JPanel {
 
         setupMouseInteractions();
 
-        // Top Toolbar
+        // Top Toolbar with icons
         JToolBar toolbar = createToolBar();
 
         add(toolbar, BorderLayout.NORTH);
@@ -80,9 +89,11 @@ public class Model3DViewerPanel extends JPanel {
         tb.setBackground(DarkThemeUtils.BG_HEADER);
         tb.setBorder(new LineBorder(DarkThemeUtils.BORDER, 1));
 
-        JLabel modelLbl = new JLabel(" Demo 3D Model: ");
+        JLabel modelIcon = new JLabel(DarkThemeUtils.getFatcowIcon("box.png"));
+        JLabel modelLbl = new JLabel(" Sample GLTF: ");
         modelLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
         modelLbl.setForeground(DarkThemeUtils.TEXT_PRIMARY);
+        tb.add(modelIcon);
         tb.add(modelLbl);
 
         JComboBox<String> modelCombo = new JComboBox<>(DEMO_MODELS);
@@ -105,9 +116,9 @@ public class Model3DViewerPanel extends JPanel {
 
         tb.addSeparator();
 
-        JToggleButton gridBtn = new JToggleButton("Grid & Axes", true);
-        JToggleButton pbrBtn = new JToggleButton("PBR Lighting", true);
-        JButton resetCamBtn = new JButton("Reset Camera");
+        JToggleButton gridBtn = new JToggleButton("Grid & Axes", DarkThemeUtils.getFatcowIcon("layout.png"), true);
+        JToggleButton pbrBtn = new JToggleButton("PBR Lighting", DarkThemeUtils.getFatcowIcon("weather_sun.png"), true);
+        JButton resetCamBtn = new JButton("Reset Camera", DarkThemeUtils.getFatcowIcon("camera.png"));
 
         for (AbstractButton b : new AbstractButton[]{gridBtn, pbrBtn, resetCamBtn}) {
             b.setBackground(DarkThemeUtils.BG_HEADER);
