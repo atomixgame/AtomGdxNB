@@ -1,8 +1,7 @@
 package com.atomgdx.theme.windows;
 
-import com.atomgdx.editor.scene2d.Scene2DModel;
-import com.atomgdx.editor.scene2d.SceneItem;
-import com.atomgdx.editor.scene2d.SceneLayer;
+import com.atomgdx.editor.scene2d.data.vo.*;
+import com.atomgdx.theme.project.LibGdxProjectNode;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
@@ -13,41 +12,65 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 /**
- * NetBeans TopComponent for Scene Structure (Hierarchical Layer and Item Tree).
- * Docks on the left side alongside Project Explorer.
+ * NetBeans TopComponent for Scene Structure (HyperLap2D Hierarchical Layer and Item Tree).
+ * Docks on the Left navigator/explorer side with live selection synchronization.
  */
 public class SceneStructureTopComponent extends TopComponent implements ExplorerManager.Provider {
 
     private final ExplorerManager explorerManager = new ExplorerManager();
+    private SceneVO currentScene;
 
     public SceneStructureTopComponent() {
         setName("Scene Structure");
-        setToolTipText("LibGDX Scene2D Hierarchy & Layer Structure");
+        setToolTipText("HyperLap2D Hierarchy & Layer Structure");
         setLayout(new BorderLayout());
-        setBackground(new Color(15, 23, 42));
+        setBackground(new Color(30, 31, 34));
 
         BeanTreeView treeView = new BeanTreeView();
-        treeView.setBorder(new EmptyBorder(4, 4, 4, 4));
-        treeView.setBackground(new Color(15, 23, 42));
+        treeView.setBorder(new LineBorder(new Color(60, 63, 65), 1));
+        treeView.setBackground(new Color(30, 31, 34));
         treeView.setRootVisible(true);
+
+        if (treeView.getViewport() != null) {
+            treeView.getViewport().setBackground(new Color(30, 31, 34));
+        }
 
         add(treeView, BorderLayout.CENTER);
 
         // Bind NetBeans Global Lookup to this ExplorerManager
         associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
 
-        // Populate with default Scene structure
-        Scene2DModel defaultScene = new Scene2DModel("NeonCosmosMainStage");
-        SceneItem ship = new SceneItem("player_ship", "PlayerShip", 120, 240, 64, 64, "Main");
-        SceneItem bg = new SceneItem("space_nebula", "BackgroundNebula", 0, 0, 1920, 1080, "Background");
-        defaultScene.addItem(bg);
-        defaultScene.addItem(ship);
+        // Default demo scene
+        SceneVO defaultScene = new SceneVO("MainScene");
+        defaultScene.composite.layers.clear();
+        defaultScene.composite.layers.add(new LayerItemVO("Background"));
+        defaultScene.composite.layers.add(new LayerItemVO("Gameplay"));
+        defaultScene.composite.layers.add(new LayerItemVO("HUD"));
 
-        explorerManager.setRootContext(new SceneRootNode(defaultScene));
+        SimpleImageVO bg = new SimpleImageVO("nebula_bg.png", 0, 0);
+        bg.itemName = "BackgroundNebula";
+        bg.layerName = "Background";
+        defaultScene.composite.sImages.add(bg);
+
+        SimpleImageVO ship = new SimpleImageVO("player_ship.png", 640, 360);
+        ship.itemName = "Starfighter";
+        ship.layerName = "Gameplay";
+        defaultScene.composite.sImages.add(ship);
+
+        setScene(defaultScene);
+    }
+
+    public void setScene(SceneVO scene) {
+        this.currentScene = scene;
+        if (scene != null) {
+            explorerManager.setRootContext(new SceneRootNode(scene));
+        }
     }
 
     @Override
@@ -66,82 +89,126 @@ public class SceneStructureTopComponent extends TopComponent implements Explorer
     }
 
     public static class SceneRootNode extends AbstractNode {
-        public SceneRootNode(Scene2DModel scene) {
+        public SceneRootNode(SceneVO scene) {
             super(new SceneRootChildren(scene));
-            setDisplayName(scene.getSceneName() + " (Scene)");
-            setShortDescription("LibGDX Scene Dimensions: " + scene.getSceneWidth() + "x" + scene.getSceneHeight());
+            setDisplayName(scene.sceneName + " (Scene)");
+            setShortDescription("HyperLap2D Scene Root Container");
+        }
+
+        @Override
+        public Image getIcon(int type) {
+            return LibGdxProjectNode.getCustomIcon("star.png");
+        }
+
+        @Override
+        public Image getOpenedIcon(int type) {
+            return LibGdxProjectNode.getCustomIcon("star.png");
         }
     }
 
-    private static class SceneRootChildren extends Children.Keys<SceneLayer> {
-        private final Scene2DModel scene;
+    private static class SceneRootChildren extends Children.Keys<LayerItemVO> {
+        private final SceneVO scene;
 
-        SceneRootChildren(Scene2DModel scene) {
+        SceneRootChildren(SceneVO scene) {
             this.scene = scene;
         }
 
         @Override
         protected void addNotify() {
-            setKeys(scene.getLayers());
+            setKeys(scene.composite.layers);
         }
 
         @Override
-        protected Node[] createNodes(SceneLayer layer) {
+        protected Node[] createNodes(LayerItemVO layer) {
             return new Node[]{new SceneLayerNode(layer, scene)};
         }
     }
 
     public static class SceneLayerNode extends AbstractNode {
-        public SceneLayerNode(SceneLayer layer, Scene2DModel scene) {
+        public SceneLayerNode(LayerItemVO layer, SceneVO scene) {
             super(new LayerChildren(layer, scene));
-            setDisplayName("Layer: " + layer.getName());
-            setShortDescription("Parallax: (" + layer.getParallaxX() + ", " + layer.getParallaxY() + ")");
+            setDisplayName("Layer: " + layer.layerName);
+            setShortDescription("Layer visibility: " + (layer.isVisible ? "Visible" : "Hidden"));
+        }
+
+        @Override
+        public Image getIcon(int type) {
+            return LibGdxProjectNode.getCustomIcon("folder.png");
+        }
+
+        @Override
+        public Image getOpenedIcon(int type) {
+            return LibGdxProjectNode.getCustomIcon("folder.png");
         }
     }
 
-    private static class LayerChildren extends Children.Keys<SceneItem> {
-        private final SceneLayer layer;
-        private final Scene2DModel scene;
+    private static class LayerChildren extends Children.Keys<MainItemVO> {
+        private final LayerItemVO layer;
+        private final SceneVO scene;
 
-        LayerChildren(SceneLayer layer, Scene2DModel scene) {
+        LayerChildren(LayerItemVO layer, SceneVO scene) {
             this.layer = layer;
             this.scene = scene;
         }
 
         @Override
         protected void addNotify() {
-            java.util.List<SceneItem> layerItems = new java.util.ArrayList<>();
-            for (SceneItem item : scene.getItems()) {
-                if (layer.getName().equalsIgnoreCase(item.getLayerName())) {
-                    layerItems.add(item);
-                }
+            java.util.List<MainItemVO> items = new java.util.ArrayList<>();
+            for (SimpleImageVO img : scene.composite.sImages) {
+                if (layer.layerName.equals(img.layerName)) items.add(img);
             }
-            setKeys(layerItems);
+            for (LabelVO lbl : scene.composite.sLabels) {
+                if (layer.layerName.equals(lbl.layerName)) items.add(lbl);
+            }
+            for (LightVO lt : scene.composite.sLights) {
+                if (layer.layerName.equals(lt.layerName)) items.add(lt);
+            }
+            for (ParticleEffectVO p : scene.composite.sParticleEffects) {
+                if (layer.layerName.equals(p.layerName)) items.add(p);
+            }
+            for (NinePatchVO np : scene.composite.sNinePatches) {
+                if (layer.layerName.equals(np.layerName)) items.add(np);
+            }
+            for (CompositeItemVO c : scene.composite.sComposites) {
+                if (layer.layerName.equals(c.layerName)) items.add(c);
+            }
+            setKeys(items);
         }
 
         @Override
-        protected Node[] createNodes(SceneItem item) {
+        protected Node[] createNodes(MainItemVO item) {
             return new Node[]{new SceneItemNode(item)};
         }
     }
 
     public static class SceneItemNode extends AbstractNode {
-        private final SceneItem item;
+        private final MainItemVO item;
 
-        public SceneItemNode(SceneItem item) {
+        public SceneItemNode(MainItemVO item) {
             this(item, new InstanceContent());
         }
 
-        private SceneItemNode(SceneItem item, InstanceContent content) {
+        private SceneItemNode(MainItemVO item, InstanceContent content) {
             super(Children.LEAF, new AbstractLookup(content));
             this.item = item;
             content.add(item);
-            setDisplayName(item.getName() + " [" + item.getId() + "]");
-            setShortDescription("Item at (" + item.getX() + ", " + item.getY() + ")");
+            setDisplayName(item.itemName != null && !item.itemName.isEmpty() ? item.itemName : "Item #" + item.uniqueId);
+            setShortDescription("Transform: (" + item.x + ", " + item.y + ") Scale: (" + item.scaleX + ", " + item.scaleY + ")");
         }
 
-        public SceneItem getItem() {
-            return item;
+        @Override
+        public Image getIcon(int type) {
+            if (item instanceof SimpleImageVO) return LibGdxProjectNode.getCustomIcon("picture.png");
+            if (item instanceof LightVO) return LibGdxProjectNode.getCustomIcon("lightning.png");
+            if (item instanceof ParticleEffectVO) return LibGdxProjectNode.getCustomIcon("fire.png");
+            if (item instanceof LabelVO) return LibGdxProjectNode.getCustomIcon("wand.png");
+            if (item instanceof NinePatchVO) return LibGdxProjectNode.getCustomIcon("picture.png");
+            return LibGdxProjectNode.getCustomIcon("cog.png");
+        }
+
+        @Override
+        public Image getOpenedIcon(int type) {
+            return getIcon(type);
         }
     }
 }

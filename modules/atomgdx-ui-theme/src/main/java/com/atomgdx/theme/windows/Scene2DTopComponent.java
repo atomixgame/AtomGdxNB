@@ -1,18 +1,45 @@
 package com.atomgdx.theme.windows;
 
-import com.atomgdx.editor.scene2d.Scene2DModel;
+import com.atomgdx.editor.scene2d.data.vo.HyperLap2DSerializer;
+import com.atomgdx.editor.scene2d.data.vo.SceneVO;
 import com.atomgdx.editor.scene2d.ui.Scene2DEditorPanel;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
+import java.io.File;
 
+/**
+ * NetBeans TopComponent for the center HyperLap2D Scene Editor.
+ */
 public class Scene2DTopComponent extends TopComponent {
 
+    private final Scene2DEditorPanel editorPanel;
+
     public Scene2DTopComponent() {
-        setName("HyperLap2D Scene");
-        setToolTipText("HyperLap2D Scene2D Level & Layout Designer");
+        this(loadDefaultOrWorkspaceScene());
+    }
+
+    public Scene2DTopComponent(SceneVO scene) {
+        setName(scene != null ? scene.sceneName + " - Scene" : "HyperLap2D Scene");
+        setToolTipText("HyperLap2D Composite Scene2D Editor");
         setLayout(new BorderLayout());
-        add(new Scene2DEditorPanel(new Scene2DModel("NeonCosmosMainStage")), BorderLayout.CENTER);
+
+        this.editorPanel = new Scene2DEditorPanel(scene);
+        add(editorPanel, BorderLayout.CENTER);
+    }
+
+    private static SceneVO loadDefaultOrWorkspaceScene() {
+        File sceneFile = new File("g:/GameDev/LibGDX/AtomGdx/AtomGdxNB/Workspace/NeonCosmos/assets/scenes/MainScene.dt");
+        if (sceneFile.exists()) {
+            try {
+                return HyperLap2DSerializer.loadSceneFromFile(sceneFile);
+            } catch (Exception ignored) {}
+        }
+        return new SceneVO("MainScene");
+    }
+
+    public Scene2DEditorPanel getEditorPanel() {
+        return editorPanel;
     }
 
     @Override
