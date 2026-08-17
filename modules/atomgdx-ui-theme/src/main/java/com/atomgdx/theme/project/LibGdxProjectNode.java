@@ -8,6 +8,8 @@ import org.openide.nodes.Node;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -16,14 +18,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.InputStreamReader;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * NetBeans Node representing a LibGDX Multi-Platform project and live Assets Tree (AT)
- * with Fatcow icons, context menus, and full support for .dt, .scene, .particle, .gltf, etc.
+ * with Fatcow icons, real Gradle build execution ("Run Desktop"), SpriteSheet/Image Viewer, and scene editors.
  */
 public class LibGdxProjectNode extends AbstractNode {
 
@@ -58,19 +60,19 @@ public class LibGdxProjectNode extends AbstractNode {
                 new AbstractAction("Run Desktop (LWJGL3)") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        JOptionPane.showMessageDialog(null, "Launching LibGDX Desktop LWJGL3: " + project.getName(), "LibGDX Launcher", JOptionPane.INFORMATION_MESSAGE);
+                        runGradleTask("lwjgl3:run", "Desktop (LWJGL3)");
                     }
                 },
                 new AbstractAction("Run Web (TeaVM / HTML5)") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        JOptionPane.showMessageDialog(null, "Starting TeaVM Local Server for: " + project.getName() + " at http://localhost:8080", "LibGDX Web Launcher", JOptionPane.INFORMATION_MESSAGE);
+                        runGradleTask("teavm:run", "HTML5 (TeaVM Web Server)");
                     }
                 },
                 new AbstractAction("Build Android APK") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        JOptionPane.showMessageDialog(null, "Building Android APK via Gradle: ./gradlew android:assembleDebug", "LibGDX Android Build", JOptionPane.INFORMATION_MESSAGE);
+                        runGradleTask("android:assembleDebug", "Android APK Build");
                     }
                 },
                 null, // Separator
@@ -91,6 +93,62 @@ public class LibGdxProjectNode extends AbstractNode {
                     }
                 }
         };
+    }
+
+    /**
+     * Executes real Gradle wrapper in background and streams live output to NetBeans Output Window.
+     */
+    public void runGradleTask(String task, String platformName) {
+        File root = project.getRootDirectory();
+        if (root == null || !root.exists()) {
+            JOptionPane.showMessageDialog(null, "Project directory does not exist: " + root, "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        File gradlewBat = new File(root, "gradlew.bat");
+        File gradlewSh = new File(root, "gradlew");
+
+        String gradlewCmd;
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            gradlewCmd = gradlewBat.exists() ? gradlewBat.getAbsolutePath() : "gradle";
+        } else {
+            gradlewCmd = gradlewSh.exists() ? "./gradlew" : "gradle";
+        }
+
+        new Thread(() -> {
+            InputOutput io = null;
+            try {
+                io = IOProvider.getDefault().getIO("LibGDX: " + project.getName() + " [" + platformName + "]", false);
+                io.select();
+                io.getOut().println(">>> [AtomGDX] Executing Gradle: " + gradlewCmd + " " + task);
+                io.getOut().println(">>> Working Directory: " + root.getAbsolutePath());
+                io.getOut().println("------------------------------------------------------------------");
+
+                ProcessBuilder pb = new ProcessBuilder(gradlewCmd, task);
+                pb.directory(root);
+                pb.redirectErrorStream(true);
+
+                Process process = pb.start();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (io != null) io.getOut().println(line);
+                    }
+                }
+
+                int exitCode = process.waitFor();
+                if (io != null) {
+                    io.getOut().println("------------------------------------------------------------------");
+                    io.getOut().println(">>> [AtomGDX] Gradle execution finished with exit code: " + exitCode);
+                }
+            } catch (Exception ex) {
+                if (io != null) {
+                    io.getErr().println(">>> Failed to launch Gradle: " + ex.getMessage());
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to launch Gradle: " + ex.getMessage(), "Gradle Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }, "AtomGDX-Gradle-Runner").start();
     }
 
     public static Image getCustomIcon(String name) {
@@ -155,9 +213,6 @@ public class LibGdxProjectNode extends AbstractNode {
         }
     }
 
-    /**
-     * Real File/Directory Asset Node that scans actual workspace files and renders specialized icons & context menus.
-     */
     public static class RealAssetDirectoryNode extends AbstractNode {
         private final File dir;
 
@@ -303,6 +358,8 @@ public class LibGdxProjectNode extends AbstractNode {
                 openEditor(new SkinComposerTopComponent());
             } else if (name.endsWith(".9.png")) {
                 openEditor(new NinePatchEditorTopComponent());
+            } else if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
+                openEditor(new SpriteSheetEditorTopComponent(file));
             } else if (name.endsWith(".gltf") || name.endsWith(".obj")) {
                 openEditor(new Model3DViewerTopComponent());
             } else if (name.endsWith(".ogg") || name.endsWith(".wav") || name.endsWith(".mp3")) {
