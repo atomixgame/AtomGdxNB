@@ -60,6 +60,10 @@
                 <runtime-relative-path>ext/jinput-platform-2.0.5-natives-windows.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jinput-platform-2.0.5-natives-windows.jar</binary-origin>
             </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gdx-jnigen-loader-2.3.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gdx-jnigen-loader-2.3.1.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

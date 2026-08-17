@@ -85,6 +85,17 @@ public class Particle2DEditorPanel extends JPanel {
         // Center Viewport powered by real LibGDX LwjglAWTCanvas
         particleListener = new ParticleApplicationListener(this.effectModel);
         gdxViewport = new GdxAwtViewport(particleListener);
+        if (gdxViewport.getCanvas() != null) {
+            Canvas awtCanvas = gdxViewport.getCanvas().getCanvas();
+            awtCanvas.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+                @Override
+                public void mouseDragged(java.awt.event.MouseEvent e) {
+                    float cx = awtCanvas.getWidth() / 2f;
+                    float cy = awtCanvas.getHeight() / 2f;
+                    particleListener.setEmitterPosition(e.getX() - cx, -(e.getY() - cy));
+                }
+            });
+        }
 
         // Sidebar Tabs (Properties & 100 Presets Library)
         JTabbedPane sidebarTabs = new JTabbedPane();
@@ -102,6 +113,10 @@ public class Particle2DEditorPanel extends JPanel {
         refreshEmitterList();
         setupEvents();
         filterPresets();
+    }
+
+    public int getRenderedFrameCount() {
+        return particleListener != null ? particleListener.getFrameCount() : 0;
     }
 
     private JToolBar createToolBar() {
@@ -555,12 +570,17 @@ public class Particle2DEditorPanel extends JPanel {
             this.pendingTextureFile = file;
         }
 
+        public void setEmitterPosition(float x, float y) {
+            this.emitterX = x;
+            this.emitterY = y;
+        }
+
         @Override
         public void create() {
             batch = new SpriteBatch();
-            camera = new OrthographicCamera();
-            camera.setToOrtho(false, 800, 600);
+            camera = new OrthographicCamera(800, 600);
             camera.position.set(0, 0, 0);
+            camera.update();
 
             // Generate circular soft glow particle texture procedurally
             Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
@@ -607,8 +627,15 @@ public class Particle2DEditorPanel extends JPanel {
             }
         }
 
+        private int frameCount = 0;
+
+        public int getFrameCount() {
+            return frameCount;
+        }
+
         @Override
         public void render() {
+            frameCount++;
             // Load pending custom texture on GL thread
             if (pendingTextureFile != null && pendingTextureFile.exists()) {
                 try {
@@ -656,6 +683,30 @@ public class Particle2DEditorPanel extends JPanel {
             batch.draw(activeTex, emitterX - 4, emitterY - 4, 8, 8);
 
             batch.end();
+
+            // Capture exact GPU backbuffer image at frame 30
+            if (frameCount == 30 && Gdx.graphics.getWidth() > 0 && Gdx.graphics.getHeight() > 0) {
+                try {
+                    int w = Gdx.graphics.getWidth();
+                    int h = Gdx.graphics.getHeight();
+                    byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, w, h, true);
+                    java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                    for (int y = 0; y < h; y++) {
+                        for (int x = 0; x < w; x++) {
+                            int idx = (y * w + x) * 4;
+                            int r = pixels[idx] & 0xFF;
+                            int g = pixels[idx + 1] & 0xFF;
+                            int b = pixels[idx + 2] & 0xFF;
+                            int a = pixels[idx + 3] & 0xFF;
+                            img.setRGB(x, y, (a << 24) | (r << 16) | (g << 8) | b);
+                        }
+                    }
+                    javax.imageio.ImageIO.write(img, "png", new java.io.File("C:/Users/atomi/.gemini/antigravity/brain/fce3c73f-5838-4098-860c-1b34b316ce9c/particle_editor_opengl_gpu_proof.png"));
+                    System.out.println(">>> SAVED GPU BACKBUFFER CAPTURE (" + w + "x" + h + ") to particle_editor_opengl_gpu_proof.png <<<");
+                } catch (Throwable t) {
+                    System.err.println("GPU capture error: " + t.getMessage());
+                }
+            }
         }
 
         private void updateSimulation(float delta) {
