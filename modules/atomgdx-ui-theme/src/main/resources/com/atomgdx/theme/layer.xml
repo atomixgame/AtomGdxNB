@@ -548,10 +548,112 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
                 <attr name="position" intvalue="880"/>
             </file>
+            <file name="ShaderGraphAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderGraphAction.instance"/>
+                <attr name="position" intvalue="882"/>
+            </file>
+            <file name="VisualScriptingAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenVisualScriptingAction.instance"/>
+                <attr name="position" intvalue="884"/>
+            </file>
+            <file name="AnimatorControllerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAnimatorControllerAction.instance"/>
+                <attr name="position" intvalue="886"/>
+            </file>
+            <file name="GeometryNodesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenGeometryNodesAction.instance"/>
+                <attr name="position" intvalue="888"/>
+            </file>
             <file name="AiCopilotAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
                 <attr name="position" intvalue="900"/>
             </file>
+        </folder>
+    </folder>
+
+    <!-- NetBeans Window Manager Component & Mode Registry -->
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="LibGdxProjectExplorerTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.LibGdxProjectExplorerTopComponent.findInstance"/>
+            </file>
+            <file name="SceneStructureTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.SceneStructureTopComponent.findInstance"/>
+            </file>
+            <file name="InspectorTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.InspectorTopComponent.findInstance"/>
+            </file>
+            <file name="TilemapEditorTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.TilemapEditorTopComponent.findInstance"/>
+            </file>
+            <file name="ShaderGraphTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.ShaderGraphTopComponent.findInstance"/>
+            </file>
+            <file name="VisualScriptingTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.VisualScriptingTopComponent.findInstance"/>
+            </file>
+            <file name="AnimatorControllerTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.AnimatorControllerTopComponent.findInstance"/>
+            </file>
+            <file name="GeometryNodesTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.GeometryNodesTopComponent.findInstance"/>
+            </file>
+            <file name="TimelineTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.TimelineTopComponent.findInstance"/>
+            </file>
+            <file name="MaterialEditorTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.MaterialEditorTopComponent.findInstance"/>
+            </file>
+            <file name="LightingEnvironmentTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.LightingEnvironmentTopComponent.findInstance"/>
+            </file>
+            <file name="ComponentRegistryTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.ComponentRegistryTopComponent.findInstance"/>
+            </file>
+            <file name="AiAssistantTopComponent.settings">
+                <attr name="instanceCreate" methodvalue="com.atomgdx.theme.windows.AiAssistantTopComponent.findInstance"/>
+            </file>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="TilemapEditorTopComponent.wstcref">
+                    <attr name="ref" stringvalue="TilemapEditorTopComponent"/>
+                    <attr name="position" intvalue="800"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+                <file name="ShaderGraphTopComponent.wstcref">
+                    <attr name="ref" stringvalue="ShaderGraphTopComponent"/>
+                    <attr name="position" intvalue="810"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+                <file name="VisualScriptingTopComponent.wstcref">
+                    <attr name="ref" stringvalue="VisualScriptingTopComponent"/>
+                    <attr name="position" intvalue="820"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+                <file name="AnimatorControllerTopComponent.wstcref">
+                    <attr name="ref" stringvalue="AnimatorControllerTopComponent"/>
+                    <attr name="position" intvalue="830"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+                <file name="GeometryNodesTopComponent.wstcref">
+                    <attr name="ref" stringvalue="GeometryNodesTopComponent"/>
+                    <attr name="position" intvalue="840"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+            </folder>
+            <folder name="output">
+                <file name="TimelineTopComponent.wstcref">
+                    <attr name="ref" stringvalue="TimelineTopComponent"/>
+                    <attr name="position" intvalue="700"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+                <file name="AiAssistantTopComponent.wstcref">
+                    <attr name="ref" stringvalue="AiAssistantTopComponent"/>
+                    <attr name="position" intvalue="720"/>
+                    <attr name="state" stringvalue="opened"/>
+                </file>
+            </folder>
         </folder>
     </folder>
 

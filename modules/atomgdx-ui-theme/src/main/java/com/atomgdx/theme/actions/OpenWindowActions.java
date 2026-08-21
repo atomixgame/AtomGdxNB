@@ -180,7 +180,7 @@ public class OpenWindowActions {
     public static class OpenTilemapEditorAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            openTopComponent(new TilemapEditorTopComponent(), "editor");
+            openTopComponent(TilemapEditorTopComponent.findInstance(), "editor");
         }
     }
 
@@ -236,28 +236,28 @@ public class OpenWindowActions {
     public static class OpenShaderGraphAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            openTopComponent(new ShaderGraphTopComponent(), "editor");
+            openTopComponent(ShaderGraphTopComponent.findInstance(), "editor");
         }
     }
 
     public static class OpenVisualScriptingAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            openTopComponent(new VisualScriptingTopComponent(), "editor");
+            openTopComponent(VisualScriptingTopComponent.findInstance(), "editor");
         }
     }
 
     public static class OpenAnimatorControllerAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            openTopComponent(new AnimatorControllerTopComponent(), "editor");
+            openTopComponent(AnimatorControllerTopComponent.findInstance(), "editor");
         }
     }
 
     public static class OpenGeometryNodesAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            openTopComponent(new GeometryNodesTopComponent(), "editor");
+            openTopComponent(GeometryNodesTopComponent.findInstance(), "editor");
         }
     }
 
