@@ -1,0 +1,15 @@
+{
+  "graphName": "Procedural_Asteroid_Field",
+  "graphType": "PROCEDURAL_GEOMETRY",
+  "nodes": [
+    { "nodeId": "prim_sphere", "title": "IcoSphere Generator", "category": "Generator", "posX": 80, "posY": 120 },
+    { "nodeId": "mod_displace", "title": "Displace 3D Noise", "category": "Modifier", "posX": 320, "posY": 120 },
+    { "nodeId": "mod_scatter", "title": "Scatter On Points", "category": "Instance", "posX": 560, "posY": 120 },
+    { "nodeId": "out_mesh", "title": "LibGDX 3D Model Output", "category": "Output", "posX": 800, "posY": 120 }
+  ],
+  "connections": [
+    { "sourceNodeId": "prim_sphere", "sourcePinId": "mesh", "targetNodeId": "mod_displace", "targetPinId": "inMesh" },
+    { "sourceNodeId": "mod_displace", "sourcePinId": "outMesh", "targetNodeId": "mod_scatter", "targetPinId": "inMesh" },
+    { "sourceNodeId": "mod_scatter", "sourcePinId": "outMesh", "targetNodeId": "out_mesh", "targetPinId": "inMesh" }
+  ]
+}

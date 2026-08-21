@@ -48,6 +48,12 @@
   - **3D Particle Flame Studio**: 3D flame particle system editor with emitter lifecycle manager, physics gravity influencers, and live 60 FPS simulation canvas.
   - **3D Asset Palette**: Primitives (*Cube, Sphere, Cylinder, Cone, Plane, Capsule*), Prefabs (*Spacecraft Fighter, Asteroid Rock, SciFi Turret, Energy Shield*), and Materials (*Metallic Gold, Brushed Steel, Neon Cyan, Hull Paint, Glass*).
 
+- **🧠 Visual Node Editor Suite (NetBeans Visual Library API)**:
+  - **Visual ShaderGraph Studio**: Unity ShaderGraph & Blender style visual node shader editor with PBR Master Stack, Texture 2D sampling, math operations, and live 1-click GLSL shader code compilation.
+  - **Visual Scripting & Finite State Machine (FSM)**: Unreal Blueprints / PlayMaker style logic and AI state machine graphs with state transitions, conditional guards, and action execution nodes.
+  - **Animator State Machine & 2D Blend Trees**: Unity Animator Controller equivalent with animation clip state nodes, crossfade blend transitions, parameters (`Speed`, `IsGrounded`, `Trigger`), and 2D Directional Blend Spaces.
+  - **Procedural Geometry & Mesh Generation Nodes**: Blender Geometry Nodes style procedural 3D mesh generator with primitives (Grid, Box, Sphere, Cylinder, Torus) and noise displacement modifiers.
+
 - **🎞️ Animation Timeline Studio**:
   - Dope-sheet scrubber supporting 4 animation architectures: **Node Properties**, **Skeletal 2D (Spine/DragonBones)**, **Skeleton 3D (glTF Rig)**, and **SpriteFrames Ex (Paperdoll)**.
   - Event markers with custom parameter payload inspector (Audio cues, string/int/float parameters).
@@ -68,6 +74,9 @@
 - **⚡ Multi-Platform Build Configuration Matrix**:
   - Targets: Desktop (LWJGL3), Android (APK/AAB), Web (TeaVM/GWT), iOS (RoboVM).
   - Custom JVM profiles and live build execution streamed to NetBeans Output console.
+
+- **🚀 Bundled Example Project (`Workspace/NeonCosmos`)**:
+  - Out-of-the-box playable game project with demo tilemaps (`.tmx`), shader graphs (`.shadergraph.json`), FSM graphs (`.fsm.json`), animator state machines (`.animator.json`), geometry nodes (`.geonodes.json`), 3D GLTF spacecraft, 2D particle systems, and VisUI dark theme skins.
 
 ---
 

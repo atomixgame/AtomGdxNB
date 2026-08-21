@@ -1,0 +1,43 @@
+{
+  "graphName": "Hologram_Shield_PBR",
+  "graphType": "SHADER_GRAPH",
+  "nodes": [
+    {
+      "nodeId": "master_pbr",
+      "title": "PBR Master Stack",
+      "category": "Output",
+      "posX": 600,
+      "posY": 100,
+      "inputs": ["baseColor", "metallic", "roughness", "emission", "alpha"]
+    },
+    {
+      "nodeId": "tex_sampler",
+      "title": "Sample Texture 2D",
+      "category": "Texture",
+      "posX": 120,
+      "posY": 80,
+      "outputs": ["rgba", "r", "g", "b", "a"]
+    },
+    {
+      "nodeId": "fresnel_glow",
+      "title": "Fresnel Rim Glow",
+      "category": "Math",
+      "posX": 280,
+      "posY": 240,
+      "outputs": ["out"]
+    },
+    {
+      "nodeId": "voronoi_pulse",
+      "title": "Voronoi Energy Pulse",
+      "category": "Procedural",
+      "posX": 120,
+      "posY": 260,
+      "outputs": ["noise"]
+    }
+  ],
+  "connections": [
+    { "sourceNodeId": "tex_sampler", "sourcePinId": "rgba", "targetNodeId": "master_pbr", "targetPinId": "baseColor" },
+    { "sourceNodeId": "fresnel_glow", "sourcePinId": "out", "targetNodeId": "master_pbr", "targetPinId": "emission" },
+    { "sourceNodeId": "voronoi_pulse", "sourcePinId": "noise", "targetNodeId": "master_pbr", "targetPinId": "roughness" }
+  ]
+}

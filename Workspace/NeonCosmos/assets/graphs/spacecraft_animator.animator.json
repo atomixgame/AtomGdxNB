@@ -1,0 +1,16 @@
+{
+  "graphName": "SpaceFighter_Animator",
+  "graphType": "ANIMATOR_CONTROLLER",
+  "nodes": [
+    { "nodeId": "anim_hover", "title": "Clip: Hover_Idle", "category": "Animation", "posX": 100, "posY": 120 },
+    { "nodeId": "anim_boost", "title": "Clip: Forward_Boost", "category": "Animation", "posX": 360, "posY": 80 },
+    { "nodeId": "anim_warp", "title": "Clip: HyperDrive_Warp", "category": "Animation", "posX": 620, "posY": 120 },
+    { "nodeId": "blend_strafe", "title": "2D Directional Strafe Blend", "category": "BlendSpace", "posX": 360, "posY": 260 }
+  ],
+  "connections": [
+    { "sourceNodeId": "anim_hover", "sourcePinId": "thrust > 0.1", "targetNodeId": "anim_boost", "targetPinId": "in" },
+    { "sourceNodeId": "anim_boost", "sourcePinId": "thrust < 0.1", "targetNodeId": "anim_hover", "targetPinId": "in" },
+    { "sourceNodeId": "anim_boost", "sourcePinId": "warpTrigger", "targetNodeId": "anim_warp", "targetPinId": "in" },
+    { "sourceNodeId": "anim_warp", "sourcePinId": "exitTime", "targetNodeId": "anim_hover", "targetPinId": "in" }
+  ]
+}

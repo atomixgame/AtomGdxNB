@@ -8,7 +8,8 @@
 
 1. [IDE Overview & Architecture](#1-ide-overview--architecture)
 2. [Project Management & Liftoff](#2-project-management--liftoff)
-3. [2D Game Development & Level Construction](#3-2d-game-development--level-construction)
+3. [The Unified Visual Game Development Pipeline](#3-the-unified-visual-game-development-pipeline)
+4. [2D Game Development & Level Construction](#4-2d-game-development--level-construction)
    - [TileMap Studio (Unity & Tiled Parity)](#tilemap-studio-unity--tiled-parity)
    - [Multi-Device Resolution & Screen Preview](#multi-device-resolution--screen-preview)
    - [HyperLap2D Scene Designer & Hierarchy](#hyperlap2d-scene-designer--hierarchy)
@@ -17,17 +18,23 @@
    - [2D Particle Designer & Presets](#2d-particle-designer--presets)
    - [Bitmap & MSDF Font Studio](#bitmap--msdf-font-studio)
    - [VisUI Skin Composer & 9-Patch Slicer](#visui-skin-composer--9-patch-slicer)
-4. [3D Game Development & Graphics Studio](#4-3d-game-development--graphics-studio)
+5. [3D Game Development & Graphics Studio](#5-3d-game-development--graphics-studio)
    - [OpenGL 3D Viewport & Interactive Transform Gizmos](#opengl-3d-viewport--interactive-transform-gizmos)
    - [PBR Material & Shader Studio](#pbr-material--shader-studio)
    - [Environment Lighting & HDRI Skybox Studio](#environment-lighting--hdri-skybox-studio)
    - [3D SceneGraph Hierarchy & Asset Palette](#3d-scenegraph-hierarchy--asset-palette)
    - [3D Particle Flame Studio](#3d-particle-flame-studio)
-5. [Timeline & Animation Player Studio (4 Animation Architectures)](#5-timeline--animation-player-studio-4-animation-architectures)
-6. [Ashley ECS Component Registry & Prefabs](#6-ashley-ecs-component-registry--prefabs)
-7. [Audio & Media Studio](#7-audio--media-studio)
-8. [Multi-Platform Build Configuration Matrix](#8-multi-platform-build-configuration-matrix)
-9. [AI Copilot & Model Context Protocol (MCP)](#9-ai-copilot--model-context-protocol-mcp)
+6. [Visual Node Editor Suite (Visual Library API)](#6-visual-node-editor-suite-visual-library-api)
+   - [Visual ShaderGraph Studio (PBR Master & GLSL Generator)](#visual-shadergraph-studio)
+   - [Visual Scripting & Finite State Machine (FSM) Engine](#visual-scripting--finite-state-machine-fsm-engine)
+   - [Animator State Machine & 2D Blend Trees](#animator-state-machine--2d-blend-trees)
+   - [Procedural Geometry & Mesh Generation Nodes](#procedural-geometry--mesh-generation-nodes)
+7. [Timeline & Animation Player Studio (4 Animation Architectures)](#7-timeline--animation-player-studio-4-animation-architectures)
+8. [Ashley ECS Component Registry & Prefabs](#8-ashley-ecs-component-registry--prefabs)
+9. [Audio & Media Studio](#9-audio--media-studio)
+10. [Multi-Platform Build Configuration Matrix](#10-multi-platform-build-configuration-matrix)
+11. [AI Copilot & Model Context Protocol (MCP)](#11-ai-copilot--model-context-protocol-mcp)
+12. [Interactive Demo Project: NeonCosmos](#12-interactive-demo-project-neoncosmos)
 
 ---
 
@@ -40,7 +47,7 @@
 | AtomGdx Studio [LibGDX 1.13.1 | Java 21 LTS]                                                      |
 +-------------------+-------------------------------------------------------+-----------------------+
 | Project Explorer  | Viewport (2D Scene / 3D OpenGL / TileMap Studio /     | Inspector             |
-| Scene Structure / | Timeline / PBR Shader Studio / Device Preview Canvas) | (Unity-Style          |
+| Scene Structure / | Timeline / ShaderGraph / FSM / Animator / Geometry)   | (Unity-Style          |
 | 3D SceneGraph /   |                                                       | Collapsible           |
 | Asset Palette     |                                                       | Components & PBR)     |
 +-------------------+-------------------------------------------------------+-----------------------+
@@ -54,18 +61,45 @@
 
 - **Project Explorer Tree**: Visualizes source packages, `assets/` directories, deployment targets, and Gradle build configurations.
 - **Context Actions**:
-  - Double-click `.dt` / `.scene` -> Opens 2D Scene Editor.
-  - Double-click `.tmx` / `.tilemap.json` -> Opens TileMap Studio.
-  - Double-click `.png` / `.jpg` -> Opens SpriteSheet & Image Viewer.
-  - Double-click `.gltf` / `.glb` / `.obj` / `.g3db` -> Opens 3D Model Viewer.
-  - Double-click `.ogg` / `.mp3` / `.wav` -> Opens Audio & Media Studio.
-  - Right-click Project -> **Run Desktop (LWJGL3)** (triggers `gradlew lwjgl3:run` streamed to Output window).
+  - Double-click `.dt` / `.scene` &rarr; Opens 2D Scene Editor.
+  - Double-click `.tmx` / `.tilemap.json` &rarr; Opens TileMap Studio.
+  - Double-click `.shadergraph.json` &rarr; Opens Visual ShaderGraph Studio.
+  - Double-click `.fsm.json` &rarr; Opens Visual Scripting & FSM Graph.
+  - Double-click `.animator.json` &rarr; Opens Animator State Machine Studio.
+  - Double-click `.geonodes.json` &rarr; Opens Procedural Geometry Nodes.
+  - Double-click `.gltf` / `.glb` / `.obj` / `.g3db` &rarr; Opens 3D Model Viewer.
+  - Double-click `.ogg` / `.mp3` / `.wav` &rarr; Opens Audio & Media Studio.
+  - Right-click Project &rarr; **Run Desktop (LWJGL3)** (triggers `gradlew lwjgl3:run` streamed to Output window).
 
 ---
 
-## 3. 2D Game Development & Level Construction
+## 3. The Unified Visual Game Development Pipeline
+
+All subsystems in AtomGdx Studio are designed to interconnect seamlessly:
+
+```
++---------------------+     +----------------------+     +---------------------+
+| Procedural Geometry | --> | Visual ShaderGraph   | --> | 3D PBR Viewport     |
+| & Mesh Nodes        |     | (GLSL Shader Export) |     | & Transform Gizmos  |
++---------------------+     +----------------------+     +---------------------+
+                                                                   |
++---------------------+     +----------------------+               v
+| Animator State      | --> | Animation Timeline   | --> | Ashley ECS Prefabs  |
+| Machine & Blending  |     | (4 Anim Types)       |     | & Scene Graph       |
++---------------------+     +----------------------+     +---------------------+
+                                                                   |
++---------------------+     +----------------------+               v
+| TileMap Studio      | --> | Visual Scripting     | --> | Multi-Platform      |
+| (5 Grid Layouts)    |     | & AI FSM Logic       |     | Build Matrix (Run)  |
++---------------------+     +----------------------+     +---------------------+
+```
+
+---
+
+## 4. 2D Game Development & Level Construction
 
 ### TileMap Studio (Unity & Tiled Parity)
+- **Menu Access**: `Window > LibGDX Tools > TileMap Studio` or `LibGDX > TileMap Studio`.
 - **5 Supported Grid Layouts**:
   - `Orthogonal`: Standard rectangular grid.
   - `Isometric Diamond (2:1)` & `Isometric Staggered`: True 2:1 isometric projection.
@@ -87,7 +121,7 @@
 - **Physics Collision Generation (CompositeCollider2D)**:
   - Scans solid tiles and merges contiguous rectangular boundaries into minimal outer polygon contours, eliminating internal ghost seam snags in Box2D.
 - **Native LibGDX TMX Export**:
-  - Export standard `.tmx` XML files loadable directly in LibGDX via `new TmxMapLoader().load("levels/map.tmx")`.
+  - Export standard `.tmx` XML files loadable directly in LibGDX via `new TmxMapLoader().load("tilemaps/space_station_level.tmx")`.
 
 ### Multi-Device Resolution & Screen Preview
 - **Device Presets**:
@@ -103,7 +137,7 @@
 
 ---
 
-## 4. 3D Game Development & Graphics Studio
+## 5. 3D Game Development & Graphics Studio
 
 ### OpenGL 3D Viewport & Interactive Transform Gizmos
 - **Hardware Pipeline**: Real LibGDX 3D engine with `PerspectiveCamera`, `ModelBatch`, `ModelInstance`, `Environment`, `DirectionalLight`, and `AmbientLight`.
@@ -113,101 +147,112 @@
   - Scale Gizmo: Uniform and per-axis box scaling handles.
 
 ### PBR Material & Shader Studio
-- **PBR Parameters**:
-  - Albedo / Base Color: Tint color picker and diffuse texture map.
-  - Metallic: 0.0 (Dielectric) to 1.0 (Pure Metal).
-  - Roughness: 0.0 (Mirror Polish) to 1.0 (Diffuse Matte).
-  - Normal Map Scale: Tangent-space normal bump intensity.
-  - Ambient Occlusion (AO): Crevice shadow intensity.
-  - Emissive Glow: Color and emission intensity multiplier for neon/energy effects.
-  - Clearcoat: Dual-layer car paint / lacquered wood reflection coating.
-- **Live Preview Sphere**: Real-time 2.5D sphere preview with specular highlights and Fresnel rim glow.
-- **GLSL Linkage**: Live preview of GLSL shader uniform declarations.
+- **Menu Access**: `Window > LibGDX Tools > PBR Material Studio` or `LibGDX > PBR Material Studio`.
+- **Parameters**: Albedo / Base Color, Metallic (0.0 to 1.0), Roughness (0.0 to 1.0), Normal Map Scale, AO, Emissive Rim Glow, Clearcoat coating.
+- **Live Preview Sphere**: Real-time sphere preview with specular highlights and Fresnel reflections.
 
 ### Environment Lighting & HDRI Skybox Studio
+- **Menu Access**: `Window > LibGDX Tools > Environment & Lighting` or `LibGDX > Environment & Lighting`.
 - **HDRI Skybox**: Presets (*Space Nebula, Sunset Horizon, SciFi Studio, Overcast Sky, Industrial Garage*).
-- **Image-Based Lighting (IBL)**: Separate diffuse irradiance and specular reflection intensity sliders.
-- **Directional Sun**: Live 2D Sun Orbit Compass controlling Sun Pitch, Sun Yaw, Color, and Intensity.
-- **Shadows & Fog**: Dynamic shadow map resolutions (512 to 4096) and distance fog simulation (Density, Near, Far, Color).
+- **Directional Sun Orbit Compass**: Interactive 2D pitch/yaw compass controlling sun elevation and azimuth.
 
 ---
 
-## 5. Timeline & Animation Player Studio (4 Animation Architectures)
+## 6. Visual Node Editor Suite (Visual Library API)
 
-The Timeline Studio provides a professional Dope-Sheet & Animation Scrubber supporting 4 distinct animation architectures:
+Powered by the **NetBeans Visual Library API** (`org.netbeans.api.visual`), AtomGdx Studio provides visual node graphs with pan, zoom, smooth connection routing, pin type compatibility validation, and code compilation.
 
-### 1. 🎭 Node Properties Animations
-- Animate entity transform properties: `Position X/Y/Z`, `Rotation`, `Scale X/Y`, `Opacity`, `Color Tint`, and custom shader floats.
-- **Keyframe Easing Curves**:
-  - `Linear`: Constant rate of change.
-  - `Step`: Constant hold until next keyframe.
-  - `Ease In` / `Ease Out`: Smooth quadratic acceleration / deceleration.
-  - `Ease In-Out`: Smooth cubic bezier S-curve.
-  - `Bounce`: Realistic gravity rebound effect.
-  - `Elastic`: Damped spring oscillation.
+### Visual ShaderGraph Studio
+- **Menu Access**: `Window > LibGDX Tools > Visual ShaderGraph Studio` or `LibGDX > Visual ShaderGraph Studio`.
+- **Nodes**:
+  - **PBR Master Stack**: Base Color, Metallic, Roughness, Normal, Emission, Alpha inputs.
+  - **Texture Nodes**: Sample Texture 2D, UV Tiling & Offset, Normal Unpack.
+  - **Math Nodes**: Add, Subtract, Multiply, Divide, Lerp, Step, Clamp, Power, Sine, Cosine, Dot/Cross product.
+  - **Procedural Nodes**: Voronoi Noise, Perlin Noise, Gradient Noise.
+  - **Parameters**: Color Parameter, Float Parameter, Time uniform, Camera View Direction, World Normal.
+- **GLSL Generation**: 1-click compilation to LibGDX Vertex (`.vert`) and Fragment (`.frag`) GLSL shaders with live code output preview.
 
-### 2. 🦴 Skeletal 2D Animations (Spine / DragonBones)
-- Full hierarchical bone trees: Root -> Torso -> Limbs -> Attachments.
-- Animate bone local rotation, translation, and IK weights.
-- Skin slot attachment swapping (e.g. swap sword skin for shield on specific keyframes).
+### Visual Scripting & Finite State Machine (FSM) Engine
+- **Menu Access**: `Window > LibGDX Tools > Visual Scripting & FSM Graph` or `LibGDX > Visual Scripting & FSM Graph`.
+- **Features**:
+  - State nodes (`State: Radar_Scan`, `State: Target_Lock`, `State: Rapid_Fire_Burst`, `State: Vent_Cooldown`).
+  - Flow transitions with event triggers and conditional guards.
+  - Action / Blueprint nodes: Play Audio SFX, Spawn Entity, Apply Box2D Force, Set Blackboard Variable.
 
-### 3. 💀 Skeleton 3D Animations (glTF / g3db Rig)
-- 3D joint quaternions, local translations, and bone hierarchy trees.
-- Morph Target / Blend Shape tracks (e.g. facial blend shapes `Smile`, `Blink`, `JawOpen`).
-- Root Motion extraction and clip blending.
+### Animator State Machine & 2D Blend Trees
+- **Menu Access**: `Window > LibGDX Tools > Animator State Machine & Blend Tree` or `LibGDX > Animator State Machine & Blend Tree`.
+- **Features**:
+  - Animation state nodes (`Idle`, `Walk`, `Run`, `Jump`, `Attack`).
+  - Transition arrows with exit time, crossfade blend duration ms, and trigger parameters (`Speed > 0.1`, `IsGrounded == true`, `AttackTrigger`).
+  - **2D Directional Blend Trees**: Blends 4-way walk/run clips based on Velocity X/Y joystick axes.
 
-### 4. 🎞️ SpriteFrames & SpriteFrames Ex (Paperdoll Hierarchies)
-- Nested multi-part sprite hierarchies (Torso -> Head -> Armor -> Weapon Overlay) each with independent frame sequences and z-orders.
-- Playback modes: `Once`, `Loop`, `Ping-Pong`, `Reverse`.
-
-### ⚡ Timeline Events Management
-- Dedicated **Events Track** with pink flag markers (`▲`).
-- Add / edit custom named triggers:
-  - `String Parameter` (e.g. collider name or hit type)
-  - `Int / Float Parameter` (damage values or state codes)
-  - `Audio Cue SFX` (e.g. `audio/sfx/footstep_metal.ogg`)
-- Modal event inspector triggered via double-click on any event marker.
-
-### 🎮 Transport Controls & Playback
-- Speeds: `0.25x`, `0.5x`, `1.0x`, `1.5x`, `2.0x`, `4.0x`.
-- `🧅 Onion Skinning`: View ghost silhouettes of previous and upcoming animation frames.
-- `🧲 Snap to Grid`: Precision snapping to frame ticks based on target FPS (30, 60, 120 FPS).
+### Procedural Geometry & Mesh Generation Nodes
+- **Menu Access**: `Window > LibGDX Tools > Procedural Geometry Nodes` or `LibGDX > Procedural Geometry Nodes`.
+- **Features**:
+  - Generator Nodes: Grid, Cube, Sphere, Cylinder, Torus primitives.
+  - Modifier Nodes: Displace by Perlin Noise, Extrude Faces, Subdivide Mesh, Bevel Edges.
+  - Output Node: LibGDX 3D Model / Mesh compiler.
 
 ---
 
-## 6. Ashley ECS Component Registry & Prefabs
+## 7. Timeline & Animation Player Studio (4 Animation Architectures)
 
-- **Component Catalog**:
-  - Built-in components: `TransformComponent`, `TextureComponent`, `AnimationComponent`, `RigidBody2DComponent`, `Mesh3DComponent`, `Light2DComponent`, `ScriptComponent`.
-  - Custom component scanner and interactive Java component class generator.
-- **Prefab Asset Workflow**:
-  - Save configured entities as reusable 2D (`PrefabVO`) or 3D (`Prefab3DVO`) asset files.
-  - Drag and drop prefabs into scenes to instantiate cloned hierarchies.
-
----
-
-## 7. Audio & Media Studio
-
-- **Real-Time Waveform Visualizer**: Renders audio amplitude waveforms across the full track duration.
-- **Playback Controls**: Play, Pause, Stop, Seek timeline scrubber, Volume slider (0–100%), Stereo Pan (-1.0 to +1.0), and Loop toggle.
+- **Menu Access**: `Window > LibGDX Tools > Animation Timeline` or `LibGDX > Animation Timeline`.
+- **4 Animation Types**:
+  1. **Node Properties**: Position X/Y/Z, Rotation, Scale X/Y, Opacity, Color Tint, and Shader Uniforms.
+  2. **Skeletal 2D (Spine / DragonBones)**: Hierarchical bone trees, rotations, and skin slot attachment swapping.
+  3. **Skeleton 3D (glTF Rig)**: 3D joint transforms, morph target blend shapes (`Smile`, `Blink`), and root motion.
+  4. **SpriteFrames Ex**: Multi-part paperdoll hierarchies (Torso &rarr; Head &rarr; Armor &rarr; Weapon).
+- **Keyframe Easing Curves**: `Linear`, `Step`, `Ease In`, `Ease Out`, `Ease In-Out (Cubic Bezier)`, `Bounce`, `Elastic`.
+- **Events Track**: Dedicated event markers (`▲`) with parameter payload inspector (Audio cues, string/int/float arguments).
+- **Transport Controls**: 60 FPS playback, speeds (0.25x to 4.0x), loop toggle, onion skinning, and frame snapping.
 
 ---
 
-## 8. Multi-Platform Build Configuration Matrix
+## 8. Ashley ECS Component Registry & Prefabs
 
-- **Target Platforms**:
-  - Desktop (LWJGL3): `lwjgl3:run`, `lwjgl3:jar`
-  - Android (APK/AAB): `android:assembleDebug`, `android:bundleRelease`
-  - Web (HTML5 TeaVM/GWT): `teavm:build`, `teavm:run`
-  - iOS (RoboVM / MobiVM): `ios:createIPA`, `ios:launchIOSDevice`
-- **Profile Customization**:
-  - Custom JVM Arguments (e.g. `-Xmx2048m -Dorg.lwjgl.util.Debug=true`).
-  - Active profile management (Development, Staging, Production Release).
-  - One-click build and execution with real-time log output streamed to NetBeans `IOProvider`.
+- **Menu Access**: `Window > LibGDX Tools > Ashley ECS Components` or `LibGDX > Ashley ECS Components`.
+- **Component Scanning**: Introspects built-in engine components and generates custom Ashley ECS Java component classes.
+- **Prefab System**: Create and instantiate reusable 2D (`PrefabVO`) and 3D (`Prefab3DVO`) entity prefabs.
 
 ---
 
-## 9. AI Copilot & Model Context Protocol (MCP)
+## 9. Audio & Media Studio
 
-- **AI Assistant**: Multi-LLM provider support (Ollama local, OpenAI, Anthropic, Gemini, DeepSeek).
-- **Model Context Protocol (MCP)**: Native MCP client & server enabling AI-assisted asset generation, shader coding, and project refactoring.
+- **Menu Access**: `Window > LibGDX Tools > Audio Media Studio` or `LibGDX > Audio Media Studio`.
+- **Features**: Real-time stereo waveform visualizer, playhead scrubbing, volume (0–100%), and stereo panning (-1.0 to +1.0).
+
+---
+
+## 10. Multi-Platform Build Configuration Matrix
+
+- **Menu Access**: `Window > LibGDX Tools > Build Configurations` or `LibGDX > Build Configurations`.
+- **Deployment Targets**: Desktop (LWJGL3), Android (APK/AAB), Web (HTML5 TeaVM/GWT), iOS (RoboVM).
+- **Profiles**: Custom JVM arguments, environment flags, and live streaming to NetBeans Output console.
+
+---
+
+## 11. AI Copilot & Model Context Protocol (MCP)
+
+- **Menu Access**: `Window > LibGDX Tools > AI Copilot` or `LibGDX > AI Copilot`.
+- **LLM Support**: Ollama Local, OpenAI, Anthropic Claude, Google Gemini.
+- **MCP Integration**: Exposes scene graphs, material definitions, and project structure directly to AI coding agents.
+
+---
+
+## 12. Interactive Demo Project: NeonCosmos
+
+The bundled example project in [`Workspace/NeonCosmos/`](../Workspace/NeonCosmos/) contains rich demo files showcasing all studios:
+
+| Studio / Feature | Demo File Path in `NeonCosmos/assets/` |
+| :--- | :--- |
+| **TileMap Studio** | `assets/tilemaps/space_station_level.tmx` |
+| **Visual ShaderGraph** | `assets/graphs/hologram_shield.shadergraph.json` |
+| **Visual Scripting & FSM** | `assets/graphs/enemy_turret.fsm.json` |
+| **Animator Controller** | `assets/graphs/spacecraft_animator.animator.json` |
+| **Procedural Geometry** | `assets/graphs/procedural_asteroid.geonodes.json` |
+| **3D GLTF Models** | `assets/models/spaceship.gltf`, `cyber_hovercraft.gltf`, `khronos/*.glb` |
+| **2D HyperLap2D Scene** | `assets/scenes/MainScene.dt`, `level1.scene2d` |
+| **Particle 2D FX** | `assets/particles/plasma_burst.p` |
+| **VisUI Skin** | `assets/skins/scifi.skin` |
+| **Custom Shaders** | `assets/shaders/neon.vert`, `assets/shaders/neon.frag` |

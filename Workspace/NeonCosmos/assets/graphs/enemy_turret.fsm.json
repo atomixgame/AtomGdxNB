@@ -1,0 +1,16 @@
+{
+  "graphName": "Turret_AI_Controller",
+  "graphType": "VISUAL_SCRIPTING_FSM",
+  "nodes": [
+    { "nodeId": "state_idle", "title": "State: Radar_Scan", "category": "State", "posX": 80, "posY": 120 },
+    { "nodeId": "state_lock", "title": "State: Target_Lock", "category": "State", "posX": 320, "posY": 120 },
+    { "nodeId": "state_fire", "title": "State: Rapid_Fire_Burst", "category": "State", "posX": 580, "posY": 120 },
+    { "nodeId": "state_cool", "title": "State: Vent_Cooldown", "category": "State", "posX": 320, "posY": 280 }
+  ],
+  "connections": [
+    { "sourceNodeId": "state_idle", "sourcePinId": "onTargetFound", "targetNodeId": "state_lock", "targetPinId": "enter" },
+    { "sourceNodeId": "state_lock", "sourcePinId": "onLockAcquired", "targetNodeId": "state_fire", "targetPinId": "enter" },
+    { "sourceNodeId": "state_fire", "sourcePinId": "onBurstComplete", "targetNodeId": "state_cool", "targetPinId": "enter" },
+    { "sourceNodeId": "state_cool", "sourcePinId": "onCooledDown", "targetNodeId": "state_idle", "targetPinId": "enter" }
+  ]
+}

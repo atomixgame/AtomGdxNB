@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="15" tilewidth="32" tileheight="32" infinite="0" nextlayerid="4" nextobjectid="10">
+ <properties>
+  <property name="ambientLight" value="#1a1a2e"/>
+  <property name="gravityY" type="float" value="-9.81"/>
+  <property name="levelName" value="Sector 7 - Orbital Outpost"/>
+ </properties>
+ <tileset firstgid="1" name="scifi_colony" tilewidth="32" tileheight="32" tilecount="64" columns="8">
+  <image source="../textures/scifi_tileset.png" width="256" height="256"/>
+ </tileset>
+ <layer id="1" name="Background_Deco" width="20" height="15">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,2,2,2,0,0,0,0,0,0,0,0,2,2,2,0,0,0,1,
+1,0,0,0,0,0,0,3,3,3,3,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,4,4,4,4,4,4,4,4,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,2,2,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+ <layer id="2" name="Solid_Collision_Platform" width="20" height="15">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,8,8,8,8,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,8,8,8,8,8,8,8,8,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,8,8,0,0,0,0,0,0,0,0,0,0,0,8,8,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,8,8,8,8,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8
+</data>
+ </layer>
+ <objectgroup id="3" name="Triggers_And_Spawns">
+  <object id="1" name="Player_Spawn" type="SpawnPoint" x="96" y="320" width="32" height="32"/>
+  <object id="2" name="Shield_Recharge_Bay" type="RechargeTrigger" x="288" y="128" width="64" height="32"/>
+  <object id="3" name="Plasma_Turret_01" type="EnemyTurret" x="512" y="192" width="32" height="32"/>
+  <object id="4" name="Level_Exit_Portal" type="ExitTrigger" x="576" y="320" width="48" height="64"/>
+ </objectgroup>
+</map>
