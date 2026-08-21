@@ -1,0 +1,52 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "AtomGdx Studio 3D Pipeline - Defense Plasma Turret"
+  },
+  "scene": 0,
+  "scenes": [
+    { "nodes": [0] }
+  ],
+  "nodes": [
+    {
+      "name": "Defense Plasma Turret",
+      "mesh": 0,
+      "translation": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "scifi_turret.gltf",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "scifi_turret.gltf_PBR_Material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.35, 0.55, 0.95, 1.0],
+        "metallicFactor": 0.85,
+        "roughnessFactor": 0.25
+      }
+    }
+  ],
+  "extras": {
+    "modelName": "Defense Plasma Turret",
+    "meshCount": 4,
+    "vertexCount": 1860,
+    "triangleCount": 1120,
+    "source": "github.com/KhronosGroup/glTF-Sample-Models"
+  }
+}

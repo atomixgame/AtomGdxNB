@@ -1,5 +1,6 @@
 package com.atomgdx.editor.scene2d.ui;
 
+import com.atomgdx.core.ui.DarkThemeUtils;
 import com.atomgdx.editor.scene2d.data.vo.*;
 
 import javax.swing.*;
@@ -101,14 +102,66 @@ public class SceneHierarchyTreePanel extends JPanel {
         tree.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+                if (path == null) return;
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+                Object obj = node.getUserObject();
+
                 if (SwingUtilities.isRightMouseButton(e)) {
-                    int row = tree.getClosestRowForLocation(e.getX(), e.getY());
-                    tree.setSelectionRow(row);
+                    tree.setSelectionPath(path);
                     showContextMenu(e.getX(), e.getY());
-                } else if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                    MainItemVO item = getSelectedItem();
-                    if (item != null && doubleClickListener != null) {
-                        doubleClickListener.accept(item);
+                    return;
+                }
+
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    Rectangle bounds = tree.getPathBounds(path);
+                    if (bounds != null) {
+                        int clickOffset = e.getX() - bounds.x;
+                        // Eye icon is at offset [0, 18)
+                        if (clickOffset >= 0 && clickOffset < 18) {
+                            if (obj instanceof LayerItemVO) {
+                                LayerItemVO layer = (LayerItemVO) obj;
+                                layer.isVisible = !layer.isVisible;
+                                for (SimpleImageVO img : scene.composite.sImages) {
+                                    if (layer.layerName.equals(img.layerName)) img.isVisible = layer.isVisible;
+                                }
+                                tree.repaint();
+                                if (changeListener != null) changeListener.run();
+                                return;
+                            } else if (obj instanceof MainItemVO) {
+                                MainItemVO item = (MainItemVO) obj;
+                                item.isVisible = !item.isVisible;
+                                tree.repaint();
+                                if (changeListener != null) changeListener.run();
+                                return;
+                            }
+                        }
+                        // Lock icon is at offset [18, 36)
+                        else if (clickOffset >= 18 && clickOffset < 36) {
+                            if (obj instanceof LayerItemVO) {
+                                LayerItemVO layer = (LayerItemVO) obj;
+                                layer.isLocked = !layer.isLocked;
+                                for (SimpleImageVO img : scene.composite.sImages) {
+                                    if (layer.layerName.equals(img.layerName)) img.isLocked = layer.isLocked;
+                                }
+                                tree.repaint();
+                                if (changeListener != null) changeListener.run();
+                                return;
+                            } else if (obj instanceof MainItemVO) {
+                                MainItemVO item = (MainItemVO) obj;
+                                item.isLocked = !item.isLocked;
+                                tree.repaint();
+                                if (changeListener != null) changeListener.run();
+                                return;
+                            }
+                        }
+                    }
+
+                    if (e.getClickCount() == 2) {
+                        MainItemVO item = getSelectedItem();
+                        if (item != null && doubleClickListener != null) {
+                            doubleClickListener.accept(item);
+                        }
                     }
                 }
             }
@@ -137,6 +190,7 @@ public class SceneHierarchyTreePanel extends JPanel {
     }
 
     public void setSelectionListener(Consumer<MainItemVO> listener) {
+        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         this.selectionListener = listener;
     }
 
@@ -156,6 +210,20 @@ public class SceneHierarchyTreePanel extends JPanel {
             return (MainItemVO) node.getUserObject();
         }
         return null;
+    }
+
+    public java.util.List<MainItemVO> getSelectedItems() {
+        java.util.List<MainItemVO> list = new java.util.ArrayList<>();
+        TreePath[] paths = tree.getSelectionPaths();
+        if (paths != null) {
+            for (TreePath p : paths) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) p.getLastPathComponent();
+                if (node.getUserObject() instanceof MainItemVO) {
+                    list.add((MainItemVO) node.getUserObject());
+                }
+            }
+        }
+        return list;
     }
 
     public LayerItemVO getSelectedLayer() {
@@ -181,9 +249,28 @@ public class SceneHierarchyTreePanel extends JPanel {
                 DefaultMutableTreeNode itemNode = (DefaultMutableTreeNode) layerNode.getChildAt(j);
                 if (itemNode.getUserObject() == item) {
                     tree.setSelectionPath(new TreePath(itemNode.getPath()));
+                    tree.scrollPathToVisible(new TreePath(itemNode.getPath()));
                     return;
                 }
             }
+        }
+    }
+
+    public void selectItems(java.util.Collection<MainItemVO> items) {
+        if (items == null || items.isEmpty()) return;
+        java.util.List<TreePath> paths = new java.util.ArrayList<>();
+        for (int i = 0; i < rootNode.getChildCount(); i++) {
+            DefaultMutableTreeNode layerNode = (DefaultMutableTreeNode) rootNode.getChildAt(i);
+            for (int j = 0; j < layerNode.getChildCount(); j++) {
+                DefaultMutableTreeNode itemNode = (DefaultMutableTreeNode) layerNode.getChildAt(j);
+                if (items.contains(itemNode.getUserObject())) {
+                    paths.add(new TreePath(itemNode.getPath()));
+                }
+            }
+        }
+        if (!paths.isEmpty()) {
+            tree.setSelectionPaths(paths.toArray(new TreePath[0]));
+            tree.scrollPathToVisible(paths.get(0));
         }
     }
 
@@ -456,57 +543,130 @@ public class SceneHierarchyTreePanel extends JPanel {
     }
 
     /**
-     * Advanced Tree Cell Renderer displaying custom Fatcow icons, layer badges, and status labels.
+     * Advanced Tree Cell Renderer displaying Eye icon, Lock icon, Fatcow type icons, and status labels.
      */
     private static class AdvancedSceneTreeRenderer extends DefaultTreeCellRenderer {
+        private static final ImageIcon ICON_EYE = DarkThemeUtils.getFatcowIcon("eye.png");
+        private static final ImageIcon ICON_EYE_CLOSE = DarkThemeUtils.getFatcowIcon("eye_close.png");
+        private static final ImageIcon ICON_LOCK = DarkThemeUtils.getFatcowIcon("lock.png");
+        private static final ImageIcon ICON_LOCK_OPEN = DarkThemeUtils.getFatcowIcon("lock_open.png");
+
+        private boolean currentVisible = true;
+        private boolean currentLocked = false;
+
+        public AdvancedSceneTreeRenderer() {
+            setBackgroundNonSelectionColor(null);
+            setBackgroundSelectionColor(HierarchyColors.ACCENT_BLUE);
+            setTextNonSelectionColor(HierarchyColors.TEXT_PRIMARY);
+            setTextSelectionColor(Color.WHITE);
+            setBorderSelectionColor(null);
+            setBorder(new EmptyBorder(1, 38, 1, 4)); // 38px left padding for Eye and Lock icons
+        }
+
+        @Override
+        public Color getBackgroundNonSelectionColor() {
+            return null;
+        }
+
+        @Override
+        public Color getBackgroundSelectionColor() {
+            return HierarchyColors.ACCENT_BLUE;
+        }
+
+        @Override
+        public Color getTextNonSelectionColor() {
+            return HierarchyColors.TEXT_PRIMARY;
+        }
+
+        @Override
+        public Color getTextSelectionColor() {
+            return Color.WHITE;
+        }
+
         @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean exp, boolean leaf, int row, boolean hasFocus) {
-            JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
+            super.getTreeCellRendererComponent(tree, value, sel, exp, leaf, row, hasFocus);
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
             Object obj = node.getUserObject();
 
+            currentVisible = true;
+            currentLocked = false;
+
             if (obj instanceof LayerItemVO) {
                 LayerItemVO layer = (LayerItemVO) obj;
-                label.setText(layer.layerName + (!layer.isVisible ? " [Hidden]" : ""));
-                label.setIcon(Scene2DEditorPanel.getIcon("folder.png"));
-            } else if (obj instanceof SimpleImageVO) {
-                SimpleImageVO img = (SimpleImageVO) obj;
-                label.setText(img.itemName != null && !img.itemName.isEmpty() ? img.itemName : img.imageName);
-                label.setIcon(Scene2DEditorPanel.getIcon("picture.png"));
-            } else if (obj instanceof ParticleEffectVO) {
-                ParticleEffectVO p = (ParticleEffectVO) obj;
-                label.setText(p.itemName);
-                label.setIcon(Scene2DEditorPanel.getIcon("fire.png"));
-            } else if (obj instanceof LightVO) {
-                LightVO lt = (LightVO) obj;
-                label.setText(lt.itemName + " (" + lt.type + ")");
-                label.setIcon(Scene2DEditorPanel.getIcon("lightning.png"));
-            } else if (obj instanceof LabelVO) {
-                LabelVO lbl = (LabelVO) obj;
-                label.setText("\"" + lbl.text + "\"");
-                label.setIcon(Scene2DEditorPanel.getIcon("wand.png"));
-            } else if (obj instanceof NinePatchVO) {
-                NinePatchVO np = (NinePatchVO) obj;
-                label.setText("9-Patch: " + np.itemName);
-                label.setIcon(Scene2DEditorPanel.getIcon("picture.png"));
-            } else if (obj instanceof CompositeItemVO) {
-                CompositeItemVO comp = (CompositeItemVO) obj;
-                label.setText("Composite: " + comp.itemName);
-                label.setIcon(Scene2DEditorPanel.getIcon("star.png"));
+                currentVisible = layer.isVisible;
+                currentLocked = layer.isLocked;
+                setText(layer.layerName);
+                setIcon(DarkThemeUtils.getFatcowIcon("folder.png"));
+                setFont(new Font("Segoe UI", Font.BOLD, 11));
+            } else if (obj instanceof MainItemVO) {
+                MainItemVO item = (MainItemVO) obj;
+                currentVisible = item.isVisible;
+                currentLocked = item.isLocked;
+                setFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+                if (obj instanceof SimpleImageVO) {
+                    SimpleImageVO img = (SimpleImageVO) obj;
+                    setText(img.itemName != null && !img.itemName.isEmpty() ? img.itemName : img.imageName);
+                    setIcon(DarkThemeUtils.getFatcowIcon("picture.png"));
+                } else if (obj instanceof ParticleEffectVO) {
+                    ParticleEffectVO p = (ParticleEffectVO) obj;
+                    setText(p.itemName);
+                    setIcon(DarkThemeUtils.getFatcowIcon("fire.png"));
+                } else if (obj instanceof LightVO) {
+                    LightVO lt = (LightVO) obj;
+                    setText(lt.itemName + " (" + lt.type + ")");
+                    setIcon(DarkThemeUtils.getFatcowIcon("lightning.png"));
+                } else if (obj instanceof LabelVO) {
+                    LabelVO lbl = (LabelVO) obj;
+                    setText("\"" + lbl.text + "\"");
+                    setIcon(DarkThemeUtils.getFatcowIcon("wand.png"));
+                } else if (obj instanceof NinePatchVO) {
+                    NinePatchVO np = (NinePatchVO) obj;
+                    setText("9-Patch: " + np.itemName);
+                    setIcon(DarkThemeUtils.getFatcowIcon("picture.png"));
+                } else if (obj instanceof CompositeItemVO) {
+                    CompositeItemVO comp = (CompositeItemVO) obj;
+                    setText("Composite: " + comp.itemName);
+                    setIcon(DarkThemeUtils.getFatcowIcon("star.png"));
+                }
             } else {
-                label.setIcon(Scene2DEditorPanel.getIcon("star.png"));
+                setText(value != null ? value.toString() : "");
+                setIcon(DarkThemeUtils.getFatcowIcon("star.png"));
+                setFont(new Font("Segoe UI", Font.BOLD, 11));
             }
 
             if (sel) {
-                label.setBackground(HierarchyColors.ACCENT_BLUE);
-                label.setForeground(Color.WHITE);
-                label.setOpaque(true);
+                setOpaque(true);
+                setBackground(HierarchyColors.ACCENT_BLUE);
+                setForeground(Color.WHITE);
             } else {
-                label.setBackground(HierarchyColors.BG_TREE);
-                label.setForeground(HierarchyColors.TEXT_PRIMARY);
-                label.setOpaque(false);
+                setOpaque(false);
+                setBackground(null);
+                setForeground(currentVisible ? HierarchyColors.TEXT_PRIMARY : HierarchyColors.TEXT_MUTED);
             }
-            return label;
+
+            return this;
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+
+            // Paint Eye Icon at x=2
+            ImageIcon eye = currentVisible ? ICON_EYE : ICON_EYE_CLOSE;
+            if (eye != null && eye.getImage() != null) {
+                g2.drawImage(eye.getImage(), 2, (getHeight() - 16) / 2, 16, 16, null);
+            }
+
+            // Paint Lock Icon at x=20
+            ImageIcon lock = currentLocked ? ICON_LOCK : ICON_LOCK_OPEN;
+            if (lock != null && lock.getImage() != null) {
+                g2.drawImage(lock.getImage(), 20, (getHeight() - 16) / 2, 16, 16, null);
+            }
+
+            g2.dispose();
         }
     }
 }

@@ -14,3 +14,9 @@ var/log/
 # OS Files
 Thumbs.db
 .DS_Store
+
+# Workspace & Temp
+.gradle/
+**/Workspace/*/.gradle/
+cp.txt
+

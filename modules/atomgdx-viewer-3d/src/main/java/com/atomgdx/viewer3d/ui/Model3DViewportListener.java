@@ -1,5 +1,7 @@
 package com.atomgdx.viewer3d.ui;
 
+import com.atomgdx.viewer3d.data.Node3DVO;
+import com.atomgdx.viewer3d.data.Scene3DVO;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -43,6 +45,8 @@ public class Model3DViewportListener implements ApplicationListener {
     private final List<Model> loadedModels = new ArrayList<>();
     private final List<ModelInstance> instances = new ArrayList<>();
     private File modelFile;
+    private Scene3DVO scene3D;
+    private Node3DVO selectedNode;
 
     private boolean showGrid = true;
     private boolean showGizmo = true;
@@ -60,11 +64,34 @@ public class Model3DViewportListener implements ApplicationListener {
     private final java.util.concurrent.atomic.AtomicReference<File> pendingModelFile = new java.util.concurrent.atomic.AtomicReference<>();
 
     public Model3DViewportListener() {
-        this(null);
+        this((File) null);
     }
 
     public Model3DViewportListener(File modelFile) {
         this.modelFile = modelFile;
+    }
+
+    public Model3DViewportListener(Scene3DVO scene) {
+        this.scene3D = scene;
+    }
+
+    public void setScene3D(Scene3DVO scene) {
+        this.scene3D = scene;
+        if (com.badlogic.gdx.Gdx.app != null) {
+            com.badlogic.gdx.Gdx.app.postRunnable(this::rebuildModel);
+        }
+    }
+
+    public Scene3DVO getScene3D() {
+        return scene3D;
+    }
+
+    public void setSelectedNode(Node3DVO node) {
+        this.selectedNode = node;
+    }
+
+    public Node3DVO getSelectedNode() {
+        return selectedNode;
     }
 
     public void setModelFile(File file) {
@@ -467,6 +494,10 @@ public class Model3DViewportListener implements ApplicationListener {
             Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         }
 
+        if (selectedNode != null) {
+            renderTransformGizmo3D();
+        }
+
         if (showGizmo) {
             renderUnityViewGizmo();
         }
@@ -474,6 +505,81 @@ public class Model3DViewportListener implements ApplicationListener {
         if (captureScreenshotPath != null) {
             saveGpuBackbufferToPng(captureScreenshotPath);
             captureScreenshotPath = null;
+        }
+    }
+
+    private void renderTransformGizmo3D() {
+        if (selectedNode == null || gizmoMode == GizmoMode.SELECT) return;
+
+        float px = selectedNode.posX;
+        float py = selectedNode.posY;
+        float pz = selectedNode.posZ;
+        float axisLen = 1.8f;
+
+        Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+
+        // Selection Wireframe Box
+        shapeRenderer.setColor(0.95f, 0.75f, 0.1f, 0.9f);
+        float bx = Math.max(0.5f, selectedNode.scaleX * 0.6f);
+        float by = Math.max(0.5f, selectedNode.scaleY * 0.6f);
+        float bz = Math.max(0.5f, selectedNode.scaleZ * 0.6f);
+        shapeRenderer.box(px - bx, py - by, pz + bz, bx * 2, by * 2, bz * 2);
+
+        if (gizmoMode == GizmoMode.TRANSLATE) {
+            // X Axis - Red
+            shapeRenderer.setColor(1.0f, 0.2f, 0.2f, 1f);
+            shapeRenderer.line(px, py, pz, px + axisLen, py, pz);
+
+            // Y Axis - Green
+            shapeRenderer.setColor(0.2f, 1.0f, 0.3f, 1f);
+            shapeRenderer.line(px, py, pz, px, py + axisLen, pz);
+
+            // Z Axis - Blue
+            shapeRenderer.setColor(0.2f, 0.5f, 1.0f, 1f);
+            shapeRenderer.line(px, py, pz, px, py, pz + axisLen);
+        } else if (gizmoMode == GizmoMode.ROTATE) {
+            // X-circle (Red), Y-circle (Green), Z-circle (Blue)
+            shapeRenderer.setColor(1.0f, 0.2f, 0.2f, 1f);
+            drawGizmoCircle(px, py, pz, axisLen * 0.8f, 0);
+            shapeRenderer.setColor(0.2f, 1.0f, 0.3f, 1f);
+            drawGizmoCircle(px, py, pz, axisLen * 0.8f, 1);
+            shapeRenderer.setColor(0.2f, 0.5f, 1.0f, 1f);
+            drawGizmoCircle(px, py, pz, axisLen * 0.8f, 2);
+        } else if (gizmoMode == GizmoMode.SCALE) {
+            shapeRenderer.setColor(1.0f, 0.2f, 0.2f, 1f);
+            shapeRenderer.line(px, py, pz, px + axisLen, py, pz);
+            shapeRenderer.box(px + axisLen - 0.1f, py - 0.1f, pz + 0.1f, 0.2f, 0.2f, 0.2f);
+
+            shapeRenderer.setColor(0.2f, 1.0f, 0.3f, 1f);
+            shapeRenderer.line(px, py, pz, px, py + axisLen, pz);
+            shapeRenderer.box(px - 0.1f, py + axisLen - 0.1f, pz + 0.1f, 0.2f, 0.2f, 0.2f);
+
+            shapeRenderer.setColor(0.2f, 0.5f, 1.0f, 1f);
+            shapeRenderer.line(px, py, pz, px, py, pz + axisLen);
+            shapeRenderer.box(px - 0.1f, py - 0.1f, pz + axisLen + 0.1f, 0.2f, 0.2f, 0.2f);
+        }
+
+        shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+    }
+
+    private void drawGizmoCircle(float cx, float cy, float cz, float radius, int plane) {
+        int segments = 24;
+        for (int i = 0; i < segments; i++) {
+            float a1 = (float) (i * 2 * Math.PI / segments);
+            float a2 = (float) ((i + 1) * 2 * Math.PI / segments);
+            if (plane == 0) { // YZ plane
+                shapeRenderer.line(cx, cy + (float) Math.cos(a1) * radius, cz + (float) Math.sin(a1) * radius,
+                        cx, cy + (float) Math.cos(a2) * radius, cz + (float) Math.sin(a2) * radius);
+            } else if (plane == 1) { // XZ plane
+                shapeRenderer.line(cx + (float) Math.cos(a1) * radius, cy, cz + (float) Math.sin(a1) * radius,
+                        cx + (float) Math.cos(a2) * radius, cy, cz + (float) Math.sin(a2) * radius);
+            } else { // XY plane
+                shapeRenderer.line(cx + (float) Math.cos(a1) * radius, cy + (float) Math.sin(a1) * radius, cz,
+                        cx + (float) Math.cos(a2) * radius, cy + (float) Math.sin(a2) * radius, cz);
+            }
         }
     }
 
@@ -601,12 +707,16 @@ public class Model3DViewportListener implements ApplicationListener {
         try {
             int w = Gdx.graphics.getWidth();
             int h = Gdx.graphics.getHeight();
-            byte[] pixels = com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0, 0, w, h, true);
+            // OpenGL glReadPixels starts at bottom-left (y=0 is bottom).
+            // BufferedImage starts at top-left (y=0 is top).
+            // Therefore, row y of BufferedImage must read from OpenGL row (h - 1 - y).
+            byte[] pixels = com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixels(0, 0, w, h, false);
 
             java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
             for (int y = 0; y < h; y++) {
+                int srcY = h - 1 - y;
                 for (int x = 0; x < w; x++) {
-                    int i = (x + (h - 1 - y) * w) * 4;
+                    int i = (x + srcY * w) * 4;
                     int r = pixels[i] & 0xFF;
                     int g = pixels[i + 1] & 0xFF;
                     int b = pixels[i + 2] & 0xFF;
@@ -615,7 +725,7 @@ public class Model3DViewportListener implements ApplicationListener {
                 }
             }
             javax.imageio.ImageIO.write(img, "png", new File(path));
-            System.out.println("Saved GPU Native 3D Screenshot: " + path);
+            System.out.println("Saved GPU Native 3D Screenshot (Correct Upright Orientation): " + path);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

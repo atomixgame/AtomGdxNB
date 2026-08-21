@@ -836,11 +836,12 @@ public class Particle2DEditorPanel extends JPanel {
                 try {
                     int w = Gdx.graphics.getWidth();
                     int h = Gdx.graphics.getHeight();
-                    byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, w, h, true);
+                    byte[] pixels = ScreenUtils.getFrameBufferPixels(0, 0, w, h, false);
                     java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
                     for (int y = 0; y < h; y++) {
+                        int srcY = h - 1 - y;
                         for (int x = 0; x < w; x++) {
-                            int idx = (y * w + x) * 4;
+                            int idx = (srcY * w + x) * 4;
                             int r = pixels[idx] & 0xFF;
                             int g = pixels[idx + 1] & 0xFF;
                             int b = pixels[idx + 2] & 0xFF;

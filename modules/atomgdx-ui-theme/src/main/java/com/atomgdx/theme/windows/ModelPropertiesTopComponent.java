@@ -70,11 +70,20 @@ public class ModelPropertiesTopComponent extends TopComponent implements LookupL
         }
     }
 
+    private Object currentlyInspected = null;
+
     @Override
     public void resultChanged(LookupEvent ev) {
-        if (lookupResult == null) return;
-        for (Object obj : lookupResult.allInstances()) {
+        Lookup.Result<?> res = (ev != null && ev.getSource() instanceof Lookup.Result) ? (Lookup.Result<?>) ev.getSource() : lookupResult;
+        if (res == null) return;
+        java.util.Collection<?> instances = res.allInstances();
+        if (instances.isEmpty()) {
+            return;
+        }
+        for (Object obj : instances) {
+            if (obj == currentlyInspected) return;
             if (obj instanceof Model3DDescriptor) {
+                currentlyInspected = obj;
                 inspectModel((Model3DDescriptor) obj);
                 return;
             }

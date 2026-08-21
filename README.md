@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="docs/plan/v0.1.0_Milestone_Plan.md"><img src="https://img.shields.io/badge/version-v0.1.84-00e5ff.svg?style=flat-square" alt="Version v0.1.84"/></a>
-  <a href="docs/progress/v0.1.md"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square" alt="Build Status"/></a>
+  <a href="docs/plan/v0.2.0_Milestone_Plan.md"><img src="https://img.shields.io/badge/version-v0.2.0--dev-00e5ff.svg?style=flat-square" alt="Version v0.2.0-dev"/></a>
+  <a href="docs/progress/v0.2.md"><img src="https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square" alt="Build Status"/></a>
   <a href="https://libgdx.com/"><img src="https://img.shields.io/badge/libGDX-1.13.1-e11d48.svg?style=flat-square" alt="LibGDX Version"/></a>
   <a href="docs/howto/Dev_Setup.md"><img src="https://img.shields.io/badge/JDK-21%20LTS-f59e0b.svg?style=flat-square" alt="Java 21 LTS"/></a>
   <a href="https://netbeans.apache.org/"><img src="https://img.shields.io/badge/platform-NetBeans%20RCP-3b82f6.svg?style=flat-square" alt="NetBeans Platform"/></a>
@@ -32,13 +32,16 @@
   - **Unity-Style 2D Inspector**: Foldouts (`▼`/`▶`) for Transform, Box2D Rigidbody, Dynamic Light 2D, and `+ Add Component` menu.
   - **SpriteSheet Editor & Image Viewer**: 1:1 Pixel Zoom, grid slicing, and live Animation Player with FPS spinner and timeline scrubber.
   - **Particle 2D Designer**: Curve editor with instant live presets (*Fireball Blast, Nebula Swarm, Toxic Spores, Cosmic Portal*).
-  - **Skin Composer & 9-Patch Studio**: Scene2D / VisUI styling and interactive 9-patch border configuration.
+  - **TexturePacker Studio**: Multi-directory atlas batch packing, whitespace trimming, and padding spinners.
+  - **Bitmap & MSDF Font Studio**: TrueType/OpenType rasterization, signed distance field (SDF/MSDF) transforms, character presets, live sample testing, and GLSL distance-field shader exports.
+  - **Skin Composer & 9-Patch Studio**: Scene2D / VisUI styling, Widget Styles manager, and interactive 9-patch border configuration.
 
 - **🪐 3D Visual Game Development**:
   - **Native LibGDX 3D OpenGL Viewport**: Hardware rendering with `PerspectiveCamera`, `ModelBatch`, `ModelInstance`, `Environment`, and PBR directional/ambient lighting.
   - **Orbit Camera**: Left-drag to orbit, right-drag to pan, mouse wheel to zoom, ground grid, and color-coded XYZ axes.
   - **3D SceneGraph Panel**: Hierarchical tree structure (`Scene Root` &rarr; `Environment` &rarr; `Camera` &rarr; `Spacecraft` &rarr; `Thruster Light`).
   - **3D GameObject Inspector**: 3D Transform (X, Y, Z), live Vertex/Triangle counts, PBR Materials (Metallic, Roughness, Opacity), and Bullet Physics 3D.
+  - **3D Particle Flame Studio**: 3D flame particle system editor with emitter lifecycle manager, physics gravity influencers, and live 60 FPS simulation canvas.
   - **3D Asset Palette**: Primitives (*Cube, Sphere, Cylinder, Cone, Plane, Capsule*), Prefabs (*Spacecraft Fighter, Asteroid Rock, SciFi Turret, Energy Shield*), and Materials (*Metallic Gold, Brushed Steel, Neon Cyan, Hull Paint, Glass*).
 
 - **🎵 Audio & Media Studio**:
@@ -72,8 +75,10 @@
 | Document | Purpose |
 | :--- | :--- |
 | **[`docs/UserGuide.md`](docs/UserGuide.md)** | **Complete User Guide** covering 2D/3D workflows, tools, and deployment |
-| **[`docs/plan/v0.1.0_Milestone_Plan.md`](docs/plan/v0.1.0_Milestone_Plan.md)** | Milestone architecture, version tracking, and release roadmap |
-| **[`docs/progress/v0.1.md`](docs/progress/v0.1.md)** | Detailed implementation progress logs and artifact index |
+| **[`docs/plan/v0.2.0_Milestone_Plan.md`](docs/plan/v0.2.0_Milestone_Plan.md)** | **v0.2.0 Active Milestone Plan** (Device Switcher, Timeline, PBR Material Studio) |
+| **[`docs/plan/v0.1.0_Milestone_Plan.md`](docs/plan/v0.1.0_Milestone_Plan.md)** | v0.1 Milestone architecture, version tracking, and release archive |
+| **[`docs/progress/v0.2.md`](docs/progress/v0.2.md)** | v0.2 implementation progress logs and artifact index |
+| **[`docs/progress/v0.1.md`](docs/progress/v0.1.md)** | v0.1 completed implementation logs and history |
 | **[`docs/todo/TODO.md`](docs/todo/TODO.md)** | Living task tracker and upcoming feature backlog |
 | **[`docs/howto/Dev_Setup.md`](docs/howto/Dev_Setup.md)** | Developer environment setup and JDK requirements |
 | **[`docs/howto/Build_And_Run.md`](docs/howto/Build_And_Run.md)** | Build commands and execution instructions |

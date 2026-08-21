@@ -32,6 +32,11 @@ public class GdxAwtViewport extends JPanel {
                 stretchCanvasToFit();
             }
         });
+        addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0 && isShowing()) {
+                stretchCanvasToFit();
+            }
+        });
     }
 
     private void initCanvas() {
@@ -52,12 +57,18 @@ public class GdxAwtViewport extends JPanel {
         }
     }
 
-    private void stretchCanvasToFit() {
+    public void stretchCanvasToFit() {
         if (canvas != null && canvas.getCanvas() != null) {
             int w = getWidth();
             int h = getHeight();
             if (w > 0 && h > 0) {
-                canvas.getCanvas().setBounds(0, 0, w, h);
+                Canvas awtCanvas = canvas.getCanvas();
+                awtCanvas.setBounds(0, 0, w, h);
+                awtCanvas.setSize(w, h);
+                awtCanvas.setPreferredSize(new Dimension(w, h));
+                awtCanvas.setMinimumSize(new Dimension(w, h));
+                awtCanvas.setMaximumSize(new Dimension(w, h));
+                awtCanvas.validate();
             }
         }
     }
@@ -66,6 +77,38 @@ public class GdxAwtViewport extends JPanel {
     public void doLayout() {
         super.doLayout();
         stretchCanvasToFit();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int w = getWidth();
+        int h = getHeight();
+        g2.setColor(new Color(25, 26, 29));
+        g2.fillRect(0, 0, w, h);
+
+        // Subtle grid lines
+        g2.setColor(new Color(38, 40, 44));
+        int gridSize = 32;
+        for (int x = 0; x < w; x += gridSize) {
+            g2.drawLine(x, 0, x, h);
+        }
+        for (int y = 0; y < h; y += gridSize) {
+            g2.drawLine(0, y, w, y);
+        }
+
+        // Center Origin Axes (Red X, Green Y)
+        int cx = w / 2;
+        int cy = h / 2;
+        g2.setColor(new Color(220, 50, 50, 180));
+        g2.drawLine(0, cy, w, cy);
+        g2.setColor(new Color(50, 200, 70, 180));
+        g2.drawLine(cx, 0, cx, h);
+
+        g2.dispose();
     }
 
     @Override

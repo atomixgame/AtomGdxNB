@@ -51,14 +51,40 @@ public class McpServer {
                 "compile_glsl_shader",
                 "Validates GLSL vertex and fragment shader syntax",
                 Map.of("type", "object"),
-                args -> "{\"status\": \"OK\", \"message\": \"GLSL syntax valid.\"}"
+                args -> {
+                    String code = args != null && args.get("code") != null ? args.get("code").toString() : "";
+                    if (code.isBlank()) {
+                        return "{\"status\": \"ERROR\", \"message\": \"Empty shader source code.\"}";
+                    }
+                    boolean hasMain = code.contains("void main()");
+                    boolean balancedBraces = code.chars().filter(ch -> ch == '{').count() == code.chars().filter(ch -> ch == '}').count();
+                    if (!hasMain) {
+                        return "{\"status\": \"ERROR\", \"message\": \"Missing void main() entrypoint in shader.\"}";
+                    }
+                    if (!balancedBraces) {
+                        return "{\"status\": \"ERROR\", \"message\": \"Mismatched curly braces in shader source.\"}";
+                    }
+                    return "{\"status\": \"OK\", \"message\": \"GLSL syntax valid.\"}";
+                }
         ));
 
         tools.put("create_particle_effect", new McpTool(
                 "create_particle_effect",
                 "Creates a new 2D/3D particle effect asset in the project",
                 Map.of("type", "object"),
-                args -> "{\"status\": \"CREATED\", \"file\": \"assets/particles/plasma.p\"}"
+                args -> {
+                    String name = args != null && args.get("name") != null ? args.get("name").toString() : "plasma";
+                    String targetPath = "assets/particles/" + name + ".p";
+                    if (activeProject != null && activeProject.getRootDirectory() != null) {
+                        java.io.File pFile = new java.io.File(activeProject.getRootDirectory(), targetPath);
+                        if (pFile.getParentFile() != null) pFile.getParentFile().mkdirs();
+                        try {
+                            String template = "- Delay -\nactive: false\n- Duration - \nlowMinValue: 1000.0\n- Count -\nmin: 0\nmax: 200\n- Emission -\nlowMin: 0.0\nlowMax: 0.0\nhighMin: 50.0\nhighMax: 50.0\n";
+                            java.nio.file.Files.writeString(pFile.toPath(), template, java.nio.charset.StandardCharsets.UTF_8);
+                        } catch (Exception ignored) {}
+                    }
+                    return "{\"status\": \"CREATED\", \"file\": \"" + targetPath + "\"}";
+                }
         ));
     }
 

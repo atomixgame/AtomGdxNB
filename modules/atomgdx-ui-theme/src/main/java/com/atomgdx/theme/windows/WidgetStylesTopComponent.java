@@ -37,6 +37,35 @@ public class WidgetStylesTopComponent extends TopComponent {
         title.setFont(new Font("Segoe UI", Font.BOLD, 12));
         title.setForeground(SciFiColors.ACCENT_CYAN);
         header.add(title, BorderLayout.WEST);
+
+        JPanel headerActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+        headerActions.setOpaque(false);
+        JButton addStyleBtn = new JButton("+ Add");
+        addStyleBtn.addActionListener(e -> {
+            String name = JOptionPane.showInputDialog(this, "Enter new Style Name:", "custom");
+            if (name != null && !name.isBlank()) {
+                WidgetStyle ws = new WidgetStyle("com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle", name.trim());
+                ws.setProperty("up", "button-up");
+                ws.setProperty("down", "button-down");
+                ws.setProperty("font", "default-font");
+                ws.setProperty("fontColor", "white");
+                skinModel.addStyle(ws);
+                populateStyles();
+                styleList.setSelectedIndex(skinModel.getStyles().size() - 1);
+            }
+        });
+        JButton removeStyleBtn = new JButton("- Delete");
+        removeStyleBtn.addActionListener(e -> {
+            int idx = styleList.getSelectedIndex();
+            if (idx >= 0 && skinModel.getStyles().size() > 1) {
+                skinModel.removeStyle(skinModel.getStyles().get(idx));
+                populateStyles();
+                styleList.setSelectedIndex(Math.max(0, idx - 1));
+            }
+        });
+        headerActions.add(addStyleBtn);
+        headerActions.add(removeStyleBtn);
+        header.add(headerActions, BorderLayout.EAST);
         add(header, BorderLayout.NORTH);
 
         // Split: Left List of Styles, Right Property Editor
@@ -59,9 +88,9 @@ public class WidgetStylesTopComponent extends TopComponent {
 
         styleList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                String selected = styleList.getSelectedValue();
-                if (selected != null) {
-                    inspectStyle(selected);
+                int idx = styleList.getSelectedIndex();
+                if (idx >= 0 && idx < skinModel.getStyles().size()) {
+                    inspectStyle(skinModel.getStyles().get(idx));
                 }
             }
         });
@@ -94,27 +123,23 @@ public class WidgetStylesTopComponent extends TopComponent {
         add(splitPane, BorderLayout.CENTER);
 
         // Initial selection
-        styleList.setSelectedIndex(0);
+        if (!skinModel.getStyles().isEmpty()) {
+            styleList.setSelectedIndex(0);
+        }
     }
 
     private void populateStyles() {
         styleListModel.clear();
-        styleListModel.addElement("TextButton: default");
-        styleListModel.addElement("TextButton: toggle");
-        styleListModel.addElement("TextButton: cyber-cyan");
-        styleListModel.addElement("Label: default");
-        styleListModel.addElement("Label: title-large");
-        styleListModel.addElement("Window: default");
-        styleListModel.addElement("Window: dialog");
-        styleListModel.addElement("ScrollPane: default");
-        styleListModel.addElement("ProgressBar: default-horizontal");
-        styleListModel.addElement("Slider: default-horizontal");
-        styleListModel.addElement("SelectBox: default");
-        styleListModel.addElement("Touchpad: default");
+        for (WidgetStyle s : skinModel.getStyles()) {
+            String shortType = s.getWidgetType();
+            int dot = shortType.lastIndexOf('.');
+            if (dot != -1) shortType = shortType.substring(dot + 1).replace("$", ".");
+            styleListModel.addElement(shortType + ": " + s.getStyleName());
+        }
     }
 
-    private void inspectStyle(String styleName) {
-        styleHeaderLabel.setText("Style: " + styleName);
+    private void inspectStyle(WidgetStyle style) {
+        styleHeaderLabel.setText("Style: " + style.getStyleName() + " (" + style.getWidgetType() + ")");
         propertiesPanel.removeAll();
 
         JPanel propsBox = new JPanel(new GridLayout(0, 2, 6, 4));
@@ -128,26 +153,8 @@ public class WidgetStylesTopComponent extends TopComponent {
         border.setTitleFont(new Font("Segoe UI", Font.BOLD, 11));
         propsBox.setBorder(border);
 
-        if (styleName.startsWith("TextButton")) {
-            addPropertyField(propsBox, "up (Drawable)", "button-up");
-            addPropertyField(propsBox, "down (Drawable)", "button-down");
-            addPropertyField(propsBox, "over (Drawable)", "button-over");
-            addPropertyField(propsBox, "font (BitmapFont)", "default-font");
-            addPropertyField(propsBox, "fontColor (Color)", "white");
-            addPropertyField(propsBox, "downFontColor (Color)", "neon-cyan");
-        } else if (styleName.startsWith("Label")) {
-            addPropertyField(propsBox, "font (BitmapFont)", "default-font");
-            addPropertyField(propsBox, "fontColor (Color)", "white");
-            addPropertyField(propsBox, "background (Drawable)", "optional");
-        } else if (styleName.startsWith("Window")) {
-            addPropertyField(propsBox, "background (Drawable)", "window-bg");
-            addPropertyField(propsBox, "titleFont (BitmapFont)", "title-font");
-            addPropertyField(propsBox, "titleFontColor (Color)", "neon-cyan");
-            addPropertyField(propsBox, "stageBackground (Drawable)", "dim-bg");
-        } else {
-            addPropertyField(propsBox, "background (Drawable)", "default-bg");
-            addPropertyField(propsBox, "knob (Drawable)", "slider-knob");
-            addPropertyField(propsBox, "font (BitmapFont)", "default-font");
+        for (Map.Entry<String, String> entry : style.getProperties().entrySet()) {
+            addPropertyField(propsBox, style, entry.getKey(), entry.getValue());
         }
 
         propertiesPanel.add(propsBox);
@@ -156,8 +163,8 @@ public class WidgetStylesTopComponent extends TopComponent {
         propertiesPanel.repaint();
     }
 
-    private void addPropertyField(JPanel panel, String label, String val) {
-        JLabel lbl = new JLabel(" " + label + ":");
+    private void addPropertyField(JPanel panel, WidgetStyle style, String key, String val) {
+        JLabel lbl = new JLabel(" " + key + ":");
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lbl.setForeground(SciFiColors.TEXT_SECONDARY);
 
@@ -172,6 +179,12 @@ public class WidgetStylesTopComponent extends TopComponent {
                 new EmptyBorder(2, 4, 2, 4)
         ));
         txt.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+        txt.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { style.setProperty(key, txt.getText().trim()); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { style.setProperty(key, txt.getText().trim()); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { style.setProperty(key, txt.getText().trim()); }
+        });
 
         panel.add(lbl);
         panel.add(txt);

@@ -16,6 +16,7 @@
                 </dependency>            </module-dependencies>
             <public-packages>
                 <package>com.atomgdx.editor.particle3d</package>
+                <package>com.atomgdx.editor.particle3d.ui</package>
             </public-packages>
         </data>
     </configuration>

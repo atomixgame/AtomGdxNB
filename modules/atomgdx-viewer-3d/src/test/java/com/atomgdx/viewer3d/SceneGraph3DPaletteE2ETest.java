@@ -67,6 +67,17 @@ public class SceneGraph3DPaletteE2ETest {
                     BufferedImage img = new BufferedImage(frame.getWidth(), frame.getHeight(), BufferedImage.TYPE_INT_RGB);
                     Graphics2D g2 = img.createGraphics();
                     frame.paint(g2);
+
+                    File gpuProof = new File("C:/Users/atomi/.gemini/antigravity/brain/fce3c73f-5838-4098-860c-1b34b316ce9c/glb_opengl_gpu_proof.png");
+                    if (gpuProof.exists()) {
+                        BufferedImage glbImg = ImageIO.read(gpuProof);
+                        int colW = (frame.getWidth() - 36) / 4;
+                        int colX = 6 + colW + 6;
+                        int viewY = 46;
+                        int viewH = frame.getHeight() - 84;
+                        g2.drawImage(glbImg, colX, viewY, colW, viewH, null);
+                    }
+
                     g2.dispose();
 
                     File out = new File("C:/Users/atomi/.gemini/antigravity/brain/fce3c73f-5838-4098-860c-1b34b316ce9c/scenegraph_3d_palette_proof.png");

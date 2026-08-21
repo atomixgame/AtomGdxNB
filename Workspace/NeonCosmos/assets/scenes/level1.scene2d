@@ -1,0 +1,24 @@
+{
+  "sceneName": "Sector7_DeepSpace",
+  "sceneWidth": 1920,
+  "sceneHeight": 1080,
+  "ambientColorHex": "0a0e14",
+  "physicsEnabled": true,
+  "layers": [
+    { "name": "Background", "parallaxX": 0.3, "parallaxY": 0.3, "visible": true, "locked": false },
+    { "name": "Main", "parallaxX": 1.0, "parallaxY": 1.0, "visible": true, "locked": false },
+    { "name": "UI", "parallaxX": 0.0, "parallaxY": 0.0, "visible": true, "locked": false }
+  ],
+  "items": [
+    {
+      "id": "player-1",
+      "name": "QuantumVessel",
+      "layerName": "Main",
+      "x": 960,
+      "y": 540,
+      "width": 64,
+      "height": 64,
+      "tintColorHex": "00f0ff"
+    }
+  ]
+}

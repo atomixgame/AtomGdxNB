@@ -128,6 +128,27 @@ public class OpenWindowActions {
         }
     }
 
+    public static class OpenTexturePackerAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new TexturePackerTopComponent(), "editor");
+        }
+    }
+
+    public static class OpenFontGeneratorAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new FontGeneratorTopComponent(), "editor");
+        }
+    }
+
+    public static class OpenParticle3DEditorAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new Particle3DTopComponent(), "editor");
+        }
+    }
+
     public static class OpenSceneEditorAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

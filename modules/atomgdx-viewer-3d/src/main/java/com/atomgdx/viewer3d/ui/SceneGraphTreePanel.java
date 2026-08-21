@@ -87,7 +87,41 @@ public class SceneGraphTreePanel extends JPanel {
     }
 
     public void setSelectionListener(Consumer<Node3DVO> listener) {
+        tree.getSelectionModel().setSelectionMode(javax.swing.tree.TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         this.selectionListener = listener;
+    }
+
+    public java.util.List<Node3DVO> getSelectedNodes() {
+        java.util.List<Node3DVO> list = new java.util.ArrayList<>();
+        TreePath[] paths = tree.getSelectionPaths();
+        if (paths != null) {
+            for (TreePath p : paths) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) p.getLastPathComponent();
+                if (node.getUserObject() instanceof Node3DVO) {
+                    list.add((Node3DVO) node.getUserObject());
+                }
+            }
+        }
+        return list;
+    }
+
+    public void selectNodes(java.util.Collection<Node3DVO> targets) {
+        if (targets == null || targets.isEmpty()) return;
+        java.util.List<TreePath> paths = new java.util.ArrayList<>();
+        collectNodePaths(rootTreeNode, targets, paths);
+        if (!paths.isEmpty()) {
+            tree.setSelectionPaths(paths.toArray(new TreePath[0]));
+            tree.scrollPathToVisible(paths.get(0));
+        }
+    }
+
+    private void collectNodePaths(DefaultMutableTreeNode current, java.util.Collection<Node3DVO> targets, java.util.List<TreePath> out) {
+        if (targets.contains(current.getUserObject())) {
+            out.add(new TreePath(current.getPath()));
+        }
+        for (int i = 0; i < current.getChildCount(); i++) {
+            collectNodePaths((DefaultMutableTreeNode) current.getChildAt(i), targets, out);
+        }
     }
 
     private void buildTreeNodes(DefaultMutableTreeNode treeParent, Node3DVO nodeVo) {
@@ -105,6 +139,27 @@ public class SceneGraphTreePanel extends JPanel {
         for (int i = 0; i < tree.getRowCount(); i++) {
             tree.expandRow(i);
         }
+    }
+
+    public void selectNode(Node3DVO target) {
+        if (target == null) return;
+        selectNodeRecursive(rootTreeNode, target);
+    }
+
+    private boolean selectNodeRecursive(DefaultMutableTreeNode current, Node3DVO target) {
+        if (current.getUserObject() == target) {
+            TreePath p = new TreePath(current.getPath());
+            tree.setSelectionPath(p);
+            tree.scrollPathToVisible(p);
+            return true;
+        }
+        for (int i = 0; i < current.getChildCount(); i++) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) current.getChildAt(i);
+            if (selectNodeRecursive(child, target)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addNodeToSelection(Node3DVO newNode) {
@@ -258,14 +313,40 @@ public class SceneGraphTreePanel extends JPanel {
     }
 
     private static class SceneGraphCellRenderer extends DefaultTreeCellRenderer {
-        @Override
-        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-            setBackgroundNonSelectionColor(DarkThemeUtils.BG_DARK);
+        public SceneGraphCellRenderer() {
+            setBackgroundNonSelectionColor(null);
             setBackgroundSelectionColor(new Color(44, 93, 212));
             setTextNonSelectionColor(DarkThemeUtils.TEXT_PRIMARY);
             setTextSelectionColor(Color.WHITE);
             setBorderSelectionColor(null);
+        }
+
+        @Override
+        public Color getBackgroundNonSelectionColor() {
+            return null;
+        }
+
+        @Override
+        public Color getBackgroundSelectionColor() {
+            return new Color(44, 93, 212);
+        }
+
+        @Override
+        public Color getTextNonSelectionColor() {
+            return DarkThemeUtils.TEXT_PRIMARY;
+        }
+
+        @Override
+        public Color getTextSelectionColor() {
+            return Color.WHITE;
+        }
+
+        @Override
+        public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            setOpaque(sel);
+            setBackground(sel ? new Color(44, 93, 212) : null);
+            setForeground(sel ? Color.WHITE : DarkThemeUtils.TEXT_PRIMARY);
 
             if (value instanceof DefaultMutableTreeNode) {
                 Object uo = ((DefaultMutableTreeNode) value).getUserObject();

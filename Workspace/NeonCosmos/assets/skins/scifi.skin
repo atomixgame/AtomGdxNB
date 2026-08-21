@@ -1,0 +1,17 @@
+{
+  "com.badlogic.gdx.graphics.Color": {
+    "white": { "r": 1, "g": 1, "b": 1, "a": 1 },
+    "neon-cyan": { "r": 0, "g": 0.94, "b": 1, "a": 1 },
+    "dark-bg": { "r": 0.05, "g": 0.07, "b": 0.09, "a": 1 }
+  },
+  "com.badlogic.gdx.graphics.g2d.BitmapFont": {
+    "default-font": { "file": "fonts/hud.fnt" }
+  },
+  "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+    "default": {
+      "font": "default-font",
+      "fontColor": "white",
+      "downFontColor": "neon-cyan"
+    }
+  }
+}

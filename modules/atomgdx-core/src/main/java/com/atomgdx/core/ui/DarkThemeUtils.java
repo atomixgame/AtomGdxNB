@@ -42,22 +42,34 @@ public final class DarkThemeUtils {
         if (ICON_CACHE.containsKey(name)) return ICON_CACHE.get(name);
 
         try {
-            // 1. Classpath core icons
-            URL url = DarkThemeUtils.class.getResource("/com/atomgdx/core/icons/" + name);
-            if (url == null) url = DarkThemeUtils.class.getResource("/com/atomgdx/theme/icons/" + name);
-            if (url == null) url = DarkThemeUtils.class.getResource("icons/" + name);
-            if (url != null) {
-                ImageIcon icon = new ImageIcon(url);
-                ICON_CACHE.put(name, icon);
-                return icon;
-            }
-
-            // 2. Direct Dev path fallback
+            // 1. Direct Dev path fallback
             File devFatcow = new File("G:/Dev/Resources/fatcow-master/16x16/" + name);
             if (devFatcow.exists()) {
-                ImageIcon icon = new ImageIcon(devFatcow.getAbsolutePath());
-                ICON_CACHE.put(name, icon);
-                return icon;
+                BufferedImage bImg = javax.imageio.ImageIO.read(devFatcow);
+                if (bImg != null) {
+                    ImageIcon icon = new ImageIcon(bImg);
+                    ICON_CACHE.put(name, icon);
+                    return icon;
+                }
+            }
+
+            // 2. Classpath core icons
+            URL[] urls = new URL[]{
+                    DarkThemeUtils.class.getResource("/com/atomgdx/core/ui/icons/" + name),
+                    DarkThemeUtils.class.getResource("/com/atomgdx/core/icons/" + name),
+                    DarkThemeUtils.class.getResource("/com/atomgdx/theme/icons/" + name),
+                    DarkThemeUtils.class.getResource("/com/atomgdx/editor/scene2d/ui/icons/" + name),
+                    DarkThemeUtils.class.getResource("icons/" + name)
+            };
+            for (URL u : urls) {
+                if (u != null) {
+                    BufferedImage bImg = javax.imageio.ImageIO.read(u);
+                    if (bImg != null) {
+                        ImageIcon icon = new ImageIcon(bImg);
+                        ICON_CACHE.put(name, icon);
+                        return icon;
+                    }
+                }
             }
         } catch (Throwable ignored) {}
 
@@ -81,15 +93,14 @@ public final class DarkThemeUtils {
         g2.setColor(c);
         g2.fillRoundRect(1, 1, 14, 14, 3, 3);
         g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 9));
-
-        String letter = name.substring(0, 1).toUpperCase();
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        String letter = !name.isEmpty() ? name.substring(0, 1).toUpperCase() : "*";
         FontMetrics fm = g2.getFontMetrics();
-        int x = (16 - fm.stringWidth(letter)) / 2;
-        int y = (16 - fm.getHeight()) / 2 + fm.getAscent();
-        g2.drawString(letter, x, y);
-
+        int tx = (16 - fm.stringWidth(letter)) / 2;
+        int ty = ((16 - fm.getHeight()) / 2) + fm.getAscent();
+        g2.drawString(letter, tx, ty);
         g2.dispose();
+
         return new ImageIcon(img);
     }
 
@@ -118,53 +129,47 @@ public final class DarkThemeUtils {
             tf.setBorder(new EmptyBorder(1, 2, 1, 2));
         }
         sp.setBorder(new LineBorder(BORDER, 1));
-        sp.setPreferredSize(new Dimension(55, 20));
         return sp;
     }
 
     public static JPanel createPropContainer(String label) {
         JPanel r = new JPanel(new BorderLayout(4, 0));
         r.setOpaque(false);
-        r.setMaximumSize(new Dimension(500, 22));
+        r.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
+        r.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lbl.setForeground(TEXT_SECONDARY);
-        lbl.setPreferredSize(new Dimension(75, 20));
+        lbl.setPreferredSize(new Dimension(58, 20));
+        lbl.setHorizontalAlignment(SwingConstants.RIGHT);
+        lbl.setBorder(new EmptyBorder(0, 0, 0, 4));
 
         r.add(lbl, BorderLayout.WEST);
         return r;
     }
 
     public static JPanel createVector2Row(String rowLabel, String l1, JSpinner sp1, String l2, JSpinner sp2) {
-        JPanel r = new JPanel(new BorderLayout(4, 0));
-        r.setOpaque(false);
-        r.setMaximumSize(new Dimension(500, 22));
+        JPanel r = createPropContainer(rowLabel);
 
-        JLabel lbl = new JLabel(rowLabel);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setForeground(TEXT_SECONDARY);
-        lbl.setPreferredSize(new Dimension(75, 20));
-
-        JPanel inputs = new JPanel(new GridLayout(1, 2, 6, 0));
+        JPanel inputs = new JPanel(new GridLayout(1, 2, 4, 0));
         inputs.setOpaque(false);
         inputs.add(createLabeledInputRow(l1, sp1, AXIS_X));
         inputs.add(createLabeledInputRow(l2, sp2, AXIS_Y));
 
-        r.add(lbl, BorderLayout.WEST);
         r.add(inputs, BorderLayout.CENTER);
         return r;
     }
 
     public static JPanel createLabeledInputRow(String label, JComponent input, Color labelColor) {
-        JPanel r = new JPanel(new BorderLayout(4, 0));
+        JPanel r = new JPanel(new BorderLayout(2, 0));
         r.setOpaque(false);
-        r.setMaximumSize(new Dimension(500, 22));
+        r.setMaximumSize(new Dimension(Integer.MAX_VALUE, 22));
 
         JLabel lbl = new JLabel(label);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lbl.setForeground(labelColor != null ? labelColor : TEXT_SECONDARY);
-        lbl.setPreferredSize(new Dimension(14, 20));
+        lbl.setPreferredSize(new Dimension(12, 20));
 
         r.add(lbl, BorderLayout.WEST);
         r.add(input, BorderLayout.CENTER);
@@ -176,16 +181,7 @@ public final class DarkThemeUtils {
     }
 
     public static JPanel createSinglePropRow(String label, JComponent input) {
-        JPanel r = new JPanel(new BorderLayout(4, 0));
-        r.setOpaque(false);
-        r.setMaximumSize(new Dimension(500, 22));
-
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        lbl.setForeground(TEXT_SECONDARY);
-        lbl.setPreferredSize(new Dimension(75, 20));
-
-        r.add(lbl, BorderLayout.WEST);
+        JPanel r = createPropContainer(label);
         r.add(input, BorderLayout.CENTER);
         return r;
     }
@@ -207,8 +203,8 @@ public final class DarkThemeUtils {
             JPanel header = new JPanel(new BorderLayout(4, 0));
             header.setBackground(BG_HEADER);
             header.setBorder(BorderFactory.createCompoundBorder(
-                    new LineBorder(BORDER, 1),
-                    new EmptyBorder(3, 6, 3, 6)
+                    new javax.swing.border.MatteBorder(1, 0, 1, 0, BORDER),
+                    new EmptyBorder(2, 4, 2, 4)
             ));
             header.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
@@ -269,6 +265,11 @@ public final class DarkThemeUtils {
             contentPanel.setVisible(isExpanded);
             revalidate();
             repaint();
+        }
+
+        @Override
+        public Dimension getMaximumSize() {
+            return new Dimension(Integer.MAX_VALUE, getPreferredSize().height);
         }
     }
 }

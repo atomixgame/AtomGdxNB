@@ -296,6 +296,12 @@ public class Scene3DEditorPanel extends JPanel {
         });
     }
 
+    public void setSelectedNode(Node3DVO node) {
+        if (viewportListener != null) {
+            viewportListener.setSelectedNode(node);
+        }
+    }
+
     @Override
     public Dimension getMinimumSize() {
         return new Dimension(0, 0);

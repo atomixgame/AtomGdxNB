@@ -56,21 +56,22 @@ public class SceneItemInspectorPanel extends JPanel {
 
         componentsContainer.setLayout(new BoxLayout(componentsContainer, BoxLayout.Y_AXIS));
         componentsContainer.setBackground(DarkThemeUtils.BG_DARK);
-        componentsContainer.setBorder(new EmptyBorder(2, 2, 2, 2));
+        componentsContainer.setBorder(null);
 
         // 1. Transform Component (Always present)
-        componentsContainer.add(createTransformSection());
-        componentsContainer.add(Box.createVerticalStrut(2));
+        CollapsibleSection transformSection = createTransformSection();
+        transformSection.setAlignmentX(Component.LEFT_ALIGNMENT);
+        componentsContainer.add(transformSection);
 
         // 2. Physics Component
         physicsSection = createPhysicsSection();
+        physicsSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(physicsSection);
-        componentsContainer.add(Box.createVerticalStrut(2));
 
         // 3. Lighting Component
         lightSection = createLightSection();
+        lightSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(lightSection);
-        componentsContainer.add(Box.createVerticalStrut(4));
 
         // 4. "+ Add Component" Button
         JButton addComponentBtn = new JButton("+ Add Component");
@@ -78,20 +79,21 @@ public class SceneItemInspectorPanel extends JPanel {
         addComponentBtn.setForeground(DarkThemeUtils.TEXT_PRIMARY);
         addComponentBtn.setFont(new Font("Segoe UI", Font.BOLD, 11));
         addComponentBtn.setFocusPainted(false);
-        addComponentBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addComponentBtn.setMaximumSize(new Dimension(280, 24));
         addComponentBtn.addActionListener(e -> showAddComponentPopup(addComponentBtn));
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 2));
+        JPanel btnPanel = new JPanel(new BorderLayout());
         btnPanel.setOpaque(false);
-        btnPanel.setMaximumSize(new Dimension(500, 28));
-        btnPanel.add(addComponentBtn);
+        btnPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
+        btnPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        btnPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnPanel.add(addComponentBtn, BorderLayout.CENTER);
         componentsContainer.add(btnPanel);
 
         componentsContainer.add(Box.createVerticalGlue());
 
         JScrollPane scrollPane = new JScrollPane(componentsContainer);
         scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getViewport().setBackground(DarkThemeUtils.BG_DARK);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
@@ -182,9 +184,7 @@ public class SceneItemInspectorPanel extends JPanel {
         content.setOpaque(false);
         content.setBorder(new EmptyBorder(2, 4, 4, 4));
 
-        JPanel topRow = new JPanel(new BorderLayout(4, 0));
-        topRow.setOpaque(false);
-        topRow.setMaximumSize(new Dimension(500, 22));
+        JPanel nameRow = DarkThemeUtils.createPropContainer("Name");
         nameField = DarkThemeUtils.createCompactTextField();
         nameField.addActionListener(e -> syncToItem());
 
@@ -199,9 +199,9 @@ public class SceneItemInspectorPanel extends JPanel {
             cb.addActionListener(e -> syncToItem());
             checks.add(cb);
         }
-        topRow.add(nameField, BorderLayout.CENTER);
-        topRow.add(checks, BorderLayout.EAST);
-        content.add(topRow);
+        nameRow.add(nameField, BorderLayout.CENTER);
+        nameRow.add(checks, BorderLayout.EAST);
+        content.add(nameRow);
         content.add(Box.createVerticalStrut(2));
 
         JPanel layerRow = DarkThemeUtils.createPropContainer("Layer");
@@ -248,8 +248,7 @@ public class SceneItemInspectorPanel extends JPanel {
         content.add(DarkThemeUtils.createVector2Row("Origin", "X", originXSpinner, "Y", originYSpinner));
         content.add(Box.createVerticalStrut(2));
 
-        zIndexSpinner = new JSpinner(new SpinnerNumberModel(0, -1000, 1000, 1));
-        zIndexSpinner.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        zIndexSpinner = DarkThemeUtils.createCompactSpinner(0f, -1000f, 1000f, 1f);
         zIndexSpinner.addChangeListener(e -> syncToItem());
         JPanel zRow = DarkThemeUtils.createPropContainer("Z-Index");
         zRow.add(zIndexSpinner, BorderLayout.CENTER);

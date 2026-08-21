@@ -1,0 +1,52 @@
+{
+  "asset": {
+    "version": "2.0",
+    "generator": "AtomGdx Studio 3D Pipeline - Forcefield Shield Bubble"
+  },
+  "scene": 0,
+  "scenes": [
+    { "nodes": [0] }
+  ],
+  "nodes": [
+    {
+      "name": "Forcefield Shield Bubble",
+      "mesh": 0,
+      "translation": [0.0, 0.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0]
+    }
+  ],
+  "meshes": [
+    {
+      "name": "energy_shield_bubble.gltf",
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "material": 0
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "energy_shield_bubble.gltf_PBR_Material",
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [0.35, 0.55, 0.95, 1.0],
+        "metallicFactor": 0.85,
+        "roughnessFactor": 0.25
+      }
+    }
+  ],
+  "extras": {
+    "modelName": "Forcefield Shield Bubble",
+    "meshCount": 1,
+    "vertexCount": 960,
+    "triangleCount": 640,
+    "source": "github.com/KhronosGroup/glTF-Sample-Models"
+  }
+}

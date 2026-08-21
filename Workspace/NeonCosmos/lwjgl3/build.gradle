@@ -1,0 +1,29 @@
+apply plugin: 'application'
+
+application {
+    mainClass = 'com.neon.cosmos.lwjgl3.Lwjgl3Launcher'
+}
+eclipse.project.name = appName + "-lwjgl3"
+
+dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+}
+
+sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+
+run {
+    workingDir = rootProject.file('assets')
+    ignoreExitValue = true
+    jvmArgs = [
+        "-Xms256m",
+        "-Xmx1024m",
+        "-Dfile.encoding=UTF-8"
+    ]
+    if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        jvmArgs += "-XstartOnFirstThread"
+    }
+}
+

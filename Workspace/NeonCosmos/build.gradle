@@ -1,0 +1,57 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://s01.oss.sonatype.org' }
+        gradlePluginPortal()
+        google()
+    }
+    dependencies {
+    }
+}
+
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+}
+
+configure(subprojects) {
+    apply plugin: 'java-library'
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.incremental = true
+    }
+    repositories {
+        mavenCentral()
+        maven { url 'https://s01.oss.sonatype.org' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+        maven { url 'https://jitpack.io' }
+    }
+}
+
+subprojects {
+    version = '1.0.0'
+    ext {
+        appName = 'NeonCosmos'
+        gdxVersion = project.hasProperty('gdxVersion') ? project.property('gdxVersion') : '1.13.1'
+        visUiVersion = project.hasProperty('visUiVersion') ? project.property('visUiVersion') : '1.5.3'
+        ashleyVersion = project.hasProperty('ashleyVersion') ? project.property('ashleyVersion') : '1.7.4'
+        aiVersion = project.hasProperty('aiVersion') ? project.property('aiVersion') : '1.8.2'
+    }
+}
+
+apply plugin: 'base'
+
+// Top-level run task that delegates to :lwjgl3:run
+tasks.register('run') {
+    group = 'application'
+    description = 'Runs the NeonCosmos desktop (LWJGL3) application.'
+    dependsOn ':lwjgl3:run'
+}
+
+
+

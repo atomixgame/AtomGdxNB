@@ -77,6 +77,24 @@
                 <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenNinePatchEditorAction"/>
                 <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/ninepatch.png"/>
             </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenTexturePackerAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenTexturePackerAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenTexturePackerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/ninepatch.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenFontGeneratorAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenFontGeneratorAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenFontGeneratorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/skin.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenParticle3DEditorAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenParticle3DEditorAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenParticle3DEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/particle.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenSceneEditorAction"/>
@@ -176,6 +194,18 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
                 <attr name="position" intvalue="500"/>
             </file>
+            <file name="TexturePackerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTexturePackerAction.instance"/>
+                <attr name="position" intvalue="520"/>
+            </file>
+            <file name="FontGeneratorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenFontGeneratorAction.instance"/>
+                <attr name="position" intvalue="540"/>
+            </file>
+            <file name="Particle3DEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticle3DEditorAction.instance"/>
+                <attr name="position" intvalue="560"/>
+            </file>
             <file name="SceneEditorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
                 <attr name="position" intvalue="600"/>
@@ -233,6 +263,18 @@
                 <file name="NinePatchEditorAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
                     <attr name="position" intvalue="500"/>
+                </file>
+                <file name="TexturePackerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTexturePackerAction.instance"/>
+                    <attr name="position" intvalue="520"/>
+                </file>
+                <file name="FontGeneratorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenFontGeneratorAction.instance"/>
+                    <attr name="position" intvalue="540"/>
+                </file>
+                <file name="Particle3DEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticle3DEditorAction.instance"/>
+                    <attr name="position" intvalue="560"/>
                 </file>
                 <file name="SceneEditorAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
@@ -317,6 +359,18 @@
             <file name="NinePatchEditorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenNinePatchEditorAction.instance"/>
                 <attr name="position" intvalue="500"/>
+            </file>
+            <file name="TexturePackerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTexturePackerAction.instance"/>
+                <attr name="position" intvalue="520"/>
+            </file>
+            <file name="FontGeneratorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenFontGeneratorAction.instance"/>
+                <attr name="position" intvalue="540"/>
+            </file>
+            <file name="Particle3DEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenParticle3DEditorAction.instance"/>
+                <attr name="position" intvalue="560"/>
             </file>
             <file name="SceneEditorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>

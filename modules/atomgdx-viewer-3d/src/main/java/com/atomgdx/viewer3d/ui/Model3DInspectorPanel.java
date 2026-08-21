@@ -60,36 +60,38 @@ public class Model3DInspectorPanel extends JPanel {
 
         componentsContainer.setLayout(new BoxLayout(componentsContainer, BoxLayout.Y_AXIS));
         componentsContainer.setBackground(DarkThemeUtils.BG_DARK);
-        componentsContainer.setBorder(new EmptyBorder(2, 2, 2, 2));
+        componentsContainer.setBorder(null);
 
         // 1. Transform Section (Always present)
-        componentsContainer.add(createTransformSection());
-        componentsContainer.add(Box.createVerticalStrut(2));
+        CollapsibleSection transformSection = createTransformSection();
+        transformSection.setAlignmentX(Component.LEFT_ALIGNMENT);
+        componentsContainer.add(transformSection);
 
         // 2. Mesh Section
         meshSection = createMeshSection();
+        meshSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(meshSection);
-        componentsContainer.add(Box.createVerticalStrut(2));
 
         // 3. Material Section
         materialSection = createMaterialSection();
+        materialSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(materialSection);
-        componentsContainer.add(Box.createVerticalStrut(2));
 
         // 4. Lighting Section
         lightSection = createLightSection();
+        lightSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(lightSection);
-        componentsContainer.add(Box.createVerticalStrut(2));
 
         // 5. Physics Section
         physicsSection = createPhysicsSection();
+        physicsSection.setAlignmentX(Component.LEFT_ALIGNMENT);
         componentsContainer.add(physicsSection);
-        componentsContainer.add(Box.createVerticalStrut(2));
 
         componentsContainer.add(Box.createVerticalGlue());
 
         JScrollPane scrollPane = new JScrollPane(componentsContainer);
         scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getViewport().setBackground(DarkThemeUtils.BG_DARK);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);

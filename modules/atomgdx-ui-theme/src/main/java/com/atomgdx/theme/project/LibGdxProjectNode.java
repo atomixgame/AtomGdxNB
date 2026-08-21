@@ -60,7 +60,7 @@ public class LibGdxProjectNode extends AbstractNode {
                 new AbstractAction("Run Desktop (LWJGL3)") {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        runGradleTask("lwjgl3:run", "Desktop (LWJGL3)");
+                        runGradleTask(":lwjgl3:run", "Desktop (LWJGL3)");
                     }
                 },
                 new AbstractAction("Run Web (TeaVM / HTML5)") {
@@ -359,7 +359,7 @@ public class LibGdxProjectNode extends AbstractNode {
             } else if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
                 openEditor(new Model3DViewerTopComponent(file));
             } else if (name.endsWith(".dt") || name.endsWith(".scene") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
-                openEditor(new Scene2DTopComponent());
+                openEditor(new Scene2DTopComponent(file));
             } else if (name.endsWith(".particle") || name.endsWith(".p")) {
                 openEditor(new Particle2DTopComponent());
             } else if (name.endsWith(".glsl") || name.endsWith(".frag") || name.endsWith(".vert")) {

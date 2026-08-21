@@ -3,6 +3,9 @@ package com.atomgdx.theme.windows;
 import com.atomgdx.core.project.LibGdxProject;
 import com.atomgdx.core.ui.DarkThemeUtils;
 import com.atomgdx.core.ui.DarkThemeUtils.CollapsibleSection;
+import com.atomgdx.editor.scene2d.data.vo.MainItemVO;
+import com.atomgdx.editor.scene2d.data.vo.SceneVO;
+import com.atomgdx.editor.scene2d.ui.SceneItemInspectorPanel;
 import com.atomgdx.viewer3d.Model3DDescriptor;
 import com.atomgdx.viewer3d.data.Material3DVO;
 import com.atomgdx.viewer3d.data.Node3DVO;
@@ -25,7 +28,7 @@ import java.io.File;
 
 /**
  * Universal Inspector TopComponent that reacts to global Lookup selections across
- * 3D Scenes, 3D GLTF/GLB Models, and Project Assets.
+ * 2D Scenes, 3D Scenes, 3D GLTF/GLB Models, and Project Assets.
  */
 @TopComponent.Description(preferredID = "InspectorTopComponent", iconBase = "com/atomgdx/theme/icons/inspector.png", persistenceType = TopComponent.PERSISTENCE_ALWAYS)
 @TopComponent.Registration(mode = "properties", openAtStartup = true)
@@ -42,6 +45,8 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
     private Lookup.Result<Object> lookupResult;
     private final JPanel wrapperPanel = new JPanel(new BorderLayout());
     private Model3DInspectorPanel inspector3D;
+    private SceneItemInspectorPanel inspector2D;
+    private Object currentlyInspected;
 
     public InspectorTopComponent() {
         setName(Bundle.CTL_InspectorTopComponent());
@@ -56,11 +61,30 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
         showEmptySelection();
     }
 
+    public void inspectSceneItem(MainItemVO item, SceneVO scene) {
+        if (item == null) {
+            showEmptySelection();
+            return;
+        }
+        this.currentlyInspected = item;
+        String displayName = item.itemIdentifier != null && !item.itemIdentifier.isEmpty() ? item.itemIdentifier : "Scene Item (2D)";
+        setName("Inspector - " + displayName);
+        wrapperPanel.removeAll();
+        if (inspector2D == null) {
+            inspector2D = new SceneItemInspectorPanel(scene);
+        }
+        inspector2D.setItem(item);
+        wrapperPanel.add(inspector2D, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
+    }
+
     public void inspectNode3D(Node3DVO node) {
         if (node == null) {
             showEmptySelection();
             return;
         }
+        this.currentlyInspected = node;
         setName("Inspector - " + node.nodeName);
         wrapperPanel.removeAll();
         if (inspector3D == null) {
@@ -77,6 +101,7 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
             showEmptySelection();
             return;
         }
+        this.currentlyInspected = desc;
         setName("Inspector - " + desc.getName());
         wrapperPanel.removeAll();
 
@@ -190,6 +215,7 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
             showEmptySelection();
             return;
         }
+        this.currentlyInspected = material;
         setName("Inspector - Material: " + material.materialName);
         wrapperPanel.removeAll();
 
@@ -209,6 +235,7 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
             showEmptySelection();
             return;
         }
+        this.currentlyInspected = project;
         setName("Inspector - Project: " + project.getName());
         wrapperPanel.removeAll();
 
@@ -241,9 +268,11 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
         wrapperPanel.repaint();
     }
 
-    private void showEmptySelection() {
-        setName("Inspector");
+    public void showEmptySelection() {
+        currentlyInspected = null;
+        setName(Bundle.CTL_InspectorTopComponent());
         wrapperPanel.removeAll();
+
         JPanel empty = new JPanel(new GridBagLayout());
         empty.setBackground(DarkThemeUtils.BG_DARK);
 
@@ -257,20 +286,70 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
         wrapperPanel.repaint();
     }
 
+    public Object getCurrentlyInspected() {
+        return currentlyInspected;
+    }
+
     @Override
     public void resultChanged(LookupEvent ev) {
-        if (lookupResult == null) return;
-        for (Object obj : lookupResult.allInstances()) {
-            if (obj instanceof Model3DDescriptor) {
+        Lookup.Result<?> res = (ev != null && ev.getSource() instanceof Lookup.Result) ? (Lookup.Result<?>) ev.getSource() : lookupResult;
+        if (res == null) return;
+        java.util.Collection<?> instances = res.allInstances();
+        
+        // Critical: When clicking input fields/spinners inside Inspector, focus shifts to Inspector,
+        // which makes global lookup empty. DO NOT wipe or reset the UI on empty lookup!
+        if (instances.isEmpty()) {
+            return;
+        }
+
+        int mainItemCount = 0;
+        int node3DCount = 0;
+        for (Object obj : instances) {
+            if (obj instanceof MainItemVO) mainItemCount++;
+            else if (obj instanceof Node3DVO) node3DCount++;
+        }
+
+        if (mainItemCount > 1) {
+            currentlyInspected = instances;
+            showMultiSelection(mainItemCount, "2D Scene Object");
+            return;
+        }
+
+        if (node3DCount > 1) {
+            currentlyInspected = instances;
+            showMultiSelection(node3DCount, "3D Game Object");
+            return;
+        }
+
+        for (Object obj : instances) {
+            if (obj == currentlyInspected) {
+                return; // Already actively inspecting this object, preserve UI focus and state
+            }
+            if (obj instanceof MainItemVO) {
+                currentlyInspected = obj;
+                SceneVO scene = null;
+                for (Object s : instances) {
+                    if (s instanceof SceneVO) {
+                        scene = (SceneVO) s;
+                        break;
+                    }
+                }
+                inspectSceneItem((MainItemVO) obj, scene);
+                return;
+            } else if (obj instanceof Model3DDescriptor) {
+                currentlyInspected = obj;
                 inspectModelDescriptor((Model3DDescriptor) obj);
                 return;
             } else if (obj instanceof Node3DVO) {
+                currentlyInspected = obj;
                 inspectNode3D((Node3DVO) obj);
                 return;
             } else if (obj instanceof Material3DVO) {
+                currentlyInspected = obj;
                 inspectMaterial((Material3DVO) obj);
                 return;
             } else if (obj instanceof File) {
+                currentlyInspected = obj;
                 File file = (File) obj;
                 String name = file.getName().toLowerCase();
                 if (name.endsWith(".gltf") || name.endsWith(".glb") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
@@ -280,11 +359,40 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
                 }
                 return;
             } else if (obj instanceof LibGdxProject) {
+                currentlyInspected = obj;
                 inspectProject((LibGdxProject) obj);
                 return;
             }
         }
-        showEmptySelection();
+    }
+
+    public void showMultiSelection(int count, String itemType) {
+        setName("Inspector (" + count + " Objects Selected)");
+        wrapperPanel.removeAll();
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(DarkThemeUtils.BG_DARK);
+        panel.setBorder(new EmptyBorder(8, 8, 8, 8));
+
+        JPanel banner = new JPanel(new BorderLayout(8, 0));
+        banner.setBackground(new Color(42, 36, 18));
+        banner.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(new Color(234, 179, 8), 1, true),
+                new EmptyBorder(8, 10, 8, 10)
+        ));
+
+        JLabel icon = new JLabel(DarkThemeUtils.getFatcowIcon("information.png"));
+        JLabel text = new JLabel("<html><b>Multiple " + itemType + "s Selected</b><br/><font color='#d1d5db' size='2'>Selected " + count + " items. Multi-object editing is not supported simultaneously.</font></html>");
+        text.setForeground(new Color(253, 224, 71));
+        text.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+
+        banner.add(icon, BorderLayout.WEST);
+        banner.add(text, BorderLayout.CENTER);
+
+        panel.add(banner, BorderLayout.NORTH);
+        wrapperPanel.add(panel, BorderLayout.CENTER);
+        wrapperPanel.revalidate();
+        wrapperPanel.repaint();
     }
 
     private JPanel createPropRow(String label, String value) {
@@ -308,6 +416,7 @@ public final class InspectorTopComponent extends TopComponent implements LookupL
     }
 
     private void inspectFileAsset(File file) {
+        this.currentlyInspected = file;
         wrapperPanel.removeAll();
         setName("Inspector - " + file.getName());
 

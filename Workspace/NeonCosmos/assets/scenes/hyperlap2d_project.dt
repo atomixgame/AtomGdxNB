@@ -1,0 +1,26 @@
+{
+"projectName": "NeonCosmos",
+"projectVersion": "0.2.0",
+"originalResolution": {
+	"name": "orig",
+	"width": 1920,
+	"height": 1080
+},
+"resolutions": [
+	{
+		"name": "mobile",
+		"width": 1280,
+		"height": 720
+	},
+	{
+		"name": "desktop_fhd",
+		"width": 1920,
+		"height": 1080
+	}
+],
+"scenes": [
+	"MainScene",
+	"BossStage"
+],
+"libraryItems": []
+}
