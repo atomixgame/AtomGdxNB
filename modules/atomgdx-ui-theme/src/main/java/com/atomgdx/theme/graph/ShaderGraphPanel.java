@@ -6,12 +6,19 @@ import java.awt.*;
 
 /**
  * Unity ShaderGraph / Blender style visual node shader editor panel.
+ * Features:
+ * - Anti-aliased blueprint dark grid
+ * - Live GLSL vertex & fragment shader code compilation
+ * - MiniView minimap overlay
+ * - Graph Settings ⚙ dialog
+ * - Auto-Layout (Sugiyama & Spring Force)
  */
 public class ShaderGraphPanel extends JPanel {
 
     private final VisualGraphDocument graph;
     private final AtomVisualGraphScene scene;
     private final JTextArea codePreviewArea = new JTextArea();
+    private final GraphMiniMapPanel miniMap;
 
     public ShaderGraphPanel() {
         this.graph = createDefaultShaderGraph();
@@ -30,11 +37,64 @@ public class ShaderGraphPanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 13));
         title.setForeground(new Color(0, 220, 255));
         toolbar.add(title);
-        toolbar.addSeparator(new Dimension(16, 20));
+        toolbar.addSeparator(new Dimension(14, 20));
 
         JButton addNodeBtn = new JButton("+ Add Node");
         addNodeBtn.addActionListener(e -> showAddNodeMenu(addNodeBtn));
         toolbar.add(addNodeBtn);
+
+        JButton layoutBtn = new JButton("⚡ Auto Layout");
+        layoutBtn.setToolTipText("Auto-arrange nodes hierarchically (Left-to-Right DAG)");
+        layoutBtn.addActionListener(e -> scene.autoLayoutHierarchical());
+        toolbar.add(layoutBtn);
+
+        JButton springBtn = new JButton("Organic Layout");
+        springBtn.setToolTipText("Auto-balance nodes using Force-Directed Spring simulation");
+        springBtn.addActionListener(e -> scene.autoLayoutSpringForce());
+        toolbar.add(springBtn);
+        toolbar.addSeparator(new Dimension(10, 20));
+
+        JToggleButton routingToggle = new JToggleButton("Spline Curves (~)", true);
+        routingToggle.addActionListener(e -> {
+            if (routingToggle.isSelected()) {
+                scene.setRoutingMode(AtomVisualGraphScene.RoutingMode.CUBIC_BEZIER_SPLINES);
+                routingToggle.setText("Spline Curves (~)");
+            } else {
+                scene.setRoutingMode(AtomVisualGraphScene.RoutingMode.ORTHOGONAL_RECTANGULAR);
+                routingToggle.setText("Rectangular (|_|)");
+            }
+        });
+        toolbar.add(routingToggle);
+
+        JButton settingsBtn = new JButton("Settings ⚙");
+        settingsBtn.addActionListener(e -> {
+            Frame frame = JOptionPane.getFrameForComponent(this);
+            GraphSettingsDialog dialog = new GraphSettingsDialog(frame, scene, null);
+            dialog.setVisible(true);
+        });
+        toolbar.add(settingsBtn);
+        toolbar.addSeparator(new Dimension(10, 20));
+
+        // Zoom Controls
+        JButton zoomInBtn = new JButton("+");
+        zoomInBtn.addActionListener(e -> scene.setZoomFactor(scene.getZoomFactor() * 1.2));
+        toolbar.add(zoomInBtn);
+
+        JButton zoomOutBtn = new JButton("-");
+        zoomOutBtn.addActionListener(e -> scene.setZoomFactor(scene.getZoomFactor() / 1.2));
+        toolbar.add(zoomOutBtn);
+
+        JButton zoomFitBtn = new JButton("Zoom Fit [ ]");
+        zoomFitBtn.addActionListener(e -> scene.zoomToFit());
+        toolbar.add(zoomFitBtn);
+
+        JButton zoomResetBtn = new JButton("100%");
+        zoomResetBtn.addActionListener(e -> scene.setZoomFactor(1.0));
+        toolbar.add(zoomResetBtn);
+        toolbar.addSeparator(new Dimension(10, 20));
+
+        JToggleButton miniMapToggle = new JToggleButton("MiniView", true);
+        toolbar.add(miniMapToggle);
 
         JButton compileBtn = new JButton("Compile to GLSL");
         compileBtn.setFont(new Font("Segoe UI", Font.BOLD, 11));
@@ -52,7 +112,26 @@ public class ShaderGraphPanel extends JPanel {
         split.setBorder(null);
 
         JComponent graphView = scene.createView();
-        split.setLeftComponent(new JScrollPane(graphView));
+        graphView.setBackground(new Color(24, 26, 31));
+
+        JScrollPane scrollPane = new JScrollPane(graphView);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(new Color(24, 26, 31));
+
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setLayout(new OverlayLayout(layeredPane));
+
+        miniMap = new GraphMiniMapPanel(scene, scrollPane);
+        miniMapToggle.addActionListener(e -> miniMap.setVisible(miniMapToggle.isSelected()));
+
+        JPanel miniMapWrapper = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 16));
+        miniMapWrapper.setOpaque(false);
+        miniMapWrapper.add(miniMap);
+
+        layeredPane.add(miniMapWrapper, JLayeredPane.PALETTE_LAYER);
+        layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
+
+        split.setLeftComponent(layeredPane);
 
         JPanel codePanel = new JPanel(new BorderLayout());
         codePanel.setBackground(new Color(22, 24, 28));
@@ -105,62 +184,64 @@ public class ShaderGraphPanel extends JPanel {
     }
 
     private void addNode(String title, String category, int colorRgb, PinType inType, PinType outType) {
-        String id = "node_" + System.currentTimeMillis();
-        NodeModel n = new NodeModel(id, title, category);
-        n.headerColorRgb = colorRgb;
-        n.posX = 150 + (int)(Math.random() * 200);
-        n.posY = 150 + (int)(Math.random() * 200);
+        NodeModel node = new NodeModel("node_" + System.currentTimeMillis(), title, category);
+        node.headerColorRgb = colorRgb;
+        node.posX = 150 + (int)(Math.random() * 200);
+        node.posY = 120 + (int)(Math.random() * 200);
         if (inType != null) {
-            n.addInput("inA", "A", inType);
-            n.addInput("inB", "B", inType);
+            node.addInput("inA", "A", inType);
+            node.addInput("inB", "B", inType);
         }
         if (outType != null) {
-            n.addOutput("out", "Out", outType);
+            node.addOutput("out", "Out", outType);
         }
-        graph.addNode(n);
-        scene.addNode(n);
+        graph.addNode(node);
+        scene.addNode(node);
         scene.validate();
+        compileGlsl();
     }
 
     private static VisualGraphDocument createDefaultShaderGraph() {
-        VisualGraphDocument doc = new VisualGraphDocument("PBR_Lit_Graph", VisualGraphDocument.GraphType.SHADER_GRAPH);
+        VisualGraphDocument doc = new VisualGraphDocument("Hologram_Shield_Shader", VisualGraphDocument.GraphType.SHADER_GRAPH);
 
-        // PBR Master Node
-        NodeModel master = new NodeModel("pbr_master", "PBR Master Stack", "Output");
-        master.headerColorRgb = 0xFFE11D48;
-        master.posX = 480;
-        master.posY = 100;
-        master.width = 180;
-        master.height = 180;
-        master.addInput("baseColor", "Base Color", PinType.VEC4_COLOR);
-        master.addInput("metallic", "Metallic", PinType.FLOAT);
-        master.addInput("roughness", "Roughness", PinType.FLOAT);
-        master.addInput("normal", "Normal", PinType.VEC3);
-        master.addInput("emission", "Emission", PinType.VEC4_COLOR);
-        doc.addNode(master);
-
-        // Texture Sampler Node
-        NodeModel texNode = new NodeModel("tex_sampler", "Sample Texture 2D", "Texture");
+        NodeModel texNode = new NodeModel("node_tex", "Sample Texture 2D", "Texture");
         texNode.headerColorRgb = 0xFF50FA7B;
-        texNode.posX = 120;
-        texNode.posY = 80;
-        texNode.addInput("uv", "UV Coord", PinType.VEC2);
+        texNode.posX = 80;
+        texNode.posY = 100;
+        texNode.addInput("uv", "UV", PinType.VEC2);
         texNode.addOutput("rgba", "RGBA", PinType.VEC4_COLOR);
-        texNode.addOutput("r", "R", PinType.FLOAT);
         doc.addNode(texNode);
 
-        // Noise Node
-        NodeModel noise = new NodeModel("noise_gen", "Perlin Noise", "Procedural");
-        noise.headerColorRgb = 0xFFFF79C6;
-        noise.posX = 120;
-        noise.posY = 240;
-        noise.addInput("uv", "UV Coord", PinType.VEC2);
-        noise.addOutput("out", "Noise Out", PinType.FLOAT);
-        doc.addNode(noise);
+        NodeModel noiseNode = new NodeModel("node_noise", "Voronoi Noise", "Procedural");
+        noiseNode.headerColorRgb = 0xFFFF79C6;
+        noiseNode.posX = 80;
+        noiseNode.posY = 280;
+        noiseNode.addInput("uv", "UV", PinType.VEC2);
+        noiseNode.addOutput("out", "Out", PinType.FLOAT);
+        doc.addNode(noiseNode);
 
-        // Connect texture to base color
-        doc.connect("tex_sampler", "rgba", "pbr_master", "baseColor");
-        doc.connect("noise_gen", "out", "pbr_master", "roughness");
+        NodeModel mulNode = new NodeModel("node_mul", "Multiply (*)", "Math");
+        mulNode.headerColorRgb = 0xFFBD93F9;
+        mulNode.posX = 380;
+        mulNode.posY = 140;
+        mulNode.addInput("inA", "Color A", PinType.VEC4_COLOR);
+        mulNode.addInput("inB", "Factor B", PinType.FLOAT);
+        mulNode.addOutput("out", "Out", PinType.VEC4_COLOR);
+        doc.addNode(mulNode);
+
+        NodeModel pbrMaster = new NodeModel("node_master", "PBR Master Output", "Master");
+        pbrMaster.headerColorRgb = 0xFFFF5555;
+        pbrMaster.posX = 680;
+        pbrMaster.posY = 120;
+        pbrMaster.addInput("albedo", "Albedo", PinType.VEC4_COLOR);
+        pbrMaster.addInput("metallic", "Metallic", PinType.FLOAT);
+        pbrMaster.addInput("roughness", "Roughness", PinType.FLOAT);
+        pbrMaster.addInput("emission", "Emission", PinType.VEC4_COLOR);
+        doc.addNode(pbrMaster);
+
+        doc.connect("node_tex", "rgba", "node_mul", "inA");
+        doc.connect("node_noise", "out", "node_mul", "inB");
+        doc.connect("node_mul", "out", "node_master", "albedo");
 
         return doc;
     }

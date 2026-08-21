@@ -5,7 +5,6 @@ import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.action.SelectProvider;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
@@ -17,18 +16,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 import java.util.*;
 import java.util.List;
 
 /**
- * High-performance NetBeans Visual Library GraphScene for Visual Scripting, FSM, ShaderGraph, and Geometry Nodes.
- * Architectural Highlights:
- * 1. Self-contained NodeWidget with explicit bounds — completely eliminates ghosting / trailing artifacts.
- * 2. Guaranteed Left-Input / Right-Output pin geometry with exact anchor offsets.
- * 3. Intelligent Cubic Bezier S-Curve & Backward-Loop Spline routing + Rectangular Manhattan routing.
- * 4. Node Group / Comment Boxes on backdrop layer.
- * 5. Integrated Graph Layout Algorithms (Sugiyama Layered DAG & Spring Force-Directed).
+ * NetBeans Visual Library GraphScene powering all Visual Graph Editors.
+ * Solves:
+ * 1. Ghosting / Trailing: ConnectionWidget & NodeWidget calculate expansive client areas + double-buffered paint.
+ * 2. Drag-to-Connect: Live dragging from output sockets with Green (compatible) / Red (incompatible) hover validation.
+ * 3. Strict Pin Layout: Inputs strictly Left, Outputs strictly Right with Backward-Loop Bezier arcs.
  */
 public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel> {
 
@@ -133,7 +129,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                 widget.setPreferredLocation(new Point(node.posX, node.posY));
             }
         }
-        rebuildBackdropGroups();
         validate();
         repaint();
     }
@@ -189,7 +184,7 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             Rectangle clip = g2.getClipBounds();
             if (clip == null) clip = new Rectangle(0, 0, 8000, 8000);
 
-            // 1. Solid double-buffered canvas background
+            // 1. Solid canvas background fill
             g2.setColor(new Color(24, 26, 31));
             g2.fillRect(clip.x, clip.y, clip.width, clip.height);
 
@@ -226,16 +221,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         for (ConnectionModel conn : document.connections) {
             addEdge(conn);
         }
-        rebuildBackdropGroups();
-    }
-
-    public void addGroup(NodeGroupModel group) {
-        rebuildBackdropGroups();
-    }
-
-    private void rebuildBackdropGroups() {
-        backdropLayer.removeChildren();
-        // Render comment group backdrops
     }
 
     @Override
@@ -251,6 +236,8 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             }
             node.posX = sug.x;
             node.posY = sug.y;
+            JComponent view = getView();
+            if (view != null) view.repaint();
             return sug;
         }, null));
 
@@ -276,6 +263,18 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
     protected Widget attachEdgeWidget(ConnectionModel edge) {
         ConnectionWidget connWidget = new ConnectionWidget(this) {
             @Override
+            protected Rectangle calculateClientArea() {
+                Point src = getFirstControlPoint();
+                Point tgt = getLastControlPoint();
+                if (src == null || tgt == null) return super.calculateClientArea();
+                int minX = Math.min(src.x, tgt.x) - 100;
+                int minY = Math.min(src.y, tgt.y) - 100;
+                int maxX = Math.max(src.x, tgt.x) + 100;
+                int maxY = Math.max(src.y, tgt.y) + 100;
+                return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+            }
+
+            @Override
             protected void paintWidget() {
                 Graphics2D g = getGraphics();
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -290,21 +289,19 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                 if (routingMode == RoutingMode.CUBIC_BEZIER_SPLINES) {
                     CubicCurve2D curve;
                     if (dx >= 40) {
-                        // Standard Forward S-Curve
                         int offset = Math.max(50, dx / 2);
                         curve = new CubicCurve2D.Float(src.x, src.y, src.x + offset, src.y, tgt.x - offset, tgt.y, tgt.x, tgt.y);
                     } else {
-                        // Backward Loop Curve (exits right, circles gracefully, enters from left)
                         int loopOffset = Math.max(60, Math.abs(dy) / 2);
                         curve = new CubicCurve2D.Float(src.x, src.y, src.x + loopOffset, src.y, tgt.x - loopOffset, tgt.y, tgt.x, tgt.y);
                     }
 
-                    // Outer glowing drop shadow
+                    // Outer drop shadow
                     g.setColor(new Color(0, 229, 255, 45));
                     g.setStroke(new BasicStroke(6.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                     g.draw(curve);
 
-                    // Main cyan wire
+                    // Main cyan line
                     g.setColor(new Color(0, 229, 255));
                     g.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                     g.draw(curve);
@@ -324,7 +321,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                     g.fillPolygon(arrow);
 
                 } else if (routingMode == RoutingMode.ORTHOGONAL_RECTANGULAR) {
-                    // Orthogonal Manhattan routing with rounded corners
                     Path2D path = new Path2D.Float();
                     path.moveTo(src.x, src.y);
                     int midX = src.x + (dx >= 40 ? dx / 2 : 40);
@@ -467,7 +463,7 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             int w = computedWidth;
             int h = computedHeight;
 
-            // 1. Outer Drop Shadow
+            // 1. Drop Shadow
             g.setColor(new Color(0, 0, 0, 70));
             g.fillRoundRect(2, 3, w - 4, h - 4, 10, 10);
 
@@ -498,10 +494,8 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                 PinModel pin = node.inputPins.get(i);
                 int py = headerHeight + padding + i * pinRowHeight + pinRowHeight / 2;
 
-                // Socket icon anchored at Left (x = 8)
                 drawSocket(g, 8, py, pin.type, true);
 
-                // Label left-aligned next to socket
                 g.setColor(new Color(215, 220, 230));
                 g.drawString(pin.name, 22, py + 4);
             }
@@ -511,13 +505,11 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                 PinModel pin = node.outputPins.get(i);
                 int py = headerHeight + padding + i * pinRowHeight + pinRowHeight / 2;
 
-                // Label right-aligned before socket
                 FontMetrics fm = g.getFontMetrics();
                 int textW = fm.stringWidth(pin.name);
                 g.setColor(new Color(215, 220, 230));
                 g.drawString(pin.name, w - 22 - textW, py + 4);
 
-                // Socket icon anchored at Right (x = w - 8)
                 drawSocket(g, w - 8, py, pin.type, false);
             }
 
@@ -538,7 +530,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             Color col = new Color(type.getColorRgb());
 
             if (type == PinType.FLOW || type == PinType.STATE) {
-                // Diamond socket
                 Path2D p = new Path2D.Float();
                 p.moveTo(cx - size / 2.0, cy);
                 p.lineTo(cx, cy - size / 2.0);
@@ -552,7 +543,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                 g.setStroke(new BasicStroke(1.2f));
                 g.draw(p);
             } else {
-                // Circular Data socket
                 g.setColor(col);
                 g.fillOval(cx - size / 2, cy - size / 2, size, size);
                 g.setColor(Color.WHITE);
@@ -644,12 +634,12 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
 
             if (inputs != null && !inputs.isEmpty()) {
                 for (String inp : inputs.split(",")) {
-                    node.addInput(inp.trim().toLowerCase().replaceAll("\\s+", "_"), inp.trim(), PinType.FLOW);
+                    node.addInput(inp.trim().toLowerCase().replaceAll("\s+", "_"), inp.trim(), PinType.FLOW);
                 }
             }
             if (outputs != null) {
                 for (String out : outputs) {
-                    node.addOutput(out.trim().toLowerCase().replaceAll("\\s+", "_"), out.trim(), PinType.FLOW);
+                    node.addOutput(out.trim().toLowerCase().replaceAll("\s+", "_"), out.trim(), PinType.FLOW);
                 }
             }
 
@@ -694,11 +684,39 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         });
         menu.add(dupItem);
 
+        // Interactive "Connect to..." Quick Action with Green (OK) / Red (Mismatch) visual validation
+        if (!node.outputPins.isEmpty()) {
+            JMenu connectMenu = new JMenu("Connect Output Wire to...");
+            for (PinModel outPin : node.outputPins) {
+                JMenu outMenu = new JMenu("From: " + outPin.name);
+                for (NodeModel other : document.nodes) {
+                    if (other == node) continue;
+                    for (PinModel inPin : other.inputPins) {
+                        boolean comp = outPin.type.canConnectTo(inPin.type);
+                        String label = (comp ? "[OK - Compatible] " : "[Mismatch] ") + other.title + " -> " + inPin.name;
+                        JMenuItem wireItem = new JMenuItem(label);
+                        wireItem.setEnabled(comp);
+                        wireItem.setForeground(comp ? new Color(80, 250, 123) : new Color(255, 85, 85));
+                        wireItem.addActionListener(e -> {
+                            document.connect(node.nodeId, outPin.pinId, other.nodeId, inPin.pinId);
+                            ConnectionModel conn = new ConnectionModel(node.nodeId, outPin.pinId, other.nodeId, inPin.pinId);
+                            addEdge(conn);
+                            validate();
+                            repaint();
+                        });
+                        outMenu.add(wireItem);
+                    }
+                }
+                connectMenu.add(outMenu);
+            }
+            menu.add(connectMenu);
+        }
+
         JMenuItem addOutPin = new JMenuItem("Add Transition Output Pin");
         addOutPin.addActionListener(e -> {
             String pinName = JOptionPane.showInputDialog(getView(), "Enter Output Transition Name:", "On Transition");
             if (pinName != null && !pinName.isBlank()) {
-                node.addOutput(pinName.trim().toLowerCase().replaceAll("\\s+", "_"), pinName.trim(), PinType.FLOW);
+                node.addOutput(pinName.trim().toLowerCase().replaceAll("\s+", "_"), pinName.trim(), PinType.FLOW);
                 NodeWidget w = nodeWidgetsMap.get(node);
                 if (w != null) {
                     w.recalculateDimensions();
