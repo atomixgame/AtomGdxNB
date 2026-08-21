@@ -149,6 +149,30 @@
                 <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenComponentRegistryAction"/>
                 <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/inspector.png"/>
             </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenShaderGraphAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenShaderGraphAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenShaderGraphAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/shader.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenVisualScriptingAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenVisualScriptingAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenVisualScriptingAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/settings.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenAnimatorControllerAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenAnimatorControllerAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenAnimatorControllerAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenGeometryNodesAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenGeometryNodesAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenGeometryNodesAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/model3d.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenAiCopilotAction"/>
@@ -278,6 +302,22 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
                 <attr name="position" intvalue="880"/>
             </file>
+            <file name="ShaderGraphAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderGraphAction.instance"/>
+                <attr name="position" intvalue="882"/>
+            </file>
+            <file name="VisualScriptingAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenVisualScriptingAction.instance"/>
+                <attr name="position" intvalue="884"/>
+            </file>
+            <file name="AnimatorControllerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAnimatorControllerAction.instance"/>
+                <attr name="position" intvalue="886"/>
+            </file>
+            <file name="GeometryNodesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenGeometryNodesAction.instance"/>
+                <attr name="position" intvalue="888"/>
+            </file>
             <file name="AiCopilotAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
                 <attr name="position" intvalue="900"/>
@@ -371,6 +411,22 @@
                 <file name="ComponentRegistryAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
                     <attr name="position" intvalue="880"/>
+                </file>
+                <file name="ShaderGraphAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenShaderGraphAction.instance"/>
+                    <attr name="position" intvalue="882"/>
+                </file>
+                <file name="VisualScriptingAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenVisualScriptingAction.instance"/>
+                    <attr name="position" intvalue="884"/>
+                </file>
+                <file name="AnimatorControllerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAnimatorControllerAction.instance"/>
+                    <attr name="position" intvalue="886"/>
+                </file>
+                <file name="GeometryNodesAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenGeometryNodesAction.instance"/>
+                    <attr name="position" intvalue="888"/>
                 </file>
                 <file name="AiCopilotAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
