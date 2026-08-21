@@ -24,6 +24,13 @@
   - [x] Orthogonal, Isometric Diamond (2:1), Isometric Staggered, Hexagonal Pointy/Flat grid rendering.
 - [x] **Unified Suite Verification (v0.2.10)**:
   - [x] JUnit unit tests for DeviceResolution, FontGenerator, and BuildConfigModel; Ant build verified.
+- [x] **TileMap Studio & Level Construction Engine (v0.2.11 - Unity & Tiled Parity)**:
+  - [x] 5 Grid layouts (Orthogonal, Isometric Diamond 2:1, Isometric Staggered, Hexagonal Pointy/Flat).
+  - [x] Multi-layer hierarchy (Tile Layer, Object Group Layer, Parallax Image Layer, Group Folders).
+  - [x] Unity-style Tile Palette (Zoom slider, tileset picker, Paint, Bucket, Eraser, Rect Fill, Line, Eyedropper, Marquee).
+  - [x] Smart Auto-Tiling (3x3 neighbor bitmask / Wang terrain sets) & Multi-frame Animated Tiles.
+  - [x] Box2D Collision generator with boundary contour merger (CompositeCollider2D).
+  - [x] Native LibGDX TMX XML Exporter/Importer compatible with `TmxMapLoader`.
 
 ---
 

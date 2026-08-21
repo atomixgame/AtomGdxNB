@@ -156,6 +156,13 @@ public class OpenWindowActions {
         }
     }
 
+    public static class OpenTilemapEditorAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new TilemapEditorTopComponent(), "editor");
+        }
+    }
+
     public static class OpenModel3DViewerAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

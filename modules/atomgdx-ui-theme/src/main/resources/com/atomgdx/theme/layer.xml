@@ -101,6 +101,12 @@
                 <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenSceneEditorAction"/>
                 <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene.png"/>
             </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenTilemapEditorAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenTilemapEditorAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenTilemapEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenModel3DViewerAction"/>
@@ -240,6 +246,10 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
                 <attr name="position" intvalue="600"/>
             </file>
+            <file name="TilemapEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTilemapEditorAction.instance"/>
+                <attr name="position" intvalue="620"/>
+            </file>
             <file name="Model3DViewerAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
                 <attr name="position" intvalue="700"/>
@@ -329,6 +339,10 @@
                 <file name="SceneEditorAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
                     <attr name="position" intvalue="600"/>
+                </file>
+                <file name="TilemapEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTilemapEditorAction.instance"/>
+                    <attr name="position" intvalue="620"/>
                 </file>
                 <file name="Model3DViewerAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>
@@ -445,6 +459,10 @@
             <file name="SceneEditorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenSceneEditorAction.instance"/>
                 <attr name="position" intvalue="600"/>
+            </file>
+            <file name="TilemapEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTilemapEditorAction.instance"/>
+                <attr name="position" intvalue="620"/>
             </file>
             <file name="Model3DViewerAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenModel3DViewerAction.instance"/>

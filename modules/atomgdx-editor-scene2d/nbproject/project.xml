@@ -20,6 +20,10 @@
                 <package>com.atomgdx.editor.scene2d.data.vo</package>
                 <package>com.atomgdx.editor.scene2d.runtime</package>
                 <package>com.atomgdx.editor.scene2d.ui</package>
+                <package>com.atomgdx.editor.scene2d.tilemap.data</package>
+                <package>com.atomgdx.editor.scene2d.tilemap.physics</package>
+                <package>com.atomgdx.editor.scene2d.tilemap.io</package>
+                <package>com.atomgdx.editor.scene2d.tilemap.ui</package>
             </public-packages>
         </data>
     </configuration>
