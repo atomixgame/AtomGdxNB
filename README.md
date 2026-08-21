@@ -27,22 +27,35 @@
 
 ## 🚀 Key Features
 
-- **🎮 2D Visual Game Development**:
+- **🎮 2D Visual Game Development & Level Construction**:
+  - **TileMap Studio (Unity & Tiled Parity)**: Orthogonal, Isometric Diamond (2:1), Isometric Staggered, Hexagonal Pointy/Flat grid rendering, Unity-style Tile Palette (9 Brush tools, auto-tiling rule tiles, animated tiles, Box2D composite collision merging, and LibGDX `TmxMapLoader` export).
+  - **Multi-Device Resolution Preview**: Responsive aspect letterboxing, orientation switcher (`↔`/`↕`), and safe-area notch/pill guides for iPhone 15, Pixel 8, Steam Deck, Switch, 1080p, 4K UHD.
   - **HyperLap2D Level Designer**: Edge-to-edge hardware OpenGL canvas (`LwjglAWTCanvas`), multi-layer rendering, composite entities, Box2D physics collider overlays, and dynamic 2D lighting with soft shadows.
   - **Unity-Style 2D Inspector**: Foldouts (`▼`/`▶`) for Transform, Box2D Rigidbody, Dynamic Light 2D, and `+ Add Component` menu.
-  - **SpriteSheet Editor & Image Viewer**: 1:1 Pixel Zoom, grid slicing, and live Animation Player with FPS spinner and timeline scrubber.
+  - **SpriteSheet Editor & Animation Player**: 1:1 Pixel Zoom, grid slicing, and live Animation Player with FPS spinner and timeline scrubber.
   - **Particle 2D Designer**: Curve editor with instant live presets (*Fireball Blast, Nebula Swarm, Toxic Spores, Cosmic Portal*).
   - **TexturePacker Studio**: Multi-directory atlas batch packing, whitespace trimming, and padding spinners.
   - **Bitmap & MSDF Font Studio**: TrueType/OpenType rasterization, signed distance field (SDF/MSDF) transforms, character presets, live sample testing, and GLSL distance-field shader exports.
   - **Skin Composer & 9-Patch Studio**: Scene2D / VisUI styling, Widget Styles manager, and interactive 9-patch border configuration.
 
-- **🪐 3D Visual Game Development**:
+- **🪐 3D Visual Game Development & Graphics Studio**:
   - **Native LibGDX 3D OpenGL Viewport**: Hardware rendering with `PerspectiveCamera`, `ModelBatch`, `ModelInstance`, `Environment`, and PBR directional/ambient lighting.
-  - **Orbit Camera**: Left-drag to orbit, right-drag to pan, mouse wheel to zoom, ground grid, and color-coded XYZ axes.
+  - **Interactive 3D Transform Gizmos**: Color-coded Translate arrows (RGB), Rotation gimbal rings, and Scale handles directly on the canvas.
+  - **PBR Material & Shader Studio**: Sliders for Albedo, Metallic, Roughness, Normal Map, AO, Emissive rim glow, Clearcoat, and live GLSL uniform preview.
+  - **Environment Lighting & HDRI Skybox Studio**: HDRI skybox presets, IBL diffuse/specular reflections, Sun Orbit Compass (Pitch/Yaw), dynamic shadows, and distance fog.
   - **3D SceneGraph Panel**: Hierarchical tree structure (`Scene Root` &rarr; `Environment` &rarr; `Camera` &rarr; `Spacecraft` &rarr; `Thruster Light`).
   - **3D GameObject Inspector**: 3D Transform (X, Y, Z), live Vertex/Triangle counts, PBR Materials (Metallic, Roughness, Opacity), and Bullet Physics 3D.
   - **3D Particle Flame Studio**: 3D flame particle system editor with emitter lifecycle manager, physics gravity influencers, and live 60 FPS simulation canvas.
   - **3D Asset Palette**: Primitives (*Cube, Sphere, Cylinder, Cone, Plane, Capsule*), Prefabs (*Spacecraft Fighter, Asteroid Rock, SciFi Turret, Energy Shield*), and Materials (*Metallic Gold, Brushed Steel, Neon Cyan, Hull Paint, Glass*).
+
+- **🎞️ Animation Timeline Studio**:
+  - Dope-sheet scrubber supporting 4 animation architectures: **Node Properties**, **Skeletal 2D (Spine/DragonBones)**, **Skeleton 3D (glTF Rig)**, and **SpriteFrames Ex (Paperdoll)**.
+  - Event markers with custom parameter payload inspector (Audio cues, string/int/float parameters).
+  - 60 FPS transport playback with speed multipliers (0.25x to 4.0x), keyframe easing curves (Linear, Step, Ease In/Out, Bounce, Elastic), and onion skinning.
+
+- **🧩 Ashley ECS Component Registry & Prefabs**:
+  - Introspects built-in engine components and generates custom Ashley ECS Java component classes.
+  - Reusable 2D & 3D entity prefab creation and scene instantiation.
 
 - **🎵 Audio & Media Studio**:
   - Real-time stereo waveform visualizer with active playhead animation.
@@ -52,21 +65,21 @@
   - Multi-provider LLM support (Google Gemini, Anthropic Claude, OpenAI, Ollama Local).
   - MCP Server exposing live scene graphs, material definitions, and project structure directly to AI agents.
 
-- **⚡ Project Engine & Multi-Platform Deployment**:
-  - **Liftoff Project Generator**: Desktop (LWJGL3), Android, Web (TeaVM/GWT), iOS (RoboVM).
-  - **One-Click Run**: "Run Desktop (LWJGL3)" executes `gradlew lwjgl3:run` with live output streaming to NetBeans Output window.
+- **⚡ Multi-Platform Build Configuration Matrix**:
+  - Targets: Desktop (LWJGL3), Android (APK/AAB), Web (TeaVM/GWT), iOS (RoboVM).
+  - Custom JVM profiles and live build execution streamed to NetBeans Output console.
 
 ---
 
-## 📸 Visual Verification Proofs
+## 📸 Screenshots & Feature Showcase
 
 | 3D SceneGraph & Palette | Native OpenGL 3D Viewport | Audio & Media Studio |
 | :---: | :---: | :---: |
-| [Proof](docs/assets/scenegraph_3d_palette_proof.png) | [Proof](docs/assets/model3d_opengl_gpu_proof.png) | [Proof](docs/assets/media_viewer_proof.png) |
+| ![3D SceneGraph](docs/assets/screenshot_scenegraph_3d_palette.png) | ![3D Viewport](docs/assets/screenshot_model3d_opengl_gpu.png) | ![Media Studio](docs/assets/screenshot_media_viewer.png) |
 
 | Unity-Style 2D Inspector | 2D Particle Designer | 2D Scene & Level Designer |
 | :---: | :---: | :---: |
-| [Proof](docs/assets/unity_inspector_spritesheet_proof.png) | [Proof](docs/assets/particle_editor_opengl_gpu_proof.png) | [Proof](docs/assets/hyperlap2d_opengl_gpu_proof.png) |
+| ![2D Inspector](docs/assets/screenshot_unity_inspector_spritesheet.png) | ![Particle Designer](docs/assets/screenshot_particle_editor_opengl_gpu.png) | ![2D Scene Designer](docs/assets/screenshot_hyperlap2d_opengl_gpu.png) |
 
 ---
 

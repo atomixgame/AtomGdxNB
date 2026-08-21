@@ -23,7 +23,7 @@
    - [Environment Lighting & HDRI Skybox Studio](#environment-lighting--hdri-skybox-studio)
    - [3D SceneGraph Hierarchy & Asset Palette](#3d-scenegraph-hierarchy--asset-palette)
    - [3D Particle Flame Studio](#3d-particle-flame-studio)
-5. [Timeline & Animation Player Studio](#5-timeline--animation-player-studio)
+5. [Timeline & Animation Player Studio (4 Animation Architectures)](#5-timeline--animation-player-studio-4-animation-architectures)
 6. [Ashley ECS Component Registry & Prefabs](#6-ashley-ecs-component-registry--prefabs)
 7. [Audio & Media Studio](#7-audio--media-studio)
 8. [Multi-Platform Build Configuration Matrix](#8-multi-platform-build-configuration-matrix)
@@ -101,44 +101,12 @@
   - Instant toggle between **Landscape** and **Portrait**.
   - Zoom scaling (25%, 50%, 75%, 100%, 150%, 200%, Fit to Canvas).
 
-### HyperLap2D Scene Designer & Hierarchy
-- **Fullscreen Canvas**: Real hardware OpenGL viewport using `LwjglAWTCanvas` without scrollbar dead space.
-- **Navigation**: Left-click drag to pan the infinite virtual canvas; mouse wheel to zoom in and out.
-- **Lighting & Physics**: Native rendering for Dynamic Point Lights with soft penumbra shadows and Box2D physics collider overlays.
-
-### Unity-Style 2D Inspector
-- **Collapsible Component Foldouts**:
-  - **Transform**: Position (X/Y), Scale (X/Y), Rotation, Origin (X/Y), Z-Index, Visibility, Lock state.
-  - **Box2D Rigidbody**: Body Type (*Static, Kinematic, Dynamic*), Density, Friction, Restitution, Sensor, Bullet (CCD).
-  - **Dynamic Light 2D**: Light Type (*POINT, CONE, DIRECTIONAL*), Rays, Distance, Soft Shadows, X-Ray.
-- **`+ Add Component` Button**: Dynamically attach Physics, Point Lights, or Particle Emitters to any selected entity.
-
-### SpriteSheet Editor & Animation Player
-- **Grid Slicing**: Configurable Frame Width, Frame Height, Rows, Columns, and 1:1 Pixel Zoom.
-- **Live Preview Player**: Interactive Play/Pause, FPS spinner (1–60 FPS), and timeline scrubber with frame index badges (`F1`, `F2`, ...).
-
-### 2D Particle Designer & Presets
-- **Particle Curves**: Full editing for Life, Scale, Velocity, Emission, Angle, and Color interpolation.
-- **Preset Library**: One-click application of *Fireball Blast, Nebula Swarm, Toxic Spores, Cosmic Portal*.
-
-### Bitmap & MSDF Font Studio
-- **Full Rasterizer**: Converts TrueType/OpenType (.ttf/.otf) fonts to `.png` texture atlases and `.fnt` descriptors.
-- **Multi-Channel Signed Distance Field (MSDF)**: Generates distance-field fonts that retain crisp edges at extreme zoom levels with GLSL distance-field fragment shader export.
-
-### VisUI Skin Composer & 9-Patch Slicer
-- **Skin Composer**: Scene2D / VisUI button styles, text fields, checkboxes, scrollbars, and dialog windows.
-- **9-Patch Editor**: Interactive visual drag handles to configure Left, Right, Top, Bottom stretchable borders.
-
 ---
 
 ## 4. 3D Game Development & Graphics Studio
 
 ### OpenGL 3D Viewport & Interactive Transform Gizmos
 - **Hardware Pipeline**: Real LibGDX 3D engine with `PerspectiveCamera`, `ModelBatch`, `ModelInstance`, `Environment`, `DirectionalLight`, and `AmbientLight`.
-- **Orbit Camera**:
-  - Left-drag: Orbit camera around target (Yaw / Pitch).
-  - Right-drag / Middle-drag: Pan camera laterally.
-  - Scroll wheel: Dolly zoom in / out.
 - **Interactive Transform Gizmos**:
   - Translate Gizmo: Red (X), Green (Y), Blue (Z) axis arrows.
   - Rotate Gizmo: Red, Green, Blue gimbal circles for Euler rotation.
@@ -162,24 +130,48 @@
 - **Directional Sun**: Live 2D Sun Orbit Compass controlling Sun Pitch, Sun Yaw, Color, and Intensity.
 - **Shadows & Fog**: Dynamic shadow map resolutions (512 to 4096) and distance fog simulation (Density, Near, Far, Color).
 
-### 3D SceneGraph Hierarchy & Asset Palette
-- **Palette Primitives**: Cube, Sphere, Cylinder, Cone, Plane, Capsule.
-- **Palette Prefabs**: Spacecraft Fighter, Asteroid Rock, SciFi Turret, Energy Shield.
-- **Palette Materials**: Metallic Gold, Brushed Steel, Neon Cyan, Hull Paint, Glass.
-
-### 3D Particle Flame Studio
-- 3D particle emitter system with physics gravity influencers, color gradients, velocity spreads, and 60 FPS OpenGL simulation canvas.
-
 ---
 
-## 5. Timeline & Animation Player Studio
+## 5. Timeline & Animation Player Studio (4 Animation Architectures)
 
-- **Dope-Sheet Scrubber**: Visual keyframe lane showing keyframe diamond markers (`◆`).
-- **Track Types**:
-  - Transform Tracks: `Position X`, `Position Y`, `Rotation`, `Scale X`, `Scale Y`, `Opacity`.
-  - Sprite Frame Tracks: Sequence of spritesheet animation frames.
-  - Event Trigger Tracks: Named audio or script triggers fired at specific timestamps.
-- **Transport Controls**: Jump to Start, Step Previous Keyframe, Play / Pause (60 FPS playback timer), Step Next Keyframe, Loop Playback Toggle.
+The Timeline Studio provides a professional Dope-Sheet & Animation Scrubber supporting 4 distinct animation architectures:
+
+### 1. 🎭 Node Properties Animations
+- Animate entity transform properties: `Position X/Y/Z`, `Rotation`, `Scale X/Y`, `Opacity`, `Color Tint`, and custom shader floats.
+- **Keyframe Easing Curves**:
+  - `Linear`: Constant rate of change.
+  - `Step`: Constant hold until next keyframe.
+  - `Ease In` / `Ease Out`: Smooth quadratic acceleration / deceleration.
+  - `Ease In-Out`: Smooth cubic bezier S-curve.
+  - `Bounce`: Realistic gravity rebound effect.
+  - `Elastic`: Damped spring oscillation.
+
+### 2. 🦴 Skeletal 2D Animations (Spine / DragonBones)
+- Full hierarchical bone trees: Root -> Torso -> Limbs -> Attachments.
+- Animate bone local rotation, translation, and IK weights.
+- Skin slot attachment swapping (e.g. swap sword skin for shield on specific keyframes).
+
+### 3. 💀 Skeleton 3D Animations (glTF / g3db Rig)
+- 3D joint quaternions, local translations, and bone hierarchy trees.
+- Morph Target / Blend Shape tracks (e.g. facial blend shapes `Smile`, `Blink`, `JawOpen`).
+- Root Motion extraction and clip blending.
+
+### 4. 🎞️ SpriteFrames & SpriteFrames Ex (Paperdoll Hierarchies)
+- Nested multi-part sprite hierarchies (Torso -> Head -> Armor -> Weapon Overlay) each with independent frame sequences and z-orders.
+- Playback modes: `Once`, `Loop`, `Ping-Pong`, `Reverse`.
+
+### ⚡ Timeline Events Management
+- Dedicated **Events Track** with pink flag markers (`▲`).
+- Add / edit custom named triggers:
+  - `String Parameter` (e.g. collider name or hit type)
+  - `Int / Float Parameter` (damage values or state codes)
+  - `Audio Cue SFX` (e.g. `audio/sfx/footstep_metal.ogg`)
+- Modal event inspector triggered via double-click on any event marker.
+
+### 🎮 Transport Controls & Playback
+- Speeds: `0.25x`, `0.5x`, `1.0x`, `1.5x`, `2.0x`, `4.0x`.
+- `🧅 Onion Skinning`: View ghost silhouettes of previous and upcoming animation frames.
+- `🧲 Snap to Grid`: Precision snapping to frame ticks based on target FPS (30, 60, 120 FPS).
 
 ---
 
