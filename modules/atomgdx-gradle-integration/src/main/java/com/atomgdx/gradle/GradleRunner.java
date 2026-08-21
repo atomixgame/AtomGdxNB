@@ -25,6 +25,15 @@ public class GradleRunner {
             List<String> extraArgs,
             OutputListener listener
     ) {
+        return executeTask(project, task.getTaskName(), extraArgs, listener);
+    }
+
+    public static CompletableFuture<Integer> executeTask(
+            LibGdxProject project,
+            String taskName,
+            List<String> extraArgs,
+            OutputListener listener
+    ) {
         return CompletableFuture.supplyAsync(() -> {
             File rootDir = project.getRootDirectory();
             boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
@@ -39,7 +48,7 @@ public class GradleRunner {
                 command.add(isWindows ? "gradle.bat" : "gradle");
             }
 
-            command.add(task.getTaskName());
+            command.add(taskName);
             if (extraArgs != null) {
                 command.addAll(extraArgs);
             }

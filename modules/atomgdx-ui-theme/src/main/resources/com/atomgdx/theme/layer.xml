@@ -113,6 +113,36 @@
                 <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenMediaViewerAction"/>
                 <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/media.png"/>
             </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenBuildConfigAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenBuildConfigAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenBuildConfigAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/settings.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenTimelineAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenTimelineAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenTimelineAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/media.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenMaterialEditorAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenMaterialEditorAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenMaterialEditorAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/shader.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenLightingEnvironmentAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenLightingEnvironmentAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenLightingEnvironmentAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/scene.png"/>
+            </file>
+            <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenComponentRegistryAction"/>
+                <attr name="displayName" bundlevalue="com.atomgdx.theme.Bundle#CTL_OpenComponentRegistryAction"/>
+                <attr name="iconBase" stringvalue="com/atomgdx/theme/icons/inspector.png"/>
+            </file>
             <file name="com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance">
                 <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" newvalue="com.atomgdx.theme.actions.OpenWindowActions$OpenAiCopilotAction"/>
@@ -218,6 +248,26 @@
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
                 <attr name="position" intvalue="800"/>
             </file>
+            <file name="BuildConfigAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenBuildConfigAction.instance"/>
+                <attr name="position" intvalue="820"/>
+            </file>
+            <file name="TimelineAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTimelineAction.instance"/>
+                <attr name="position" intvalue="840"/>
+            </file>
+            <file name="MaterialEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMaterialEditorAction.instance"/>
+                <attr name="position" intvalue="860"/>
+            </file>
+            <file name="LightingEnvironmentAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenLightingEnvironmentAction.instance"/>
+                <attr name="position" intvalue="870"/>
+            </file>
+            <file name="ComponentRegistryAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
+                <attr name="position" intvalue="880"/>
+            </file>
             <file name="AiCopilotAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
                 <attr name="position" intvalue="900"/>
@@ -287,6 +337,26 @@
                 <file name="MediaViewerAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
                     <attr name="position" intvalue="800"/>
+                </file>
+                <file name="BuildConfigAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenBuildConfigAction.instance"/>
+                    <attr name="position" intvalue="820"/>
+                </file>
+                <file name="TimelineAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTimelineAction.instance"/>
+                    <attr name="position" intvalue="840"/>
+                </file>
+                <file name="MaterialEditorAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMaterialEditorAction.instance"/>
+                    <attr name="position" intvalue="860"/>
+                </file>
+                <file name="LightingEnvironmentAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenLightingEnvironmentAction.instance"/>
+                    <attr name="position" intvalue="870"/>
+                </file>
+                <file name="ComponentRegistryAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
+                    <attr name="position" intvalue="880"/>
                 </file>
                 <file name="AiCopilotAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>
@@ -383,6 +453,26 @@
             <file name="MediaViewerAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMediaViewerAction.instance"/>
                 <attr name="position" intvalue="800"/>
+            </file>
+            <file name="BuildConfigAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenBuildConfigAction.instance"/>
+                <attr name="position" intvalue="820"/>
+            </file>
+            <file name="TimelineAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenTimelineAction.instance"/>
+                <attr name="position" intvalue="840"/>
+            </file>
+            <file name="MaterialEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenMaterialEditorAction.instance"/>
+                <attr name="position" intvalue="860"/>
+            </file>
+            <file name="LightingEnvironmentAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenLightingEnvironmentAction.instance"/>
+                <attr name="position" intvalue="870"/>
+            </file>
+            <file name="ComponentRegistryAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenComponentRegistryAction.instance"/>
+                <attr name="position" intvalue="880"/>
             </file>
             <file name="AiCopilotAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/LibGDX/com-atomgdx-theme-actions-OpenWindowActions$OpenAiCopilotAction.instance"/>

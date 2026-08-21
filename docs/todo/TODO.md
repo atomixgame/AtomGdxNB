@@ -2,24 +2,36 @@
 
 ## Active Milestone: v0.2.0 (In Progress)
 
-### High Priority v0.2.0 Tasks
-- [ ] **Feature/Concept: Device, Resolution & ScreenMode Preview**:
-  - [ ] Add Preview Canvas dropdown to select device presets (iPhone 15, Pixel 8, iPad Pro, 1080p FHD, Steam Deck, Custom).
-  - [ ] Adapt layout immediately on resolution change with aspect ratio letterboxing and safe-area notch overlay.
-  - [ ] Orientation switcher (Landscape / Portrait).
-- [ ] **Build & Build Configurations**:
-  - [ ] Connect targets (Desktop LWJGL3, Android APK/AAB, Web TeaVM/GWT, iOS RoboVM) to Gradle build parameters and flavor profiles.
-- [ ] **Timeline & Animations Studio**:
-  - [ ] Create `TimelineTopComponent` with dope-sheet track view.
-  - [ ] Playback control toolbar (Play, Pause, Step, Loop, Scrubber) for 2D spritesheet frames and 3D glTF skeletal animations.
-- [ ] **PBR Material & Environment Lighting Studio**:
-  - [ ] Create `MaterialEditorTopComponent` with live shader linkage.
-  - [ ] Create `LightingEnvironmentTopComponent` with HDRI skybox IBL reflections, ambient light, and sun shadow controls.
-- [ ] **Ashley ECS Component Registry & Prefabs**:
-  - [ ] Create `ComponentRegistryTopComponent` to inspect available components via code introspection.
-  - [ ] Prefab asset workflow and scene instantiation.
-- [ ] **3D Interactive Gizmos**:
-  - [ ] Interactive 3D Translate (arrows), Rotate (rings), and Scale (boxes) gizmos directly on the OpenGL canvas.
+### Completed v0.2.0 Deliverables (v0.2.1 -> v0.2.10)
+- [x] **Feature/Concept: Device, Resolution & ScreenMode Preview (v0.2.1)**:
+  - [x] Add Preview Canvas dropdown to select device presets (iPhone 15, Pixel 8, iPad Pro, 1080p FHD, Steam Deck, Custom).
+  - [x] Adapt layout immediately on resolution change with aspect ratio letterboxing and safe-area notch overlay.
+  - [x] Orientation switcher (Landscape / Portrait).
+- [x] **Build & Build Configurations (v0.2.2)**:
+  - [x] Connect targets (Desktop LWJGL3, Android APK/AAB, Web TeaVM/GWT, iOS RoboVM) to Gradle build parameters and flavor profiles.
+- [x] **Timeline & Animations Studio (v0.2.3)**:
+  - [x] Create `TimelineTopComponent` with dope-sheet track view.
+  - [x] Playback control toolbar (Play, Pause, Step, Loop, Scrubber) for 2D spritesheet frames and 3D glTF skeletal animations.
+- [x] **PBR Material & Environment Lighting Studio (v0.2.4 & v0.2.5)**:
+  - [x] Create `MaterialEditorTopComponent` with live shader linkage.
+  - [x] Create `LightingEnvironmentTopComponent` with HDRI skybox IBL reflections, ambient light, and sun shadow controls.
+- [x] **Ashley ECS Component Registry & Prefabs (v0.2.6 & v0.2.7)**:
+  - [x] Create `ComponentRegistryTopComponent` to inspect available components via code introspection.
+  - [x] Prefab asset workflow and scene instantiation.
+- [x] **3D Interactive Gizmos (v0.2.8)**:
+  - [x] Interactive 3D Translate (arrows), Rotate (rings), and Scale (boxes) gizmos directly on the OpenGL canvas.
+- [x] **2D Isometric & Hexagonal Tilemap Grids (v0.2.9)**:
+  - [x] Orthogonal, Isometric Diamond (2:1), Isometric Staggered, Hexagonal Pointy/Flat grid rendering.
+- [x] **Unified Suite Verification (v0.2.10)**:
+  - [x] JUnit unit tests for DeviceResolution, FontGenerator, and BuildConfigModel; Ant build verified.
+
+---
+
+## Upcoming Roadmap: v0.3.0
+
+- [ ] **Visual Shader Graph Editor**: Node-based shader graph editor producing LibGDX GLSL shaders.
+- [ ] **State Machine & Visual Scripting Graph**: Node-based state machine for AI entity behaviors and dialogue flow.
+- [ ] **Asset Bundle Manager**: Asset bundle packing, compression, and OTA dynamic content download system.
 
 ---
 

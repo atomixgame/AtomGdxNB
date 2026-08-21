@@ -61,7 +61,7 @@ public class Scene2DEditorPanel extends JPanel {
         setLayout(new BorderLayout(0, 0));
         setBackground(DarkThemeColors.BG_WINDOW);
 
-        // Center Viewport powered by LibGDX LwjglAWTCanvas
+        // Center Viewport powered by LibGDX LwjglAWTCanvas & Device Resolution Manager
         viewportListener = new Scene2DViewportListener(this.scene);
         gdxViewport = new GdxAwtViewport(viewportListener);
         gdxViewport.setBorder(null);
@@ -69,11 +69,12 @@ public class Scene2DEditorPanel extends JPanel {
         // Setup Viewport Mouse Controls
         setupCanvasInteractions();
 
-        // Top Toolbar
+        // Top Toolbar & Device Resolution Wrapper
         JToolBar toolBar = createToolBar();
+        com.atomgdx.core.viewport.DeviceViewportContainer deviceContainer = new com.atomgdx.core.viewport.DeviceViewportContainer(gdxViewport);
 
         add(toolBar, BorderLayout.NORTH);
-        add(gdxViewport, BorderLayout.CENTER);
+        add(deviceContainer, BorderLayout.CENTER);
 
         // Select first item by default
         if (!this.scene.composite.sImages.isEmpty()) {

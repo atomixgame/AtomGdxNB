@@ -170,6 +170,41 @@ public class OpenWindowActions {
         }
     }
 
+    public static class OpenBuildConfigAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new BuildConfigTopComponent(), "editor");
+        }
+    }
+
+    public static class OpenTimelineAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new TimelineTopComponent(), "output");
+        }
+    }
+
+    public static class OpenMaterialEditorAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new MaterialEditorTopComponent(), "editor");
+        }
+    }
+
+    public static class OpenLightingEnvironmentAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new LightingEnvironmentTopComponent(), "editor");
+        }
+    }
+
+    public static class OpenComponentRegistryAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            openTopComponent(new ComponentRegistryTopComponent(), "explorer");
+        }
+    }
+
     public static class OpenAiCopilotAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {

@@ -54,9 +54,10 @@ public class Scene3DEditorPanel extends JPanel {
 
         // Top Scene Editor Toolbar with Icon-Only buttons and tooltips
         JToolBar toolbar = createSceneEditorToolBar();
+        com.atomgdx.core.viewport.DeviceViewportContainer deviceContainer = new com.atomgdx.core.viewport.DeviceViewportContainer(gdxViewport);
 
         add(toolbar, BorderLayout.NORTH);
-        add(gdxViewport, BorderLayout.CENTER);
+        add(deviceContainer, BorderLayout.CENTER);
     }
 
     public Scene3DVO getScene() {
