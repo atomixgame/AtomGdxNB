@@ -2,7 +2,6 @@ package com.atomgdx.theme.graph;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -10,12 +9,13 @@ import java.awt.*;
 /**
  * Visual Scripting & Finite State Machine (FSM) Editor (Unreal Blueprints / PlayMaker style).
  * Features:
- * - Anti-aliased blueprint dark grid background with zero ghosting
- * - Split-column nodes with properly aligned input/output sockets
- * - Smooth Cubic Bezier Splines / Rectangular wire routing
+ * - Anti-aliased blueprint dark grid with zero ghosting / zero trailing
+ * - Split-column nodes with Left-Inputs and Right-Outputs
+ * - Smooth Cubic Bezier Splines / Rectangular wire routing with Backward Loop Handling
+ * - Graph Auto-Layout (Sugiyama Hierarchical DAG & Spring Force-Directed)
+ * - Graph Settings Dialog for wire tension and snapping
  * - Interactive MiniMap / MiniView overlay
  * - Right-click context menus for canvas, nodes, and transitions
- * - Zoom to fit, grid snapping, and node search filtering
  * - 1-Click LibGDX Java State Machine Code Generator
  */
 public class VisualScriptingPanel extends JPanel {
@@ -79,7 +79,25 @@ public class VisualScriptingPanel extends JPanel {
             updateStatus();
         });
         toolbar.add(addActionBtn);
-        toolbar.addSeparator(new Dimension(12, 20));
+        toolbar.addSeparator(new Dimension(10, 20));
+
+        // Auto Layout Dropdown / Button
+        JButton layoutBtn = new JButton("⚡ Auto Layout");
+        layoutBtn.setToolTipText("Auto-arrange nodes hierarchically (Left-to-Right DAG)");
+        layoutBtn.addActionListener(e -> {
+            scene.autoLayoutHierarchical();
+            updateStatus();
+        });
+        toolbar.add(layoutBtn);
+
+        JButton springBtn = new JButton("Organic Layout");
+        springBtn.setToolTipText("Auto-balance nodes using Force-Directed Spring simulation");
+        springBtn.addActionListener(e -> {
+            scene.autoLayoutSpringForce();
+            updateStatus();
+        });
+        toolbar.add(springBtn);
+        toolbar.addSeparator(new Dimension(10, 20));
 
         // Wire Routing Mode Toggle
         JToggleButton routingToggle = new JToggleButton("Spline Curves (~)", true);
@@ -96,15 +114,16 @@ public class VisualScriptingPanel extends JPanel {
         });
         toolbar.add(routingToggle);
 
-        // Grid Snap Toggle
-        JToggleButton snapToggle = new JToggleButton("Grid Snap (16px)", true);
-        snapToggle.setToolTipText("Toggle 16px Grid Snapping");
-        snapToggle.addActionListener(e -> {
-            scene.setGridSnapEnabled(snapToggle.isSelected());
-            snapToggle.setText(snapToggle.isSelected() ? "Grid Snap (16px)" : "Grid Snap (Off)");
+        // Settings Dialog Button
+        JButton settingsBtn = new JButton("Settings ⚙");
+        settingsBtn.setToolTipText("Open Wire Routing & Grid Settings Dialog");
+        settingsBtn.addActionListener(e -> {
+            Frame frame = JOptionPane.getFrameForComponent(this);
+            GraphSettingsDialog dialog = new GraphSettingsDialog(frame, scene, this::updateStatus);
+            dialog.setVisible(true);
         });
-        toolbar.add(snapToggle);
-        toolbar.addSeparator(new Dimension(12, 20));
+        toolbar.add(settingsBtn);
+        toolbar.addSeparator(new Dimension(10, 20));
 
         // Zoom Controls
         JButton zoomInBtn = new JButton("+");
@@ -138,7 +157,7 @@ public class VisualScriptingPanel extends JPanel {
             updateStatus();
         });
         toolbar.add(zoomResetBtn);
-        toolbar.addSeparator(new Dimension(12, 20));
+        toolbar.addSeparator(new Dimension(10, 20));
 
         // MiniMap Toggle
         JToggleButton miniMapToggle = new JToggleButton("MiniView", true);
@@ -176,7 +195,6 @@ public class VisualScriptingPanel extends JPanel {
         scrollPane.setBorder(null);
         scrollPane.getViewport().setBackground(new Color(24, 26, 31));
 
-        // Create layered container for MiniMap overlay
         JLayeredPane layeredPane = new JLayeredPane();
         layeredPane.setLayout(new OverlayLayout(layeredPane));
 
@@ -201,7 +219,7 @@ public class VisualScriptingPanel extends JPanel {
         statusLabel.setForeground(new Color(160, 170, 185));
         statusBar.add(statusLabel, BorderLayout.WEST);
 
-        JLabel hintLabel = new JLabel("Right-click canvas to spawn nodes | Right-click nodes/wires to edit | Scroll to zoom");
+        JLabel hintLabel = new JLabel("Right-click canvas to spawn nodes | Drag to connect | Auto-Layout to tidy");
         hintLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         hintLabel.setForeground(new Color(120, 130, 145));
         statusBar.add(hintLabel, BorderLayout.EAST);
@@ -277,7 +295,7 @@ public class VisualScriptingPanel extends JPanel {
 
         NodeModel chase = new NodeModel("state_chase", "State: Chase_Target", "State");
         chase.headerColorRgb = 0xFFFF5555;
-        chase.posX = 380;
+        chase.posX = 400;
         chase.posY = 100;
         chase.addInput("enter", "Enter", PinType.FLOW);
         chase.addOutput("inAttackRange", "In Attack Range", PinType.FLOW);
@@ -286,7 +304,7 @@ public class VisualScriptingPanel extends JPanel {
 
         NodeModel attack = new NodeModel("state_attack", "State: Melee_Attack", "State");
         attack.headerColorRgb = 0xFFBD93F9;
-        attack.posX = 680;
+        attack.posX = 720;
         attack.posY = 100;
         attack.addInput("enter", "Enter", PinType.FLOW);
         attack.addOutput("onAnimDone", "On Attack Finished", PinType.FLOW);
@@ -294,7 +312,7 @@ public class VisualScriptingPanel extends JPanel {
 
         NodeModel action = new NodeModel("act_audio", "Play Audio SFX", "Action");
         action.headerColorRgb = 0xFF50FA7B;
-        action.posX = 380;
+        action.posX = 400;
         action.posY = 320;
         action.addInput("exec", "Exec", PinType.FLOW);
         action.addInput("clip", "Clip Name", PinType.STRING);

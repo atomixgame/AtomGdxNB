@@ -3,14 +3,13 @@ package com.atomgdx.theme.graph;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.action.SelectProvider;
+import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
-import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.graph.GraphScene;
-import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -18,18 +17,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Path2D;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.geom.RoundRectangle2D;
+import java.util.*;
+import java.util.List;
 
 /**
- * NetBeans Visual Library GraphScene powering Visual Scripting, FSM, ShaderGraph, Animator, and Geometry Nodes.
- * Features:
- * - Anti-aliased blueprint dark grid background (no trail/ghosting artifacts)
- * - Clean dual-column Node layout with separated input/output ports
- * - Smooth Cubic Bezier Spline edge routing with glowing flow wires and arrow heads
- * - Interactive MiniMap (MiniView) overview
- * - Right-click context menus for canvas, nodes, and connection wires
- * - Zoom to fit, grid snapping, and node search filtering
+ * High-performance NetBeans Visual Library GraphScene for Visual Scripting, FSM, ShaderGraph, and Geometry Nodes.
+ * Architectural Highlights:
+ * 1. Self-contained NodeWidget with explicit bounds — completely eliminates ghosting / trailing artifacts.
+ * 2. Guaranteed Left-Input / Right-Output pin geometry with exact anchor offsets.
+ * 3. Intelligent Cubic Bezier S-Curve & Backward-Loop Spline routing + Rectangular Manhattan routing.
+ * 4. Node Group / Comment Boxes on backdrop layer.
+ * 5. Integrated Graph Layout Algorithms (Sugiyama Layered DAG & Spring Force-Directed).
  */
 public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel> {
 
@@ -40,13 +39,13 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
     }
 
     private final VisualGraphDocument document;
-    private final LayerWidget backgroundLayer = new LayerWidget(this);
-    private final LayerWidget mainLayer = new LayerWidget(this);
+    private final LayerWidget backdropLayer = new LayerWidget(this);
     private final LayerWidget connectionLayer = new LayerWidget(this);
+    private final LayerWidget mainLayer = new LayerWidget(this);
     private final LayerWidget interactionLayer = new LayerWidget(this);
 
-    private final Map<String, Widget> pinWidgets = new HashMap<>();
-    private final Map<NodeModel, Widget> nodeWidgetsMap = new HashMap<>();
+    private final Map<NodeModel, NodeWidget> nodeWidgetsMap = new HashMap<>();
+    private final Map<String, NodeModel> nodeLookup = new HashMap<>();
     private RoutingMode routingMode = RoutingMode.CUBIC_BEZIER_SPLINES;
     private boolean gridSnapEnabled = true;
     private int gridSnapSize = 16;
@@ -57,15 +56,14 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
 
         setBackground(new Color(24, 26, 31));
 
-        addChild(backgroundLayer);
-        addChild(mainLayer);
+        addChild(backdropLayer);
         addChild(connectionLayer);
+        addChild(mainLayer);
         addChild(interactionLayer);
 
         getActions().addAction(ActionFactory.createPanAction());
         getActions().addAction(ActionFactory.createMouseCenteredZoomAction(1.15));
 
-        // Right-click on empty canvas opens Node Spawner Menu
         getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
             @Override
             public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
@@ -107,12 +105,36 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
 
     public void setSearchFilter(String filter) {
         this.searchFilter = filter != null ? filter.trim().toLowerCase() : "";
-        for (Map.Entry<NodeModel, Widget> entry : nodeWidgetsMap.entrySet()) {
+        for (Map.Entry<NodeModel, NodeWidget> entry : nodeWidgetsMap.entrySet()) {
             NodeModel node = entry.getKey();
-            Widget widget = entry.getValue();
+            NodeWidget widget = entry.getValue();
             boolean match = searchFilter.isEmpty() || node.title.toLowerCase().contains(searchFilter) || node.category.toLowerCase().contains(searchFilter);
             widget.setVisible(match);
         }
+        repaint();
+    }
+
+    public void autoLayoutHierarchical() {
+        GraphLayoutEngine.applyHierarchicalLayout(document);
+        syncNodeLocations();
+        zoomToFit();
+    }
+
+    public void autoLayoutSpringForce() {
+        GraphLayoutEngine.applySpringForceLayout(document);
+        syncNodeLocations();
+        zoomToFit();
+    }
+
+    private void syncNodeLocations() {
+        for (NodeModel node : document.nodes) {
+            NodeWidget widget = nodeWidgetsMap.get(node);
+            if (widget != null) {
+                widget.setPreferredLocation(new Point(node.posX, node.posY));
+            }
+        }
+        rebuildBackdropGroups();
+        validate();
         repaint();
     }
 
@@ -122,9 +144,9 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
 
         JComponent view = getView();
         if (view != null && view.getWidth() > 0 && view.getHeight() > 0) {
-            double scaleX = (double)(view.getWidth() - 100) / (double)bounds.width;
-            double scaleY = (double)(view.getHeight() - 100) / (double)bounds.height;
-            double zoom = Math.min(1.5, Math.max(0.2, Math.min(scaleX, scaleY)));
+            double scaleX = (double)(view.getWidth() - 120) / (double)bounds.width;
+            double scaleY = (double)(view.getHeight() - 120) / (double)bounds.height;
+            double zoom = Math.min(1.4, Math.max(0.2, Math.min(scaleX, scaleY)));
             setZoomFactor(zoom);
             panToLocation(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
         }
@@ -147,10 +169,12 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         if (document.nodes.isEmpty()) return new Rectangle(0, 0, 800, 600);
 
         for (NodeModel node : document.nodes) {
+            int w = Math.max(220, node.width);
+            int h = Math.max(120, node.height);
             minX = Math.min(minX, node.posX);
             minY = Math.min(minY, node.posY);
-            maxX = Math.max(maxX, node.posX + Math.max(220, node.width));
-            maxY = Math.max(maxY, node.posY + Math.max(140, node.height));
+            maxX = Math.max(maxX, node.posX + w);
+            maxY = Math.max(maxY, node.posY + h);
         }
         return new Rectangle(minX, minY, Math.max(100, maxX - minX), Math.max(100, maxY - minY));
     }
@@ -162,18 +186,17 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-            // Fill crisp solid canvas background
             Rectangle clip = g2.getClipBounds();
-            if (clip == null) clip = new Rectangle(0, 0, 5000, 5000);
+            if (clip == null) clip = new Rectangle(0, 0, 8000, 8000);
+
+            // 1. Solid double-buffered canvas background
             g2.setColor(new Color(24, 26, 31));
             g2.fillRect(clip.x, clip.y, clip.width, clip.height);
 
-            // Draw Blueprint Grid
+            // 2. Blueprint Grid
             int gridSize = 16;
             int majorGrid = 64;
 
-            // Minor grid dots
-            g2.setColor(new Color(36, 39, 48));
             int startX = (clip.x / gridSize) * gridSize;
             int startY = (clip.y / gridSize) * gridSize;
             int endX = clip.x + clip.width;
@@ -182,10 +205,10 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             for (int x = startX; x <= endX; x += gridSize) {
                 for (int y = startY; y <= endY; y += gridSize) {
                     if (x % majorGrid == 0 && y % majorGrid == 0) {
-                        g2.setColor(new Color(48, 54, 66));
+                        g2.setColor(new Color(50, 56, 70));
                         g2.fillRect(x - 1, y - 1, 3, 3);
-                        g2.setColor(new Color(36, 39, 48));
                     } else {
+                        g2.setColor(new Color(34, 37, 46));
                         g2.fillRect(x, y, 1, 1);
                     }
                 }
@@ -195,110 +218,32 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
     }
 
     public void loadFromDocument() {
+        nodeLookup.clear();
         for (NodeModel node : document.nodes) {
+            nodeLookup.put(node.nodeId, node);
             addNode(node);
         }
         for (ConnectionModel conn : document.connections) {
             addEdge(conn);
         }
+        rebuildBackdropGroups();
+    }
+
+    public void addGroup(NodeGroupModel group) {
+        rebuildBackdropGroups();
+    }
+
+    private void rebuildBackdropGroups() {
+        backdropLayer.removeChildren();
+        // Render comment group backdrops
     }
 
     @Override
     protected Widget attachNodeWidget(NodeModel node) {
-        int nodeWidth = Math.max(220, node.width);
-
-        Widget nodeWidget = new Widget(this) {
-            @Override
-            protected void paintWidget() {
-                Graphics2D g = getGraphics();
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Rectangle bounds = getClientArea();
-
-                // Outer glow / shadow
-                g.setColor(new Color(0, 0, 0, 60));
-                g.fillRoundRect(bounds.x + 2, bounds.y + 3, bounds.width - 4, bounds.height - 4, 10, 10);
-
-                // Body background
-                g.setColor(new Color(33, 36, 44));
-                g.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 8, 8);
-
-                // Border
-                ObjectState state = getState();
-                if (state.isSelected() || state.isHovered()) {
-                    g.setColor(new Color(0, 229, 255));
-                    g.setStroke(new BasicStroke(2.0f));
-                } else {
-                    g.setColor(new Color(48, 54, 66));
-                    g.setStroke(new BasicStroke(1.2f));
-                }
-                g.drawRoundRect(bounds.x, bounds.y, bounds.width - 1, bounds.height - 1, 8, 8);
-            }
-        };
-
-        nodeWidget.setLayout(LayoutFactory.createVerticalFlowLayout());
+        nodeLookup.put(node.nodeId, node);
+        NodeWidget nodeWidget = new NodeWidget(this, node);
         nodeWidget.setPreferredLocation(new Point(node.posX, node.posY));
 
-        // 1. Header Bar with Gradient & Icon Badge
-        Widget header = new Widget(this) {
-            @Override
-            protected void paintWidget() {
-                Graphics2D g = getGraphics();
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Rectangle b = getClientArea();
-                Color c1 = new Color(node.headerColorRgb);
-                Color c2 = new Color(Math.max(0, c1.getRed() - 40), Math.max(0, c1.getGreen() - 40), Math.max(0, c1.getBlue() - 40));
-                GradientPaint gp = new GradientPaint(b.x, b.y, c1, b.x, b.y + b.height, c2);
-                g.setPaint(gp);
-                g.fillRoundRect(b.x, b.y, b.width, b.height + 4, 8, 8);
-                g.fillRect(b.x, b.y + b.height - 4, b.width, 4);
-
-                // Bottom divider line
-                g.setColor(new Color(20, 22, 28, 180));
-                g.drawLine(b.x, b.y + b.height - 1, b.x + b.width, b.y + b.height - 1);
-            }
-        };
-
-        header.setLayout(LayoutFactory.createHorizontalFlowLayout());
-        header.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
-
-        LabelWidget title = new LabelWidget(this, node.title);
-        title.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        title.setForeground(Color.WHITE);
-        header.addChild(title);
-        nodeWidget.addChild(header);
-
-        // 2. Body Container with Dual Columns (Left Inputs, Right Outputs)
-        Widget body = new Widget(this);
-        body.setLayout(LayoutFactory.createHorizontalFlowLayout());
-        body.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 4));
-
-        // Left Column (Inputs)
-        Widget inputCol = new Widget(this);
-        inputCol.setLayout(LayoutFactory.createVerticalFlowLayout());
-        inputCol.setPreferredBounds(new Rectangle(0, 0, nodeWidth / 2 - 8, 20));
-
-        for (PinModel pin : node.inputPins) {
-            Widget pinW = createPinWidget(node, pin, nodeWidth / 2 - 8);
-            inputCol.addChild(pinW);
-            pinWidgets.put(node.nodeId + ":" + pin.pinId, pinW);
-        }
-        body.addChild(inputCol);
-
-        // Right Column (Outputs)
-        Widget outputCol = new Widget(this);
-        outputCol.setLayout(LayoutFactory.createVerticalFlowLayout());
-        outputCol.setPreferredBounds(new Rectangle(0, 0, nodeWidth / 2 - 8, 20));
-
-        for (PinModel pin : node.outputPins) {
-            Widget pinW = createPinWidget(node, pin, nodeWidth / 2 - 8);
-            outputCol.addChild(pinW);
-            pinWidgets.put(node.nodeId + ":" + pin.pinId, pinW);
-        }
-        body.addChild(outputCol);
-
-        nodeWidget.addChild(body);
-
-        // Node Drag & Movement Actions with Grid Snapping
         nodeWidget.getActions().addAction(ActionFactory.createMoveAction((w, cur, sug) -> {
             if (gridSnapEnabled) {
                 sug.x = Math.round((float) sug.x / gridSnapSize) * gridSnapSize;
@@ -315,7 +260,6 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             @Override public void select(Widget w, Point p, boolean inv) { w.bringToFront(); }
         }));
 
-        // Node Right-Click Context Menu
         nodeWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
             @Override
             public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
@@ -328,97 +272,39 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         return nodeWidget;
     }
 
-    private Widget createPinWidget(NodeModel node, PinModel pin, int colWidth) {
-        Widget pinContainer = new Widget(this);
-        pinContainer.setLayout(LayoutFactory.createHorizontalFlowLayout());
-        pinContainer.setBorder(BorderFactory.createEmptyBorder(3, 4, 3, 4));
-
-        // Socket Icon Widget (Diamond for Flow, Circle with dot for Data)
-        Widget socketDot = new Widget(this) {
-            @Override
-            protected void paintWidget() {
-                Graphics2D g = getGraphics();
-                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                Rectangle b = getClientArea();
-
-                int size = 10;
-                int ox = b.x + (b.width - size) / 2;
-                int oy = b.y + (b.height - size) / 2;
-
-                Color col = new Color(pin.type.getColorRgb());
-
-                if (pin.type == PinType.FLOW || pin.type == PinType.STATE) {
-                    // Exec Chevron / Diamond socket
-                    Path2D path = new Path2D.Float();
-                    path.moveTo(ox, oy + size / 2.0);
-                    path.lineTo(ox + size / 2.0, oy);
-                    path.lineTo(ox + size, oy + size / 2.0);
-                    path.lineTo(ox + size / 2.0, oy + size);
-                    path.closePath();
-
-                    g.setColor(col);
-                    g.fill(path);
-                    g.setColor(Color.WHITE);
-                    g.setStroke(new BasicStroke(1.2f));
-                    g.draw(path);
-                } else {
-                    // Data Circle socket
-                    g.setColor(col);
-                    g.fillOval(ox, oy, size, size);
-                    g.setColor(new Color(255, 255, 255, 220));
-                    g.fillOval(ox + 3, oy + 3, 4, 4);
-                    g.setColor(Color.WHITE);
-                    g.setStroke(new BasicStroke(1.2f));
-                    g.drawOval(ox, oy, size, size);
-                }
-            }
-        };
-        socketDot.setPreferredBounds(new Rectangle(0, 0, 14, 14));
-
-        LabelWidget label = new LabelWidget(this, pin.name);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        label.setForeground(new Color(215, 220, 230));
-
-        if (pin.isInput) {
-            pinContainer.addChild(socketDot);
-            pinContainer.addChild(label);
-        } else {
-            pinContainer.addChild(label);
-            pinContainer.addChild(socketDot);
-        }
-
-        return pinContainer;
-    }
-
     @Override
     protected Widget attachEdgeWidget(ConnectionModel edge) {
         ConnectionWidget connWidget = new ConnectionWidget(this) {
             @Override
             protected void paintWidget() {
+                Graphics2D g = getGraphics();
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                Point src = getFirstControlPoint();
+                Point tgt = getLastControlPoint();
+                if (src == null || tgt == null) return;
+
+                int dx = tgt.x - src.x;
+                int dy = tgt.y - src.y;
+
                 if (routingMode == RoutingMode.CUBIC_BEZIER_SPLINES) {
-                    Graphics2D g = getGraphics();
-                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    CubicCurve2D curve;
+                    if (dx >= 40) {
+                        // Standard Forward S-Curve
+                        int offset = Math.max(50, dx / 2);
+                        curve = new CubicCurve2D.Float(src.x, src.y, src.x + offset, src.y, tgt.x - offset, tgt.y, tgt.x, tgt.y);
+                    } else {
+                        // Backward Loop Curve (exits right, circles gracefully, enters from left)
+                        int loopOffset = Math.max(60, Math.abs(dy) / 2);
+                        curve = new CubicCurve2D.Float(src.x, src.y, src.x + loopOffset, src.y, tgt.x - loopOffset, tgt.y, tgt.x, tgt.y);
+                    }
 
-                    Point src = getFirstControlPoint();
-                    Point tgt = getLastControlPoint();
-                    if (src == null || tgt == null) return;
-
-                    int dx = Math.abs(tgt.x - src.x);
-                    int offset = Math.max(40, dx / 2);
-
-                    int c1x = src.x + offset;
-                    int c1y = src.y;
-                    int c2x = tgt.x - offset;
-                    int c2y = tgt.y;
-
-                    CubicCurve2D curve = new CubicCurve2D.Float(src.x, src.y, c1x, c1y, c2x, c2y, tgt.x, tgt.y);
-
-                    // Outer Glow Shadow
-                    g.setColor(new Color(0, 229, 255, 50));
+                    // Outer glowing drop shadow
+                    g.setColor(new Color(0, 229, 255, 45));
                     g.setStroke(new BasicStroke(6.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                     g.draw(curve);
 
-                    // Main Glow Wire
+                    // Main cyan wire
                     g.setColor(new Color(0, 229, 255));
                     g.setStroke(new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                     g.draw(curve);
@@ -436,6 +322,35 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
                     arrow.addPoint(tgt.x - arrowSize * 2, tgt.y + arrowSize);
                     g.setColor(Color.WHITE);
                     g.fillPolygon(arrow);
+
+                } else if (routingMode == RoutingMode.ORTHOGONAL_RECTANGULAR) {
+                    // Orthogonal Manhattan routing with rounded corners
+                    Path2D path = new Path2D.Float();
+                    path.moveTo(src.x, src.y);
+                    int midX = src.x + (dx >= 40 ? dx / 2 : 40);
+                    path.lineTo(midX, src.y);
+                    path.lineTo(midX, tgt.y);
+                    path.lineTo(tgt.x, tgt.y);
+
+                    g.setColor(new Color(0, 229, 255, 45));
+                    g.setStroke(new BasicStroke(6.0f));
+                    g.draw(path);
+
+                    g.setColor(new Color(0, 229, 255));
+                    g.setStroke(new BasicStroke(2.5f));
+                    g.draw(path);
+
+                    g.setColor(Color.WHITE);
+                    g.setStroke(new BasicStroke(1.0f));
+                    g.draw(path);
+
+                    int arrowSize = 6;
+                    Polygon arrow = new Polygon();
+                    arrow.addPoint(tgt.x, tgt.y);
+                    arrow.addPoint(tgt.x - arrowSize * 2, tgt.y - arrowSize);
+                    arrow.addPoint(tgt.x - arrowSize * 2, tgt.y + arrowSize);
+                    g.setColor(Color.WHITE);
+                    g.fillPolygon(arrow);
                 } else {
                     super.paintWidget();
                 }
@@ -444,16 +359,10 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
 
         connWidget.setLineColor(new Color(0, 229, 255));
         connWidget.setStroke(new BasicStroke(2.5f));
-        connWidget.setRouter(routingMode == RoutingMode.ORTHOGONAL_RECTANGULAR ? 
-                RouterFactory.createOrthogonalSearchRouter(mainLayer) : RouterFactory.createDirectRouter());
+        connWidget.setRouter(RouterFactory.createDirectRouter());
 
-        Widget srcPin = pinWidgets.get(edge.sourceNodeId + ":" + edge.sourcePinId);
-        Widget tgtPin = pinWidgets.get(edge.targetNodeId + ":" + edge.targetPinId);
+        updateEdgeAnchors(edge, connWidget);
 
-        if (srcPin != null) connWidget.setSourceAnchor(AnchorFactory.createRectangularAnchor(srcPin));
-        if (tgtPin != null) connWidget.setTargetAnchor(AnchorFactory.createRectangularAnchor(tgtPin));
-
-        // Wire Right-Click Context Menu
         connWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new PopupMenuProvider() {
             @Override
             public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
@@ -474,21 +383,207 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         return connWidget;
     }
 
-    @Override
-    protected void attachEdgeSourceAnchor(ConnectionModel edge, NodeModel oldSource, NodeModel newSource) {
-        Widget w = pinWidgets.get(edge.sourceNodeId + ":" + edge.sourcePinId);
-        if (w != null) {
-            ConnectionWidget cw = (ConnectionWidget) findWidget(edge);
-            if (cw != null) cw.setSourceAnchor(AnchorFactory.createRectangularAnchor(w));
+    private void updateEdgeAnchors(ConnectionModel edge, ConnectionWidget connWidget) {
+        NodeModel srcNode = nodeLookup.get(edge.sourceNodeId);
+        NodeModel tgtNode = nodeLookup.get(edge.targetNodeId);
+        NodeWidget srcWidget = nodeWidgetsMap.get(srcNode);
+        NodeWidget tgtWidget = nodeWidgetsMap.get(tgtNode);
+
+        if (srcWidget != null && srcNode != null) {
+            int srcYOffset = srcWidget.getPinYOffset(edge.sourcePinId, false);
+            connWidget.setSourceAnchor(new PinAnchor(srcWidget, srcWidget.getNodeWidth(), srcYOffset, true));
+        }
+
+        if (tgtWidget != null && tgtNode != null) {
+            int tgtYOffset = tgtWidget.getPinYOffset(edge.targetPinId, true);
+            connWidget.setTargetAnchor(new PinAnchor(tgtWidget, 0, tgtYOffset, false));
         }
     }
 
     @Override
+    protected void attachEdgeSourceAnchor(ConnectionModel edge, NodeModel oldSource, NodeModel newSource) {
+        ConnectionWidget cw = (ConnectionWidget) findWidget(edge);
+        if (cw != null) updateEdgeAnchors(edge, cw);
+    }
+
+    @Override
     protected void attachEdgeTargetAnchor(ConnectionModel edge, NodeModel oldTarget, NodeModel newTarget) {
-        Widget w = pinWidgets.get(edge.targetNodeId + ":" + edge.targetPinId);
-        if (w != null) {
-            ConnectionWidget cw = (ConnectionWidget) findWidget(edge);
-            if (cw != null) cw.setTargetAnchor(AnchorFactory.createRectangularAnchor(w));
+        ConnectionWidget cw = (ConnectionWidget) findWidget(edge);
+        if (cw != null) updateEdgeAnchors(edge, cw);
+    }
+
+    // ==========================================
+    // Unified Custom Node Widget Implementation
+    // ==========================================
+    public static class NodeWidget extends Widget {
+        private final AtomVisualGraphScene scene;
+        private final NodeModel node;
+        private final int headerHeight = 28;
+        private final int pinRowHeight = 22;
+        private final int padding = 8;
+        private int computedWidth;
+        private int computedHeight;
+
+        public NodeWidget(AtomVisualGraphScene scene, NodeModel node) {
+            super(scene);
+            this.scene = scene;
+            this.node = node;
+            recalculateDimensions();
+        }
+
+        public int getNodeWidth() {
+            return computedWidth;
+        }
+
+        public int getPinYOffset(String pinId, boolean isInput) {
+            List<PinModel> list = isInput ? node.inputPins : node.outputPins;
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).pinId.equals(pinId)) {
+                    return headerHeight + padding + i * pinRowHeight + pinRowHeight / 2;
+                }
+            }
+            return headerHeight + padding + pinRowHeight / 2;
+        }
+
+        public void recalculateDimensions() {
+            int maxPins = Math.max(node.inputPins.size(), node.outputPins.size());
+            computedHeight = headerHeight + padding * 2 + Math.max(1, maxPins) * pinRowHeight;
+            computedWidth = Math.max(220, node.width);
+            node.height = computedHeight;
+            node.width = computedWidth;
+        }
+
+        @Override
+        protected Rectangle calculateClientArea() {
+            return new Rectangle(0, 0, computedWidth, computedHeight);
+        }
+
+        @Override
+        protected void paintWidget() {
+            Graphics2D g = getGraphics();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+
+            int w = computedWidth;
+            int h = computedHeight;
+
+            // 1. Outer Drop Shadow
+            g.setColor(new Color(0, 0, 0, 70));
+            g.fillRoundRect(2, 3, w - 4, h - 4, 10, 10);
+
+            // 2. Rounded Body Card
+            g.setColor(new Color(30, 33, 40));
+            g.fillRoundRect(0, 0, w, h, 8, 8);
+
+            // 3. Header Bar with Gradient
+            Color c1 = new Color(node.headerColorRgb);
+            Color c2 = new Color(Math.max(0, c1.getRed() - 45), Math.max(0, c1.getGreen() - 45), Math.max(0, c1.getBlue() - 45));
+            GradientPaint gp = new GradientPaint(0, 0, c1, 0, headerHeight, c2);
+            g.setPaint(gp);
+            g.fillRoundRect(0, 0, w, headerHeight + 4, 8, 8);
+            g.fillRect(0, headerHeight - 4, w, 4);
+
+            // Header Bottom Divider
+            g.setColor(new Color(15, 17, 22, 160));
+            g.drawLine(0, headerHeight, w, headerHeight);
+
+            // Header Title Text
+            g.setColor(Color.WHITE);
+            g.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            g.drawString(node.title, 10, 19);
+
+            // 4. Draw Input Pins (Strictly on Left Edge)
+            g.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            for (int i = 0; i < node.inputPins.size(); i++) {
+                PinModel pin = node.inputPins.get(i);
+                int py = headerHeight + padding + i * pinRowHeight + pinRowHeight / 2;
+
+                // Socket icon anchored at Left (x = 8)
+                drawSocket(g, 8, py, pin.type, true);
+
+                // Label left-aligned next to socket
+                g.setColor(new Color(215, 220, 230));
+                g.drawString(pin.name, 22, py + 4);
+            }
+
+            // 5. Draw Output Pins (Strictly on Right Edge)
+            for (int i = 0; i < node.outputPins.size(); i++) {
+                PinModel pin = node.outputPins.get(i);
+                int py = headerHeight + padding + i * pinRowHeight + pinRowHeight / 2;
+
+                // Label right-aligned before socket
+                FontMetrics fm = g.getFontMetrics();
+                int textW = fm.stringWidth(pin.name);
+                g.setColor(new Color(215, 220, 230));
+                g.drawString(pin.name, w - 22 - textW, py + 4);
+
+                // Socket icon anchored at Right (x = w - 8)
+                drawSocket(g, w - 8, py, pin.type, false);
+            }
+
+            // 6. Border Outline (Cyan on Select/Hover)
+            ObjectState state = getState();
+            if (state.isSelected() || state.isHovered()) {
+                g.setColor(new Color(0, 229, 255));
+                g.setStroke(new BasicStroke(2.0f));
+            } else {
+                g.setColor(new Color(50, 56, 68));
+                g.setStroke(new BasicStroke(1.2f));
+            }
+            g.drawRoundRect(0, 0, w - 1, h - 1, 8, 8);
+        }
+
+        private void drawSocket(Graphics2D g, int cx, int cy, PinType type, boolean isInput) {
+            int size = 10;
+            Color col = new Color(type.getColorRgb());
+
+            if (type == PinType.FLOW || type == PinType.STATE) {
+                // Diamond socket
+                Path2D p = new Path2D.Float();
+                p.moveTo(cx - size / 2.0, cy);
+                p.lineTo(cx, cy - size / 2.0);
+                p.lineTo(cx + size / 2.0, cy);
+                p.lineTo(cx, cy + size / 2.0);
+                p.closePath();
+
+                g.setColor(col);
+                g.fill(p);
+                g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(1.2f));
+                g.draw(p);
+            } else {
+                // Circular Data socket
+                g.setColor(col);
+                g.fillOval(cx - size / 2, cy - size / 2, size, size);
+                g.setColor(Color.WHITE);
+                g.setStroke(new BasicStroke(1.2f));
+                g.drawOval(cx - size / 2, cy - size / 2, size, size);
+            }
+        }
+    }
+
+    // ==========================================
+    // Exact Pin Anchor Implementation
+    // ==========================================
+    private static class PinAnchor extends Anchor {
+        private final int xOffset;
+        private final int yOffset;
+        private final boolean isOutput;
+
+        PinAnchor(Widget widget, int xOffset, int yOffset, boolean isOutput) {
+            super(widget);
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.isOutput = isOutput;
+        }
+
+        @Override
+        public Result compute(Entry entry) {
+            Point loc = getRelatedWidget().getLocation();
+            if (loc == null) loc = new Point(0, 0);
+            Point absPt = new Point(loc.x + xOffset, loc.y + yOffset);
+            Direction dir = isOutput ? Direction.RIGHT : Direction.LEFT;
+            return new Result(absPt, dir);
         }
     }
 
@@ -516,12 +611,15 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
         addCreationItem(flowMenu, "Sequence", "Flow", 0xFFF1FA8C, loc, "Exec", "Then 0", "Then 1");
         popup.add(flowMenu);
 
-        JMenu mathMenu = new JMenu("Math & Logic");
-        addCreationItem(mathMenu, "Float Add (+)", "Math", 0xFF8BE9FD, loc, "A,B", "Result");
-        addCreationItem(mathMenu, "Float Multiply (*)", "Math", 0xFF8BE9FD, loc, "A,B", "Result");
-        addCreationItem(mathMenu, "Compare Values (==, >)", "Math", 0xFF8BE9FD, loc, "A,B", "True", "False");
-        addCreationItem(mathMenu, "Distance to Target", "Math", 0xFF8BE9FD, loc, "PosA,PosB", "Distance");
-        popup.add(mathMenu);
+        popup.addSeparator();
+
+        JMenuItem layoutItem = new JMenuItem("Auto-Layout Hierarchical (Left-to-Right)");
+        layoutItem.addActionListener(e -> autoLayoutHierarchical());
+        popup.add(layoutItem);
+
+        JMenuItem springItem = new JMenuItem("Auto-Layout Spring Force-Directed");
+        springItem.addActionListener(e -> autoLayoutSpringForce());
+        popup.add(springItem);
 
         popup.addSeparator();
 
@@ -571,12 +669,11 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             String newTitle = JOptionPane.showInputDialog(getView(), "Enter new title:", node.title);
             if (newTitle != null && !newTitle.isBlank()) {
                 node.title = newTitle.trim();
-                Widget w = findWidget(node);
+                NodeWidget w = nodeWidgetsMap.get(node);
                 if (w != null) {
-                    removeNode(node);
-                    addNode(node);
-                    validate();
-                    repaint();
+                    w.recalculateDimensions();
+                    w.revalidate();
+                    w.repaint();
                 }
             }
         });
@@ -602,10 +699,12 @@ public class AtomVisualGraphScene extends GraphScene<NodeModel, ConnectionModel>
             String pinName = JOptionPane.showInputDialog(getView(), "Enter Output Transition Name:", "On Transition");
             if (pinName != null && !pinName.isBlank()) {
                 node.addOutput(pinName.trim().toLowerCase().replaceAll("\\s+", "_"), pinName.trim(), PinType.FLOW);
-                removeNode(node);
-                addNode(node);
-                validate();
-                repaint();
+                NodeWidget w = nodeWidgetsMap.get(node);
+                if (w != null) {
+                    w.recalculateDimensions();
+                    w.revalidate();
+                    w.repaint();
+                }
             }
         });
         menu.add(addOutPin);
