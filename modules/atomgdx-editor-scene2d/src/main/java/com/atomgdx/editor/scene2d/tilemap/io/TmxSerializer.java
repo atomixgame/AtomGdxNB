@@ -31,9 +31,14 @@ public class TmxSerializer {
         ));
 
         // Map Properties
-        if (!doc.getProperties().isEmpty()) {
-            writeProperties(sb, doc.getProperties(), "  ");
+        PropertyMap mapProps = new PropertyMap();
+        if (doc.getName() != null && !doc.getName().isBlank()) {
+            mapProps.putString("mapName", doc.getName());
         }
+        for (Map.Entry<String, PropertyMap.PropertyValue> e : doc.getProperties().getProperties().entrySet()) {
+            mapProps.getProperties().put(e.getKey(), e.getValue());
+        }
+        writeProperties(sb, mapProps, "  ");
 
         // Tilesets
         for (TileSetVO ts : doc.getTileSets()) {
@@ -122,6 +127,7 @@ public class TmxSerializer {
     }
 
     private static void writeProperties(StringBuilder sb, PropertyMap props, String indent) {
+        if (props == null || props.isEmpty()) return;
         sb.append(indent).append("<properties>\n");
         for (Map.Entry<String, PropertyMap.PropertyValue> entry : props.getProperties().entrySet()) {
             PropertyMap.PropertyValue pv = entry.getValue();
