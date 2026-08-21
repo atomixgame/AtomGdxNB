@@ -1,0 +1,31 @@
+{
+  "name": "Cruiser_HyperDrive_Sequence",
+  "animationType": "NODE_PROPERTIES",
+  "durationSec": 4.0,
+  "fps": 60,
+  "events": [
+    { "timeSec": 0.5, "eventName": "chargeShields", "payloadType": "STRING", "stringParam": "Shield_Bubble_01" },
+    { "timeSec": 2.0, "eventName": "fireThrusters", "payloadType": "AUDIO_CUE", "stringParam": "audio/sfx/warp_burst.ogg" },
+    { "timeSec": 3.8, "eventName": "warpComplete", "payloadType": "INT", "intParam": 1 }
+  ],
+  "tracks": [
+    {
+      "name": "Spacecraft.Position_Z",
+      "type": "POSITION_Z",
+      "keyframes": [
+        { "timeSec": 0.0, "value": 0.0, "easing": "EASE_IN_OUT" },
+        { "timeSec": 2.0, "value": -15.0, "easing": "EASE_IN" },
+        { "timeSec": 4.0, "value": -500.0, "easing": "LINEAR" }
+      ]
+    },
+    {
+      "name": "Thrusters.Glow_Intensity",
+      "type": "CUSTOM_FLOAT",
+      "keyframes": [
+        { "timeSec": 0.0, "value": 1.0, "easing": "LINEAR" },
+        { "timeSec": 1.8, "value": 10.0, "easing": "BOUNCE" },
+        { "timeSec": 4.0, "value": 0.0, "easing": "LINEAR" }
+      ]
+    }
+  ]
+}

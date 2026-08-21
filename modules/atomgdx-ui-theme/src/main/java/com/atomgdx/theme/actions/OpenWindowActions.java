@@ -21,15 +21,36 @@ import java.io.File;
 public class OpenWindowActions {
 
     private static void openTopComponent(TopComponent tc, String modeName) {
-        try {
-            Mode mode = WindowManager.getDefault().findMode(modeName);
-            if (mode != null) {
-                mode.dockInto(tc);
+        Runnable task = () -> {
+            try {
+                WindowManager wm = WindowManager.getDefault();
+                if (wm != null) {
+                    Mode mode = wm.findMode(modeName);
+                    if (mode != null) {
+                        mode.dockInto(tc);
+                    }
+                }
+                tc.open();
+                tc.requestActive();
+            } catch (Throwable ex) {
+                try {
+                    tc.open();
+                    tc.requestActive();
+                } catch (Throwable t) {
+                    JFrame frame = new JFrame(tc.getName() != null ? tc.getName() : "AtomGdx Studio Tool");
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    frame.setContentPane(tc);
+                    frame.setSize(1100, 750);
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
-            tc.open();
-            tc.requestActive();
-        } catch (Exception ex) {
-            tc.open();
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
         }
     }
 

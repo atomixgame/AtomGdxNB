@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="hexagonal" renderorder="right-down" width="12" height="12" tilewidth="48" tileheight="56" hexsidelength="28" staggeraxis="y" staggerindex="odd" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="colony_tileset.tsx"/>
+ <layer id="1" name="Hex_Grid" width="12" height="12">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,1,1,
+1,2,2,2,2,2,2,2,2,2,2,1,
+1,2,3,3,3,3,3,3,3,3,2,1,
+1,2,3,4,4,4,4,4,4,3,2,1,
+1,2,3,4,5,5,5,5,4,3,2,1,
+1,2,3,4,5,1,1,5,4,3,2,1,
+1,2,3,4,5,1,1,5,4,3,2,1,
+1,2,3,4,5,5,5,5,4,3,2,1,
+1,2,3,4,4,4,4,4,4,3,2,1,
+1,2,3,3,3,3,3,3,3,3,2,1,
+1,2,2,2,2,2,2,2,2,2,2,1,
+1,1,1,1,1,1,1,1,1,1,1,1
+</data>
+ </layer>
+</map>

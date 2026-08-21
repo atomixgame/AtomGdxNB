@@ -1,0 +1,12 @@
+{
+  "emitterName": "Plasma_Thruster_Flame",
+  "maxParticles": 500,
+  "emissionRate": 120.0,
+  "lifeTimeSec": 0.8,
+  "startSize": 0.4,
+  "endSize": 0.05,
+  "startColor": [0.0, 0.9, 1.0, 1.0],
+  "endColor": [0.8, 0.1, 1.0, 0.0],
+  "gravity": [0.0, 0.0, 5.0],
+  "velocitySpread": [0.2, 0.2, 0.1]
+}

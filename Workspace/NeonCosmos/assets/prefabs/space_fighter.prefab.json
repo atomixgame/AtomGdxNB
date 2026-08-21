@@ -1,0 +1,28 @@
+{
+  "prefabName": "Space_Fighter_Mk2",
+  "components": [
+    {
+      "type": "TransformComponent",
+      "posX": 0.0, "posY": 1.5, "posZ": 0.0,
+      "rotX": 0.0, "rotY": 0.0, "rotZ": 0.0,
+      "scaleX": 1.0, "scaleY": 1.0, "scaleZ": 1.0
+    },
+    {
+      "type": "Mesh3DComponent",
+      "modelPath": "models/spacecraft_cruiser.gltf",
+      "materialPath": "materials/neon_cyberpunk.material.json"
+    },
+    {
+      "type": "RigidBody3DComponent",
+      "mass": 1200.0,
+      "collisionShape": "CONVEX_HULL",
+      "isKinematic": false
+    },
+    {
+      "type": "AudioSourceComponent",
+      "soundClip": "audio/engine_loop.ogg",
+      "volume": 0.8,
+      "isLooping": true
+    }
+  ]
+}

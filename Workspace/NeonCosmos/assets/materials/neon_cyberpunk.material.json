@@ -1,0 +1,15 @@
+{
+  "name": "Neon_Cyberpunk_Hull",
+  "shader": "PBR_Standard",
+  "properties": {
+    "albedoColor": [0.0, 0.85, 1.0, 1.0],
+    "metallic": 0.9,
+    "roughness": 0.25,
+    "emissiveColor": [0.0, 0.9, 1.0, 1.0],
+    "emissiveIntensity": 2.5,
+    "normalMapScale": 1.2,
+    "occlusionStrength": 1.0,
+    "clearcoat": 0.8,
+    "clearcoatRoughness": 0.1
+  }
+}

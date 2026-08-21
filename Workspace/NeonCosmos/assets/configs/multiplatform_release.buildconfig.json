@@ -1,0 +1,26 @@
+{
+  "activeProfile": "Production_Desktop_LWJGL3",
+  "configurations": [
+    {
+      "name": "Production_Desktop_LWJGL3",
+      "targetPlatform": "DESKTOP",
+      "gradleTask": "lwjgl3:run",
+      "jvmArgs": "-Xms512m -Xmx4096m -Dorg.lwjgl.util.Debug=false",
+      "mainClass": "com.neon.cosmos.lwjgl3.Lwjgl3Launcher"
+    },
+    {
+      "name": "Android_Release_APK",
+      "targetPlatform": "ANDROID",
+      "gradleTask": "android:assembleRelease",
+      "jvmArgs": "-Xmx2048m",
+      "mainClass": "com.neon.cosmos.android.AndroidLauncher"
+    },
+    {
+      "name": "HTML5_TeaVM_Web",
+      "targetPlatform": "HTML5_TEAVM",
+      "gradleTask": "teavm:build",
+      "jvmArgs": "-Xmx2048m",
+      "mainClass": "com.neon.cosmos.teavm.TeaVMBuilder"
+    }
+  ]
+}
