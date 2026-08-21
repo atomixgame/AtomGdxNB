@@ -71,7 +71,7 @@ public class AboutDialogPanel extends JPanel {
         details.setOpaque(false);
         details.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        addDetailRow(details, "Application Version:", "0.1.40 (Build 2026.08)");
+        addDetailRow(details, "Application Version:", "0.2.0-dev (Build 2026.08)");
         addDetailRow(details, "NetBeans Platform:", "Apache NetBeans 30.0 Core");
         addDetailRow(details, "Java Runtime:", System.getProperty("java.version") + " (" + System.getProperty("java.vendor") + ")");
         addDetailRow(details, "Operating System:", System.getProperty("os.name") + " " + System.getProperty("os.arch"));

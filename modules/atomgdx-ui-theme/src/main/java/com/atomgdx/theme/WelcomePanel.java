@@ -27,7 +27,7 @@ public class WelcomePanel extends JPanel {
         title.setFont(new Font("Segoe UI", Font.BOLD, 28));
         title.setForeground(SciFiColors.ACCENT_CYAN);
 
-        JLabel subtitle = new JLabel("Next-Gen LibGDX Game Development Environment | Version 0.1.0");
+        JLabel subtitle = new JLabel("Next-Gen LibGDX Game Development Environment | Version 0.2.0-dev");
         subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitle.setForeground(SciFiColors.TEXT_SECONDARY);
 
