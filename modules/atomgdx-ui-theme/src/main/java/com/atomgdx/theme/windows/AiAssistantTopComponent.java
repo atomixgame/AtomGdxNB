@@ -4,10 +4,11 @@ import com.atomgdx.ai.AiAssistantService;
 import com.atomgdx.ai.ui.AiCopilotPanel;
 import com.atomgdx.core.settings.AtomGdxSettings;
 import org.openide.windows.TopComponent;
-
-import java.awt.*;
+import org.openide.windows.WindowManager;
+import java.awt.BorderLayout;
 
 public class AiAssistantTopComponent extends TopComponent {
+    private static AiAssistantTopComponent instance;
 
     public AiAssistantTopComponent() {
         setName("AI Copilot");
@@ -16,13 +17,17 @@ public class AiAssistantTopComponent extends TopComponent {
         add(new AiCopilotPanel(new AiAssistantService(new AtomGdxSettings())), BorderLayout.CENTER);
     }
 
-    @Override
-    public int getPersistenceType() {
-        return PERSISTENCE_ALWAYS;
+    public static synchronized AiAssistantTopComponent getDefault() {
+        if (instance == null) instance = new AiAssistantTopComponent();
+        return instance;
     }
 
-    @Override
-    protected String preferredID() {
-        return "AiAssistantTopComponent";
+    public static synchronized AiAssistantTopComponent findInstance() {
+        TopComponent tc = WindowManager.getDefault().findTopComponent("AiAssistantTopComponent");
+        if (tc instanceof AiAssistantTopComponent) return (AiAssistantTopComponent) tc;
+        return getDefault();
     }
+
+    @Override public int getPersistenceType() { return PERSISTENCE_ALWAYS; }
+    @Override protected String preferredID() { return "AiAssistantTopComponent"; }
 }

@@ -2,28 +2,30 @@ package com.atomgdx.theme.windows;
 
 import com.atomgdx.editor.font.ui.FontGeneratorPanel;
 import org.openide.windows.TopComponent;
-
+import org.openide.windows.WindowManager;
 import java.awt.BorderLayout;
 
-/**
- * NetBeans TopComponent for Bitmap Font & MSDF Generator.
- */
 public class FontGeneratorTopComponent extends TopComponent {
+    private static FontGeneratorTopComponent instance;
 
     public FontGeneratorTopComponent() {
         setName("Bitmap & MSDF Font Studio");
-        setToolTipText("LibGDX FreeType / Hiero Bitmap Font Generator");
+        setToolTipText("Bitmap Font & Multi-channel Signed Distance Field (MSDF) Generator");
         setLayout(new BorderLayout());
         add(new FontGeneratorPanel(), BorderLayout.CENTER);
     }
 
-    @Override
-    public int getPersistenceType() {
-        return PERSISTENCE_ALWAYS;
+    public static synchronized FontGeneratorTopComponent getDefault() {
+        if (instance == null) instance = new FontGeneratorTopComponent();
+        return instance;
     }
 
-    @Override
-    protected String preferredID() {
-        return "FontGeneratorTopComponent";
+    public static synchronized FontGeneratorTopComponent findInstance() {
+        TopComponent tc = WindowManager.getDefault().findTopComponent("FontGeneratorTopComponent");
+        if (tc instanceof FontGeneratorTopComponent) return (FontGeneratorTopComponent) tc;
+        return getDefault();
     }
+
+    @Override public int getPersistenceType() { return PERSISTENCE_ALWAYS; }
+    @Override protected String preferredID() { return "FontGeneratorTopComponent"; }
 }

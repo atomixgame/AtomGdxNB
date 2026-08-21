@@ -160,15 +160,40 @@ public class LibGdxProjectNode extends AbstractNode {
     }
 
     public static void openEditor(TopComponent tc) {
-        try {
-            Mode mode = WindowManager.getDefault().findMode("editor");
-            if (mode != null) {
-                mode.dockInto(tc);
+        openEditor(tc, "editor");
+    }
+
+    public static void openEditor(TopComponent tc, String modeName) {
+        Runnable task = () -> {
+            try {
+                WindowManager wm = WindowManager.getDefault();
+                if (wm != null) {
+                    Mode mode = wm.findMode(modeName != null ? modeName : "editor");
+                    if (mode != null) {
+                        mode.dockInto(tc);
+                    }
+                }
+                tc.open();
+                tc.requestActive();
+            } catch (Throwable ex) {
+                try {
+                    tc.open();
+                    tc.requestActive();
+                } catch (Throwable t) {
+                    JFrame frame = new JFrame(tc.getName() != null ? tc.getName() : "AtomGdx Editor");
+                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                    frame.setContentPane(tc);
+                    frame.setSize(1100, 750);
+                    frame.setLocationRelativeTo(null);
+                    frame.setVisible(true);
+                }
             }
-            tc.open();
-            tc.requestActive();
-        } catch (Exception ex) {
-            tc.open();
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
         }
     }
 
@@ -322,13 +347,29 @@ public class LibGdxProjectNode extends AbstractNode {
                 return getCustomIcon("world.png");
             } else if (name.endsWith(".dt") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
                 return getCustomIcon("star.png");
+            } else if (name.endsWith(".tmx") || name.endsWith(".tsx") || name.endsWith(".tilemap.json")) {
+                return getCustomIcon("scene.png");
+            } else if (name.endsWith(".shadergraph.json") || name.endsWith(".shadergraph")) {
+                return getCustomIcon("shader.png");
+            } else if (name.endsWith(".fsm.json") || name.endsWith(".fsm") || name.endsWith(".blueprint.json")) {
+                return getCustomIcon("settings.png");
+            } else if (name.endsWith(".animator.json") || name.endsWith(".animator") || name.endsWith(".controller")) {
+                return getCustomIcon("scene.png");
+            } else if (name.endsWith(".geonodes.json") || name.endsWith(".geonodes")) {
+                return getCustomIcon("model3d.png");
+            } else if (name.endsWith(".timeline.json") || name.endsWith(".timeline")) {
+                return getCustomIcon("media.png");
+            } else if (name.endsWith(".material.json") || name.endsWith(".mat.json") || name.endsWith(".mat")) {
+                return getCustomIcon("shader.png");
+            } else if (name.endsWith(".env.json") || name.endsWith(".env") || name.endsWith(".skybox")) {
+                return getCustomIcon("scene.png");
             } else if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
                 return getCustomIcon("box.png");
-            } else if (name.endsWith(".prefab.json")) {
+            } else if (name.endsWith(".prefab.json") || name.endsWith(".prefab3d.json")) {
                 return getCustomIcon("brick.png");
-            } else if (name.endsWith(".mat.json")) {
-                return getCustomIcon("color_wheel.png");
             } else if (name.endsWith(".particle") || name.endsWith(".p")) {
+                return getCustomIcon("fire.png");
+            } else if (name.endsWith(".p3d") || name.endsWith(".flame")) {
                 return getCustomIcon("fire.png");
             } else if (name.endsWith(".glsl") || name.endsWith(".frag") || name.endsWith(".vert")) {
                 return getCustomIcon("lightning.png");
@@ -336,8 +377,14 @@ public class LibGdxProjectNode extends AbstractNode {
                 return getCustomIcon("picture.png");
             } else if (name.endsWith(".ogg") || name.endsWith(".wav") || name.endsWith(".mp3")) {
                 return getCustomIcon("weather_clouds.png");
-            } else if (name.endsWith(".json") || name.endsWith(".skin")) {
+            } else if (name.endsWith(".skin") || (name.endsWith(".json") && name.contains("skin"))) {
                 return getCustomIcon("wand.png");
+            } else if (name.endsWith(".fnt") || name.endsWith(".ttf") || name.endsWith(".otf") || name.endsWith(".msdf.json")) {
+                return getCustomIcon("skin.png");
+            } else if (name.endsWith(".atlas")) {
+                return getCustomIcon("ninepatch.png");
+            } else if (name.endsWith(".buildconfig.json") || name.endsWith(".build.json")) {
+                return getCustomIcon("settings.png");
             }
             return getCustomIcon("cog.png");
         }
@@ -354,24 +401,50 @@ public class LibGdxProjectNode extends AbstractNode {
 
         private void openFileInEditor() {
             String name = file.getName().toLowerCase();
-            if (name.endsWith(".scene3d") || name.endsWith(".scene3d.json")) {
+            if (name.endsWith(".tmx") || name.endsWith(".tsx") || name.endsWith(".tilemap.json")) {
+                openEditor(TilemapEditorTopComponent.findInstance());
+            } else if (name.endsWith(".shadergraph.json") || name.endsWith(".shadergraph")) {
+                openEditor(ShaderGraphTopComponent.findInstance());
+            } else if (name.endsWith(".fsm.json") || name.endsWith(".fsm") || name.endsWith(".blueprint.json")) {
+                openEditor(VisualScriptingTopComponent.findInstance());
+            } else if (name.endsWith(".animator.json") || name.endsWith(".animator") || name.endsWith(".controller")) {
+                openEditor(AnimatorControllerTopComponent.findInstance());
+            } else if (name.endsWith(".geonodes.json") || name.endsWith(".geonodes")) {
+                openEditor(GeometryNodesTopComponent.findInstance());
+            } else if (name.endsWith(".timeline.json") || name.endsWith(".timeline") || name.endsWith(".anim.json")) {
+                openEditor(TimelineTopComponent.findInstance(), "output");
+            } else if (name.endsWith(".material.json") || name.endsWith(".mat.json") || name.endsWith(".mat")) {
+                openEditor(MaterialEditorTopComponent.findInstance());
+            } else if (name.endsWith(".env.json") || name.endsWith(".env") || name.endsWith(".skybox")) {
+                openEditor(LightingEnvironmentTopComponent.findInstance());
+            } else if (name.endsWith(".prefab.json") || name.endsWith(".prefab3d.json")) {
+                openEditor(ComponentRegistryTopComponent.findInstance(), "explorer");
+            } else if (name.endsWith(".buildconfig.json") || name.endsWith(".build.json")) {
+                openEditor(BuildConfigTopComponent.findInstance());
+            } else if (name.endsWith(".fnt") || name.endsWith(".ttf") || name.endsWith(".otf") || name.endsWith(".msdf.json")) {
+                openEditor(FontGeneratorTopComponent.findInstance());
+            } else if (name.endsWith(".atlas")) {
+                openEditor(TexturePackerTopComponent.findInstance());
+            } else if (name.endsWith(".scene3d") || name.endsWith(".scene3d.json")) {
                 openEditor(new Scene3DEditorTopComponent(file));
             } else if (name.endsWith(".glb") || name.endsWith(".gltf") || name.endsWith(".obj") || name.endsWith(".g3db") || name.endsWith(".g3dj")) {
                 openEditor(new Model3DViewerTopComponent(file));
             } else if (name.endsWith(".dt") || name.endsWith(".scene") || name.endsWith(".scene2d") || name.endsWith(".h2d")) {
                 openEditor(new Scene2DTopComponent(file));
             } else if (name.endsWith(".particle") || name.endsWith(".p")) {
-                openEditor(new Particle2DTopComponent());
+                openEditor(Particle2DTopComponent.findInstance());
+            } else if (name.endsWith(".p3d") || name.endsWith(".flame")) {
+                openEditor(Particle3DTopComponent.findInstance());
             } else if (name.endsWith(".glsl") || name.endsWith(".frag") || name.endsWith(".vert")) {
-                openEditor(new ShaderEditorTopComponent());
+                openEditor(ShaderEditorTopComponent.findInstance());
             } else if (name.endsWith(".skin") || (name.endsWith(".json") && name.contains("skin"))) {
-                openEditor(new SkinComposerTopComponent());
+                openEditor(SkinComposerTopComponent.findInstance());
             } else if (name.endsWith(".9.png")) {
-                openEditor(new NinePatchEditorTopComponent());
+                openEditor(NinePatchEditorTopComponent.findInstance());
             } else if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
                 openEditor(new SpriteSheetEditorTopComponent(file));
             } else if (name.endsWith(".ogg") || name.endsWith(".wav") || name.endsWith(".mp3")) {
-                openEditor(new MediaViewerTopComponent());
+                openEditor(MediaViewerTopComponent.findInstance());
             }
         }
 

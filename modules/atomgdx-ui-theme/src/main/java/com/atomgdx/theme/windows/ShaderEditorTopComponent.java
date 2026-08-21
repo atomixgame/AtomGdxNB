@@ -2,12 +2,13 @@ package com.atomgdx.theme.windows;
 
 import com.atomgdx.languages.glsl.ui.GlslShaderEditorPanel;
 import org.openide.windows.TopComponent;
-
-import java.awt.*;
+import org.openide.windows.WindowManager;
+import java.awt.BorderLayout;
 
 public class ShaderEditorTopComponent extends TopComponent {
+    private static ShaderEditorTopComponent instance;
 
-    private static final String DEFAULT_SHADER = 
+    private static final String DEFAULT_SHADER =
             "#ifdef GL_ES\n" +
             "precision mediump float;\n" +
             "#endif\n\n" +
@@ -27,13 +28,17 @@ public class ShaderEditorTopComponent extends TopComponent {
         add(new GlslShaderEditorPanel(DEFAULT_SHADER), BorderLayout.CENTER);
     }
 
-    @Override
-    public int getPersistenceType() {
-        return PERSISTENCE_ALWAYS;
+    public static synchronized ShaderEditorTopComponent getDefault() {
+        if (instance == null) instance = new ShaderEditorTopComponent();
+        return instance;
     }
 
-    @Override
-    protected String preferredID() {
-        return "ShaderEditorTopComponent";
+    public static synchronized ShaderEditorTopComponent findInstance() {
+        TopComponent tc = WindowManager.getDefault().findTopComponent("ShaderEditorTopComponent");
+        if (tc instanceof ShaderEditorTopComponent) return (ShaderEditorTopComponent) tc;
+        return getDefault();
     }
+
+    @Override public int getPersistenceType() { return PERSISTENCE_ALWAYS; }
+    @Override protected String preferredID() { return "ShaderEditorTopComponent"; }
 }
