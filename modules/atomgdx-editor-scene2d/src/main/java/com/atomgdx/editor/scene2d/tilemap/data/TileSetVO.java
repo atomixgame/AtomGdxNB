@@ -8,6 +8,7 @@ import java.util.Map;
 
 /**
  * Tileset definition containing image source, tile metrics, auto-tiling rules, animated tiles, and collisions.
+ * Supports external TSX references, custom tile offsets for isometric elevation, and per-tile properties.
  */
 public class TileSetVO implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -15,6 +16,7 @@ public class TileSetVO implements Serializable {
     public String name = "DefaultTileset";
     public int firstGid = 1;
     public String imageSource = "tilesets/scifi_station_tiles.png";
+    public String sourceTsx = null; // Path to external .tsx file if referenced
     public int imageWidth = 512;
     public int imageHeight = 512;
     public int tileWidth = 32;
@@ -23,11 +25,13 @@ public class TileSetVO implements Serializable {
     public int margin = 0;
     public int tileCount = 256;
     public int columns = 16;
+    public int tileOffsetX = 0;
+    public int tileOffsetY = 0;
 
     public final List<AutoTileRule> autoTileRules = new ArrayList<>();
     public final Map<Integer, AnimatedTileVO> animatedTiles = new HashMap<>();
     public final Map<Integer, PropertyMap> perTileProperties = new HashMap<>();
-    public final Map<Integer, float[]> tileCollisionBoxes = new HashMap<>(); // [x, y, w, h] normalized or px
+    public final Map<Integer, float[]> tileCollisionBoxes = new HashMap<>();
 
     public TileSetVO() {}
 

@@ -1,5 +1,8 @@
 # AtomGdx Studio TODO & Roadmap
 
+## Ideas:
+- Continue improvement about Android Build and Live test, detect devices (both physical and virtual) and connect, install it
+- Create G:\SGM\SGGame\SGGTools\MobileHub\SGCaptainAndroid will be a small Android app that will take Developer permission and install the app/game by downloading via QR code
 ## Active Milestone: v0.2.x -> v0.3.0
 
 ### Completed (v0.2.1 - v0.2.16):

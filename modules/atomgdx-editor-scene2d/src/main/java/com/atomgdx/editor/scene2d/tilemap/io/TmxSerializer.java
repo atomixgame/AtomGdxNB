@@ -19,15 +19,20 @@ public class TmxSerializer {
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 
         String orientationStr = "orthogonal";
-        if (doc.getOrientation() == TilemapGridMode.ISOMETRIC_DIAMOND || doc.getOrientation() == TilemapGridMode.ISOMETRIC_STAGGERED) {
+        if (doc.getOrientation() == TilemapGridMode.ISOMETRIC_DIAMOND) {
             orientationStr = "isometric";
+        } else if (doc.getOrientation() == TilemapGridMode.ISOMETRIC_STAGGERED) {
+            orientationStr = "staggered";
         } else if (doc.getOrientation() == TilemapGridMode.HEXAGONAL_POINTY || doc.getOrientation() == TilemapGridMode.HEXAGONAL_FLAT) {
             orientationStr = "hexagonal";
         }
 
+        String hexColor = String.format("#%02x%02x%02x",
+                doc.getBackgroundColor().getRed(), doc.getBackgroundColor().getGreen(), doc.getBackgroundColor().getBlue());
+
         sb.append(String.format(
-                "<map version=\"1.10\" tiledversion=\"1.10.2\" orientation=\"%s\" renderorder=\"right-down\" width=\"%d\" height=\"%d\" tilewidth=\"%d\" tileheight=\"%d\" infinite=\"0\">\n",
-                orientationStr, doc.getWidth(), doc.getHeight(), doc.getTileWidth(), doc.getTileHeight()
+                "<map version=\"1.10\" tiledversion=\"1.10.2\" orientation=\"%s\" renderorder=\"right-down\" width=\"%d\" height=\"%d\" tilewidth=\"%d\" tileheight=\"%d\" infinite=\"0\" backgroundcolor=\"%s\">\n",
+                orientationStr, doc.getWidth(), doc.getHeight(), doc.getTileWidth(), doc.getTileHeight(), hexColor
         ));
 
         // Map Properties
@@ -42,12 +47,46 @@ public class TmxSerializer {
 
         // Tilesets
         for (TileSetVO ts : doc.getTileSets()) {
-            sb.append(String.format(
-                    "  <tileset firstgid=\"%d\" name=\"%s\" tilewidth=\"%d\" tileheight=\"%d\" tilecount=\"%d\" columns=\"%d\">\n",
-                    ts.firstGid, ts.name, ts.tileWidth, ts.tileHeight, ts.tileCount, ts.columns
-            ));
-            sb.append(String.format("    <image source=\"%s\" width=\"%d\" height=\"%d\"/>\n", ts.imageSource, ts.imageWidth, ts.imageHeight));
-            sb.append("  </tileset>\n");
+            if (ts.sourceTsx != null && !ts.sourceTsx.isBlank()) {
+                sb.append(String.format("  <tileset firstgid=\"%d\" source=\"%s\"/>\n", ts.firstGid, ts.sourceTsx));
+            } else {
+                sb.append(String.format(
+                        "  <tileset firstgid=\"%d\" name=\"%s\" tilewidth=\"%d\" tileheight=\"%d\" spacing=\"%d\" margin=\"%d\" tilecount=\"%d\" columns=\"%d\">\n",
+                        ts.firstGid, ts.name, ts.tileWidth, ts.tileHeight, ts.spacing, ts.margin, ts.tileCount, ts.columns
+                ));
+                if (ts.tileOffsetX != 0 || ts.tileOffsetY != 0) {
+                    sb.append(String.format("    <tileoffset x=\"%d\" y=\"%d\"/>\n", ts.tileOffsetX, ts.tileOffsetY));
+                }
+                if (ts.imageSource != null && !ts.imageSource.isEmpty()) {
+                    sb.append(String.format("    <image source=\"%s\" width=\"%d\" height=\"%d\"/>\n", ts.imageSource, ts.imageWidth, ts.imageHeight));
+                }
+
+                // Tile animations
+                for (Map.Entry<Integer, AnimatedTileVO> entry : ts.animatedTiles.entrySet()) {
+                    int tileId = entry.getKey();
+                    AnimatedTileVO anim = entry.getValue();
+                    sb.append(String.format("    <tile id=\"%d\">\n", tileId));
+                    sb.append("      <animation>\n");
+                    for (AnimatedTileVO.Frame frame : anim.frames) {
+                        sb.append(String.format("        <frame tileid=\"%d\" duration=\"%d\"/>\n", frame.tileGid, frame.durationMs));
+                    }
+                    sb.append("      </animation>\n");
+                    sb.append("    </tile>\n");
+                }
+
+                // Per-tile properties
+                for (Map.Entry<Integer, PropertyMap> entry : ts.perTileProperties.entrySet()) {
+                    int tileId = entry.getKey();
+                    PropertyMap pm = entry.getValue();
+                    if (!pm.isEmpty()) {
+                        sb.append(String.format("    <tile id=\"%d\">\n", tileId));
+                        writeProperties(sb, pm, "      ");
+                        sb.append("    </tile>\n");
+                    }
+                }
+
+                sb.append("  </tileset>\n");
+            }
         }
 
         // Layers

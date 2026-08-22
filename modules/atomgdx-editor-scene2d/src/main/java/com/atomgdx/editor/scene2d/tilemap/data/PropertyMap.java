@@ -1,5 +1,6 @@
 package com.atomgdx.editor.scene2d.tilemap.data;
 
+import java.awt.Color;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,6 +68,31 @@ public class PropertyMap implements Serializable {
 
     public void putBoolean(String name, boolean value) {
         put(name, PropertyType.BOOLEAN, String.valueOf(value));
+    }
+
+    public void putColor(String name, Color color) {
+        String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+        put(name, PropertyType.COLOR, hex);
+    }
+
+    public String getString(String name, String def) {
+        PropertyValue pv = properties.get(name);
+        return pv != null ? pv.value : def;
+    }
+
+    public int getInt(String name, int def) {
+        PropertyValue pv = properties.get(name);
+        return pv != null ? pv.asInt(def) : def;
+    }
+
+    public float getFloat(String name, float def) {
+        PropertyValue pv = properties.get(name);
+        return pv != null ? pv.asFloat(def) : def;
+    }
+
+    public boolean getBoolean(String name, boolean def) {
+        PropertyValue pv = properties.get(name);
+        return pv != null ? pv.asBoolean(def) : def;
     }
 
     public PropertyValue get(String name) {

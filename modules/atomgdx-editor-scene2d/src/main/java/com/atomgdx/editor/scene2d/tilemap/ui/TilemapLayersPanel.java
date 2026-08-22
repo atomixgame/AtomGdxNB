@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  */
 public class TilemapLayersPanel extends JPanel {
 
-    private final TilemapDocument document;
+    private TilemapDocument document;
     private final DefaultListModel<TilemapLayer> listModel = new DefaultListModel<>();
     private final JList<TilemapLayer> layerList = new JList<>(listModel);
     private final JSlider opacitySlider = new JSlider(0, 100, 100);
@@ -23,7 +23,12 @@ public class TilemapLayersPanel extends JPanel {
 
     private Runnable layerChangeListener;
 
-    public TilemapLayersPanel(TilemapDocument document) {
+    
+    public void setDocument(TilemapDocument doc) {
+        this.document = doc;
+        refreshList();
+    }
+public TilemapLayersPanel(TilemapDocument document) {
         this.document = document;
         setLayout(new BorderLayout(4, 4));
         setBackground(new Color(24, 26, 30));

@@ -182,7 +182,22 @@ public class TilePalettePanel extends JPanel {
         addTileset(defSet);
     }
 
-    public void addTileset(TileSetVO ts) {
+    
+    public void setTileSets(List<TileSetVO> sets) {
+        this.tileSets.clear();
+        this.tilesetCombo.removeAllItems();
+        this.currentTileSet = null;
+        if (sets != null) {
+            for (TileSetVO ts : sets) {
+                addTileset(ts);
+            }
+        }
+        if (!tileSets.isEmpty()) {
+            currentTileSet = tileSets.get(0);
+        }
+        gridCanvas.repaint();
+    }
+public void addTileset(TileSetVO ts) {
         tileSets.add(ts);
         tilesetCombo.addItem(ts.name);
         if (currentTileSet == null) {
